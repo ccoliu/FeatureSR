@@ -31,3 +31,4 @@ ENV/
 # Real-ESRGAN weights
 Real-ESRGAN/weights/
 Real-ESRGAN/experiments/
+Real-ESRGAN/
