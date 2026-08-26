@@ -1,0 +1,9 @@
+dataset,mode,n_shot,mean_acc,ci,delta,checkpoint_epoch,notes
+eurosat,baseline,5,98.4800,0.2300,,20,
+eurosat,feature_sr,5,98.7800,0.2000,0.3000,20,
+crop_disease,baseline,5,89.7000,0.6100,,30,
+crop_disease,feature_sr,5,99.4600,0.1300,9.7600,100,
+isic,baseline,5,38.3700,0.6500,,10,
+isic,feature_sr,5,80.7400,0.5100,42.3700,80,
+chestx,baseline,5,22.0900,0.4400,,20,
+chestx,feature_sr,5,48.3400,0.6900,26.2500,90,200ep trained best at ep90

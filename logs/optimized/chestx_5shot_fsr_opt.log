@@ -1,0 +1,47 @@
+[23:43:20 INFO] Device: cuda
+[23:43:20 INFO] ============================================================
+[23:43:20 INFO] Dataset: chestx, n_shot=5, Mode: Feature-SR (28x28)
+[23:43:20 INFO] ============================================================
+[23:43:23 INFO] Train: ChestXDataset(split=train, n_classes=7, n_samples=35)
+[23:43:23 INFO] Test:  ChestXDataset(split=test, n_classes=7, n_samples=6268)
+[23:43:23 INFO] Loading CLIP ViT-B/16...
+[23:43:34 INFO] Applying LoRA (r=4, alpha=1.0)...
+[23:43:34 INFO] Initializing Feature SR Module (scale=2, 14x14 -> 28x28)...
+[23:43:34 INFO] Trainable parameters: 10,350,592
+[23:43:34 INFO] LR Schedule: Linear warmup (5 epochs) + Cosine decay
+/var/tmp/cc-cdfsl/train.py:432: FutureWarning: `torch.cuda.amp.GradScaler(args...)` is deprecated. Please use `torch.amp.GradScaler('cuda', args...)` instead.
+  scaler = torch.cuda.amp.GradScaler() if device == "cuda" else None
+[23:43:34 INFO] FP16 Automatic Mixed Precision (AMP) enabled.
+[23:43:34 INFO] Initial evaluation (before training)...
+[23:45:22 INFO]   Baseline: 21.12 ± 0.69%
+/var/tmp/cc-cdfsl/train.py:203: FutureWarning: `torch.cuda.amp.autocast(args...)` is deprecated. Please use `torch.amp.autocast('cuda', args...)` instead.
+  with torch.cuda.amp.autocast(enabled=(scaler is not None)):
+[23:50:24 INFO] Epoch [  1/100] Loss: 5.9881 (CE:5.2982, TIT:0.1131, ITI:0.1368, CR:0.9406) Acc: 21.28%
+[00:32:31 INFO] Epoch [ 10/100] Loss: 0.6173 (CE:0.0133, TIT:0.1860, ITI:0.0482, CR:0.0730) Acc: 21.23%
+[00:45:40 INFO]   [Eval] Epoch 10: 21.74 ± 0.46% ✓ NEW BEST!
+[00:45:41 INFO]   Saved best checkpoint: checkpoints/chestx_5shot_fsr_best.pth
+[01:32:16 INFO] Epoch [ 20/100] Loss: 0.5908 (CE:0.0019, TIT:0.1852, ITI:0.0437, CR:0.0378) Acc: 20.95%
+[01:45:25 INFO]   [Eval] Epoch 20: 21.60 ± 0.44%
+[02:31:57 INFO] Epoch [ 30/100] Loss: 0.5746 (CE:0.0007, TIT:0.1880, ITI:0.0096, CR:0.0168) Acc: 22.53%
+[02:45:05 INFO]   [Eval] Epoch 30: 22.46 ± 0.43% ✓ NEW BEST!
+[02:45:07 INFO]   Saved best checkpoint: checkpoints/chestx_5shot_fsr_best.pth
+[03:31:41 INFO] Epoch [ 40/100] Loss: 0.5687 (CE:0.0004, TIT:0.1879, ITI:0.0043, CR:0.0087) Acc: 22.47%
+[03:44:50 INFO]   [Eval] Epoch 40: 22.44 ± 0.44%
+[04:31:24 INFO] Epoch [ 50/100] Loss: 0.5726 (CE:0.0002, TIT:0.1896, ITI:0.0032, CR:0.0059) Acc: 22.63%
+[04:44:32 INFO]   [Eval] Epoch 50: 22.46 ± 0.46%
+[05:31:05 INFO] Epoch [ 60/100] Loss: 0.5630 (CE:0.0002, TIT:0.1868, ITI:0.0026, CR:0.0035) Acc: 22.25%
+[05:44:12 INFO]   [Eval] Epoch 60: 21.80 ± 0.45%
+[06:30:52 INFO] Epoch [ 70/100] Loss: 0.5631 (CE:0.0002, TIT:0.1870, ITI:0.0019, CR:0.0031) Acc: 22.31%
+[06:44:03 INFO]   [Eval] Epoch 70: 22.20 ± 0.48%
+[07:30:39 INFO] Epoch [ 80/100] Loss: 0.5622 (CE:0.0002, TIT:0.1867, ITI:0.0021, CR:0.0030) Acc: 22.20%
+[07:43:47 INFO]   [Eval] Epoch 80: 22.64 ± 0.46% ✓ NEW BEST!
+[07:43:49 INFO]   Saved best checkpoint: checkpoints/chestx_5shot_fsr_best.pth
+[08:30:23 INFO] Epoch [ 90/100] Loss: 0.5541 (CE:0.0001, TIT:0.1840, ITI:0.0020, CR:0.0028) Acc: 22.57%
+[08:43:33 INFO]   [Eval] Epoch 90: 22.22 ± 0.44%
+[09:30:06 INFO] Epoch [100/100] Loss: 0.5774 (CE:0.0001, TIT:0.1918, ITI:0.0020, CR:0.0029) Acc: 22.91%
+[09:43:14 INFO]   [Eval] Epoch 100: 22.57 ± 0.48%
+[09:43:14 INFO] 
+Best Acc: 22.64% at Epoch 80
+[09:43:16 INFO] Loaded best checkpoint from epoch 80
+[09:56:25 INFO] Final (Feature-SR (28x28)): 22.46 ± 0.42% (n_episodes=400)
+[ChestXDataset] Strict few-shot training enabled. Total training samples: 35 (n_shot=5)

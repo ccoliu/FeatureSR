@@ -1,0 +1,33 @@
+# Python cache
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+
+# Datasets (Large files)
+data/
+*.zip
+*.tar.gz
+*.tar
+
+# Model weights & checkpoints
+checkpoints/
+*.pth
+*.pt
+*.bin
+
+# Environment & IDE
+.venv/
+venv/
+ENV/
+.idea/
+.vscode/
+
+# System artifacts
+*Zone.Identifier
+.DS_Store
+*.swp
+
+# Real-ESRGAN weights
+Real-ESRGAN/weights/
+Real-ESRGAN/experiments/

@@ -1,0 +1,47 @@
+[18:45:43 INFO] Device: cuda
+[18:45:43 INFO] ============================================================
+[18:45:43 INFO] Dataset: eurosat, n_shot=1, Mode: Baseline (14x14)
+[18:45:43 INFO] ============================================================
+[18:45:43 INFO] Train: EuroSATDataset(split=train, n_classes=10, n_samples=21600)
+[18:45:43 INFO] Test:  EuroSATDataset(split=test, n_classes=10, n_samples=5400)
+[18:45:43 INFO] Loading CLIP ViT-B/16...
+[18:45:46 INFO] Applying LoRA (r=4, alpha=1.0)...
+[18:45:46 INFO] Trainable parameters: 221,184
+/var/tmp/cc-cdfsl/train.py:402: FutureWarning: `torch.cuda.amp.GradScaler(args...)` is deprecated. Please use `torch.amp.GradScaler('cuda', args...)` instead.
+  scaler = torch.cuda.amp.GradScaler() if device == "cuda" else None
+[18:45:46 INFO] FP16 Automatic Mixed Precision (AMP) enabled.
+[18:45:46 INFO] Initial evaluation (before training)...
+[18:46:31 INFO]   Baseline: 50.27 ± 3.53%
+/var/tmp/cc-cdfsl/train.py:199: FutureWarning: `torch.cuda.amp.autocast(args...)` is deprecated. Please use `torch.amp.autocast('cuda', args...)` instead.
+  with torch.cuda.amp.autocast(enabled=(scaler is not None)):
+[18:48:15 INFO] Epoch [  1/100] Loss: 1.1292 (CE:0.9215, TIT:0.0293, ITI:0.3569) Acc: 62.16%
+[19:02:35 INFO] Epoch [ 10/100] Loss: 0.2524 (CE:0.1113, TIT:0.0069, ITI:0.2685) Acc: 97.41%
+[19:03:56 INFO]   [Eval] Epoch 10: 97.43 ± 0.41% ✓ NEW BEST!
+[19:03:56 INFO]   Saved best checkpoint: checkpoints/eurosat_1shot_best.pth
+[19:19:52 INFO] Epoch [ 20/100] Loss: 0.1594 (CE:0.0586, TIT:0.0092, ITI:0.1832) Acc: 98.08%
+[19:21:12 INFO]   [Eval] Epoch 20: 97.93 ± 0.36% ✓ NEW BEST!
+[19:21:12 INFO]   Saved best checkpoint: checkpoints/eurosat_1shot_best.pth
+[19:37:05 INFO] Epoch [ 30/100] Loss: 0.1559 (CE:0.0675, TIT:0.0228, ITI:0.1310) Acc: 98.16%
+[19:38:24 INFO]   [Eval] Epoch 30: 97.80 ± 0.36%
+[19:54:26 INFO] Epoch [ 40/100] Loss: 0.1301 (CE:0.0516, TIT:0.0256, ITI:0.1057) Acc: 98.41%
+[19:55:48 INFO]   [Eval] Epoch 40: 98.37 ± 0.33% ✓ NEW BEST!
+[19:55:48 INFO]   Saved best checkpoint: checkpoints/eurosat_1shot_best.pth
+[20:11:43 INFO] Epoch [ 50/100] Loss: 0.0968 (CE:0.0275, TIT:0.0271, ITI:0.0846) Acc: 98.51%
+[20:13:03 INFO]   [Eval] Epoch 50: 98.23 ± 0.33%
+[20:28:54 INFO] Epoch [ 60/100] Loss: 0.1100 (CE:0.0450, TIT:0.0315, ITI:0.0671) Acc: 98.76%
+[20:30:14 INFO]   [Eval] Epoch 60: 98.53 ± 0.33% ✓ NEW BEST!
+[20:30:14 INFO]   Saved best checkpoint: checkpoints/eurosat_1shot_best.pth
+[20:46:06 INFO] Epoch [ 70/100] Loss: 0.0897 (CE:0.0208, TIT:0.0357, ITI:0.0664) Acc: 98.71%
+[20:47:27 INFO]   [Eval] Epoch 70: 98.84 ± 0.28% ✓ NEW BEST!
+[20:47:27 INFO]   Saved best checkpoint: checkpoints/eurosat_1shot_best.pth
+[21:03:28 INFO] Epoch [ 80/100] Loss: 0.1014 (CE:0.0284, TIT:0.0424, ITI:0.0609) Acc: 98.95%
+[21:04:48 INFO]   [Eval] Epoch 80: 98.79 ± 0.27%
+[21:20:36 INFO] Epoch [ 90/100] Loss: 0.0974 (CE:0.0275, TIT:0.0404, ITI:0.0590) Acc: 98.96%
+[21:21:56 INFO]   [Eval] Epoch 90: 98.77 ± 0.30%
+[21:37:48 INFO] Epoch [100/100] Loss: 0.0837 (CE:0.0200, TIT:0.0360, ITI:0.0555) Acc: 99.03%
+[21:39:08 INFO]   [Eval] Epoch 100: 98.87 ± 0.28% ✓ NEW BEST!
+[21:39:08 INFO]   Saved best checkpoint: checkpoints/eurosat_1shot_best.pth
+[21:39:08 INFO] 
+Best Acc: 98.87% at Epoch 100
+[21:39:09 INFO] Loaded best checkpoint from epoch 100
+[21:40:28 INFO] Final (Baseline (14x14)): 98.75 ± 0.27% (n_episodes=100)

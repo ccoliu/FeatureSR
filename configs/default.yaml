@@ -1,0 +1,47 @@
+# ============================================================
+# CC-CDFSL 預設超參數配置
+# ============================================================
+
+# ---- 資料設定 ----
+data_root: "./data"
+dataset: "eurosat"           # eurosat / isic / chestx / crop_disease / all
+
+# ---- Few-Shot 任務設定 ----
+n_way: 5
+n_shot: 5
+n_query: 15
+n_aug: 4                     # Semantic Anchor augmentation 次數
+top_k: 10                    # Semantic Anchor Shrinking top-k
+
+# ---- 模型設定 ----
+backbone: "ViT-B/16"         # CLIP backbone
+peft_method: "lora"          # lora / adapter / coop / maple
+lora_r: 4                    # LoRA rank
+lora_alpha: 1                # LoRA alpha scaling
+lora_dropout: 0.0
+# LoRA 套用位置（CLIP ViT 的 attention projections）
+lora_targets:
+  - "visual.transformer.resblocks.*.attn.in_proj_weight"
+  - "visual.transformer.resblocks.*.attn.out_proj.weight"
+
+# ---- 訓練設定 ----
+epochs: 100
+lr: 1.0e-4
+weight_decay: 5.0e-4
+optimizer: "adam"            # adam / sgd / adamw
+scheduler: "cosine"          # cosine / step / none
+
+# ---- CC-CDFSL 損失設定 ----
+lambda1: 1.0                 # T-I-T cycle loss 權重
+lambda2: 0.5                 # I-T-I cycle loss 權重
+
+# ---- 評估設定 ----
+n_episodes_1shot: 100        # 1-shot 評估 episode 次數
+n_episodes_5shot: 400        # 5-shot 評估 episode 次數
+
+# ---- 其他設定 ----
+seed: 42
+num_workers: 4
+device: "cuda"               # cuda / cpu
+save_dir: "./checkpoints"
+log_interval: 10

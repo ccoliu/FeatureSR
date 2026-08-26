@@ -1,0 +1,21 @@
+[15:36:38 INFO] Device: cuda
+[15:36:38 INFO] ============================================================
+[15:36:38 INFO] Dataset: eurosat, n_shot=5, Mode: Baseline (14x14)
+[15:36:38 INFO] ============================================================
+[15:36:38 INFO] [BSCD模式] Train = Test = 全量資料 (27000 張)
+[15:36:38 INFO] Train: EuroSATDataset(split=train, n_classes=10, n_samples=27000)
+[15:36:38 INFO] Test:  EuroSATDataset(split=train, n_classes=10, n_samples=27000)
+[15:36:38 INFO] Loading CLIP ViT-B/16...
+[15:36:43 INFO] Applying LoRA (r=4, alpha=1.0)...
+[15:36:43 INFO] Trainable parameters: 221,184
+/var/tmp/cc-cdfsl/train.py:414: FutureWarning: `torch.cuda.amp.GradScaler(args...)` is deprecated. Please use `torch.amp.GradScaler('cuda', args...)` instead.
+  scaler = torch.cuda.amp.GradScaler() if device == "cuda" else None
+[15:36:43 INFO] FP16 Automatic Mixed Precision (AMP) enabled.
+[15:36:43 INFO] Initial evaluation (before training)...
+[15:37:21 INFO]   Baseline: 49.17 ± 3.70%
+/var/tmp/cc-cdfsl/train.py:201: FutureWarning: `torch.cuda.amp.autocast(args...)` is deprecated. Please use `torch.amp.autocast('cuda', args...)` instead.
+  with torch.cuda.amp.autocast(enabled=(scaler is not None)):
+[15:39:30 INFO] Epoch [  1/100] Loss: 0.8660 (CE:0.7679, TIT:0.0151, ITI:0.3776) Acc: 70.67%
+[15:59:15 INFO] Epoch [ 10/100] Loss: 0.1091 (CE:0.0388, TIT:0.0011, ITI:0.3430) Acc: 98.33%
+[16:04:23 INFO]   [Eval] Epoch 10: 98.38 ± 0.15% ✓ NEW BEST!
+[16:04:24 INFO]   Saved best checkpoint: checkpoints/eurosat_5shot_best.pth

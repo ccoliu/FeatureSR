@@ -1,0 +1,50 @@
+[11:40:32 INFO] Device: cuda
+[11:40:32 INFO] ============================================================
+[11:40:32 INFO] Dataset: isic, n_shot=1, Mode: Baseline (14x14)
+[11:40:32 INFO] ============================================================
+[11:40:32 INFO] Train: ISICDataset(split=train, n_classes=7, n_samples=7)
+[11:40:32 INFO] Test:  ISICDataset(split=test, n_classes=7, n_samples=2003)
+[11:40:32 INFO] Loading CLIP ViT-B/16...
+[11:40:38 INFO] Applying LoRA (r=4, alpha=1.0)...
+[11:40:38 INFO] Trainable parameters: 221,184
+[11:40:38 INFO] LR Schedule: Linear warmup (5 epochs) + Cosine decay
+/var/tmp/cc-cdfsl/train.py:432: FutureWarning: `torch.cuda.amp.GradScaler(args...)` is deprecated. Please use `torch.amp.GradScaler('cuda', args...)` instead.
+  scaler = torch.cuda.amp.GradScaler() if device == "cuda" else None
+[11:40:38 INFO] FP16 Automatic Mixed Precision (AMP) enabled.
+[11:40:38 INFO] Initial evaluation (before training)...
+[11:41:33 INFO]   Baseline: 20.67 ± 0.59%
+/var/tmp/cc-cdfsl/train.py:203: FutureWarning: `torch.cuda.amp.autocast(args...)` is deprecated. Please use `torch.amp.autocast('cuda', args...)` instead.
+  with torch.cuda.amp.autocast(enabled=(scaler is not None)):
+[11:43:26 INFO] Epoch [  1/100] Loss: 3.8703 (CE:3.3730, TIT:0.0509, ITI:0.1723) Acc: 20.61%
+[11:59:55 INFO] Epoch [ 10/100] Loss: 0.4244 (CE:0.0091, TIT:0.0412, ITI:0.1458) Acc: 28.89%
+[12:01:33 INFO]   [Eval] Epoch 10: 28.28 ± 1.04% ✓ NEW BEST!
+[12:01:34 INFO]   Saved best checkpoint: checkpoints/isic_1shot_best.pth
+[12:19:51 INFO] Epoch [ 20/100] Loss: 0.2463 (CE:0.0011, TIT:0.0399, ITI:0.0628) Acc: 30.20%
+[12:21:29 INFO]   [Eval] Epoch 20: 29.29 ± 1.11% ✓ NEW BEST!
+[12:21:29 INFO]   Saved best checkpoint: checkpoints/isic_1shot_best.pth
+[12:39:46 INFO] Epoch [ 30/100] Loss: 0.2862 (CE:0.0005, TIT:0.0663, ITI:0.0433) Acc: 29.07%
+[12:41:24 INFO]   [Eval] Epoch 30: 30.33 ± 1.08% ✓ NEW BEST!
+[12:41:24 INFO]   Saved best checkpoint: checkpoints/isic_1shot_best.pth
+[12:59:42 INFO] Epoch [ 40/100] Loss: 0.3113 (CE:0.0003, TIT:0.0759, ITI:0.0417) Acc: 27.80%
+[13:01:21 INFO]   [Eval] Epoch 40: 28.57 ± 1.00%
+[13:19:39 INFO] Epoch [ 50/100] Loss: 0.3726 (CE:0.0003, TIT:0.0976, ITI:0.0398) Acc: 29.19%
+[13:21:17 INFO]   [Eval] Epoch 50: 28.96 ± 1.07%
+[13:39:34 INFO] Epoch [ 60/100] Loss: 0.3549 (CE:0.0002, TIT:0.0999, ITI:0.0275) Acc: 31.79%
+[13:41:11 INFO]   [Eval] Epoch 60: 30.37 ± 1.05% ✓ NEW BEST!
+[13:41:11 INFO]   Saved best checkpoint: checkpoints/isic_1shot_best.pth
+[13:59:30 INFO] Epoch [ 70/100] Loss: 0.3437 (CE:0.0002, TIT:0.1012, ITI:0.0200) Acc: 31.56%
+[14:01:07 INFO]   [Eval] Epoch 70: 31.00 ± 1.01% ✓ NEW BEST!
+[14:01:07 INFO]   Saved best checkpoint: checkpoints/isic_1shot_best.pth
+[14:19:25 INFO] Epoch [ 80/100] Loss: 0.3289 (CE:0.0001, TIT:0.0981, ITI:0.0172) Acc: 32.12%
+[14:21:03 INFO]   [Eval] Epoch 80: 31.73 ± 0.92% ✓ NEW BEST!
+[14:21:03 INFO]   Saved best checkpoint: checkpoints/isic_1shot_best.pth
+[14:39:20 INFO] Epoch [ 90/100] Loss: 0.3334 (CE:0.0001, TIT:0.1005, ITI:0.0159) Acc: 31.19%
+[14:40:59 INFO]   [Eval] Epoch 90: 31.73 ± 1.14% ✓ NEW BEST!
+[14:40:59 INFO]   Saved best checkpoint: checkpoints/isic_1shot_best.pth
+[14:59:19 INFO] Epoch [100/100] Loss: 0.3295 (CE:0.0001, TIT:0.0986, ITI:0.0168) Acc: 30.49%
+[15:00:56 INFO]   [Eval] Epoch 100: 31.60 ± 0.94%
+[15:00:56 INFO] 
+Best Acc: 31.73% at Epoch 90
+[15:00:56 INFO] Loaded best checkpoint from epoch 90
+[15:02:33 INFO] Final (Baseline (14x14)): 30.93 ± 1.11% (n_episodes=100)
+[ISICDataset] Strict few-shot training enabled. Total training samples: 7 (n_shot=1)

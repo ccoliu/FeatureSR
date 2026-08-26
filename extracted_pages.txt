@@ -1,0 +1,645 @@
+=== PAGE 6 ===
+We compute the cosine distance between anchors and
+their retrieved counterparts to construct the image-to-text-
+to-image cycle consistency loss:
+Lcyc img = 1 −1
+V
+V
+X
+n=1
+sim(xn, ˆxn)
+(15)
+This approach ensures reliable localization of local im-
+age features in the augmented space, enhancing the model’s
+robustness to input variations (Tab. 3).
+Consistency Loss. Finally, the total loss combines the orig-
+inal cross-entropy loss with both the text-to-text and image-
+to-image cycle consistency losses:
+Ltotal = LCE + λ1Lcyc txt + λ2Lcyc img
+(16)
+where λ1 and λ2 are balancing hyperparameters. During in-
+ference, we assign the label to each query sample by com-
+puting the highest cosine similarity between its visual fea-
+ture and the text features of all classes.
+4. Experiments
+4.1. Implementation Details
+According to the benchmark provided by [12], our model is
+directly fine-tuned on four target domain datasets: CropDis-
+eases [27] (plant diseases), EuroSAT [14] (satellite im-
+agery), ISIC2018 [6] (skin lesions), and ChestX [35] (chest
+X-rays). Following [38], all experiments in the main pa-
+per are conducted based on the CLIP model with the ViT-
+Base/16 backbone.
+Performance evaluations with other
+backbone variants are detailed in Supplementary Table 5.
+For all baseline methods, we adhere to the experimental set-
+tings reported in their respective original publications. For
+a fair comparison, all models are fine-tuned for 100 epochs
+on a single NVIDIA RTX 4090 GPU. Evaluation is con-
+ducted 100 times under the 1-shot setting and 400 times un-
+der the 5-shot setting, with the mean classification accuracy
+reported. For the hyper-parameters in Eq. 16, we set λ1 and
+λ2 based on empirical observation on a validation set via
+grid search; see the Appendix for details. k in the Semantic
+Anchor module is fixed to 10 across all experiments.
+4.2. Comparison with State-of-the-Art Methods
+We evaluate our CC-CDFSL framework in comparison
+with the most competitive state-of-the-art (SOTA) methods.
+These competing approaches cover representative technical
+paradigms in PEFT of vision-language models, including
+prompt learning (CoOp [50]) in the text branch, adapter-
+based methods (Tip-Adapter [43], CLIP-Adapter [10]),
+multi-modal prompt learning (Maple [20]), and low-rank
+adaptation (CLIP-LoRA [41]) —as well as recent advanced
+tuning strategies (AMU-Tuning [31], LP++ [18], LDC [23],
+StepSPT [38]). As presented in Tab. 1, our CC-CDFSL
+ImageNet
+Caltech101
+OxfordPets
+StanfordCars
+Flowers102
+Food101
+FGVCAircraft
+SUN397
+DTD
+EuroSAT
+UCF101
+70.88
+71.10
+95.49
+97.80
+97.99
+73.80
+74.84
+72.44
+73.90
+91.84
+92.00
+36.01
+79.08
+59.54
+62.28
+71.98
+79.07
+New Class Accuracy
+MaPLe
++ Ours
+Figure 4. Base-to-new generalization on 11 datasets.
+consistently enhances the performance of all baseline meth-
+ods. To investigate whether the proposed CC-CDFSL can
+be re-purposed beyond cross-domain few-shot learning, we
+further evaluate it on the widely used base-to-new gener-
+alization setting [11, 20, 49] across 11 commonly adopted
+datasets. As illustrated in Figure 4, we achieve substan-
+tial gains on challenging fine-grained datasets, such as Eu-
+roSAT (+3.6% in New), StanfordCars (+1.0% in New), and
+DTD (+2.7% in New). These results indicate that cycle-
+consistent patch-level alignment not only mitigates domain
+shift in few-shot settings but also enhances generalization
+to unseen classes by learning semantically richer local rep-
+resentations.
+4.3. Ablation Study
+The effects of each component. According to Table 2,
+both cycles boost performance over the baseline, but the T-
+I-T cycle outperforms the I-T-I cycle. We identify two pri-
+mary reasons for this: First, using the StanfordCars dataset
+as an example, where category names are vehicle names,
+image patches (e.g., tires or headlights) struggle to accu-
+rately match corresponding text features in few-shot scenar-
+ios due to the limited number of categories, resulting in text
+features that fail to effectively guide visual feature learn-
+ing. Second, the noise or redundant information in image
+local features is difficult to completely eliminate, causing I-
+T-I reconstructed image features to deviate from their orig-
+inal semantics, whereas T-I-T focuses on the most semanti-
+cally relevant patches, reducing interference from irrelevant
+patches and enhancing the robustness of local alignment.
+Retrieval strategies in I-T-I cycle.
+Tab. 3 presents the
+impact of different retrieval strategies on model perfor-
+mance. Cross-view retrieval, by using text features as an
+intermediary to match semantic anchor features only in
+the augmented image feature space, significantly enhances
+the model’s robustness to input transformations (e.g., rota-
+tion, flipping), adapting to distribution differences in cross-
+
+
+=== PAGE 7 ===
+Table 2. Ablation study of the 5-way 5-shot task.
+T-I-T I-T-I SA
+ISIC
+ChestX EuroSAT Crop.
+Ave.
+50.68
+24.44
+92.63
+96.20 65.98
+✓
+51.13
+25.15
+93.79
+96.37 66.61
+✓
+✓
+54.30
+25.35
+94.33
+96.95 67.73
+✓
+✓
+53.81
+25.14
+93.83
+97.01 67.45
+✓
+✓
+✓
+54.72
+25.47
+94.35
+97.08 67.90
+Table 3. Impact of different retrieval strategies.
+Retrieval
+ISIC
+ChestX EuroSAT Crop.
+Ave.
+Cross-view
+53.77
+25.13
+93.75
+96.84 67.37
+Intra-image 53.59
+25.01
+93.63
+96.77 67.25
+All-images
+53.66
+25.02
+93.46
+96.64 67.19
+domain few-shot learning. In contrast, intra-image retrieval
+and all-images retrieval are limited to the original image
+feature space and overly large selection range separately,
+lacking the diversity of augmented views and being suscep-
+tible to noise, resulting in less accurate semantic alignment.
+Hybrid coefficient λ1 and λ2 balance the contributions of
+T-I-T and I-T-I cycle losses, respectively. We conducted a
+grid search over [0.0, 7.0], finding that λ1 = 3.0 and λ2 =
+2.0 yield the best accuracy on ISIC2018 (see Fig. 5). As
+shown in the line graph, increasing λ1 enhances the T-I-
+T path’s contribution, significantly improving performance.
+However, when λ1 > 3.0, performance plateaus, indicating
+that excessive focus on local alignment may neglect global
+features. The effect of λ2 is similar but more pronounced,
+as the I-T-I path is more susceptible to noise.
+Figure 5. Ablation study on hybrid coefficient in Eq. 16.
+Anchor Patch Number k in Eq. 10. In Fig. 6, we inves-
+tigate the influence of the anchor-patch budget k (as de-
+fined in Eq. 10, controlling the number of patches that sur-
+vive the Semantic Anchor shrinking phase and enter the
+I-T-I cycle for each image-class pair) on 5-way 5-shot ac-
+curacy. Results demonstrate that a small k(≤3) under-
+utilizes informative cues, reducing the average accuracy
+from 54.67% to 54.28%, whereas an excessively large k(≥
+13) re-introduces noisy regions and pushes accuracy back
+down to 54.21%. Setting k = 10 strikes an optimal bal-
+ance, preserving fine-grained semantics while suppressing
+distractors and yielding the peak 54.72% on the ISIC2018
+dataset. Therefore, we adopt k = 10 throughout all main
+experiments across the four datasets.
+Figure 6. Ablation study on hyperparameter k in Eq. 10.
+4.4. Meaningful Patch Selection in SA
+As shown in Fig. 7, the Semantic Anchor module only re-
+tains the top-k most reliable patch-text matches, filtering out
+ambiguous mappings and reducing semantic drift.
+Figure 7. Semantic Anchor (SA) selection across four domains.
+Red boxes indicate the top-k =10 patch proposals retained by the
+SA shrinking phase (Eq. 11).
+4.5. Improved Local Alignment
+Fig. 8 illustrates the heatmaps of the baseline model and
+our CC-CDFSL across four datasets using Grad-CAM [30].
+The comparison reveals that our method reduces interfer-
+ence from irrelevant features, highlighting image regions
+most relevant to the text.
+This demonstrates that lever-
+aging textual semantic guidance significantly enhances the
+model’s capacity to concentrate on discriminative features
+during CDFSL. Additional results can be found in Supp.
+Figs. 16 and 17. Quantitative analysis in Fig. 2b also con-
+firms that our method improves local alignment scores.
+4.6. Interpretability
+T-I-T cycle pathway. To validate the interpretability of
+our approach, we show the T-I-T cycle consistency path-
+way, as illustrated in Figure 9. Taking the ChestX-ray im-
+age in pathway-1 as an example, the initial text label is “In-
+filtration”. Through the T-I-T pathway, the model identi-
+fies a local region of interest (highlighted by the red box)
+and maps this patch back to the text space, resulting in the
+reconstructed text “Mass”. Even though the reconstructed
+text does not exactly match the initial label, this inconsis-
+tency itself provides valuable interpretability. On one hand,
+
+
+=== PAGE 8 ===
+Figure 8. Our method (the third row) outperforms the baseline (the
+second row) in highlighting key details, offering a clearer view of
+important features in data-scarce scenarios.
+it demonstrates that the model is able to focus on disease-
+relevant regions and detect potential abnormal structures
+within the image.
+On the other hand, in medical imag-
+ing, different pathological types such as “Infiltration” and
+“Mass” may share similar visual characteristics on chest X-
+rays, making such semantic deviations in patch-level recon-
+struction understandable. This phenomenon indicates that
+the model not only localizes abnormal areas but also cap-
+tures the fine-grained semantic relationships between differ-
+ent diseases, providing a valuable reference for clinicians in
+their further analysis and diagnosis.
+I-T-I cycle pathway.
+Figure 10 depicts the I-T-I cycle
+consistency pathway (Due to space constraints, we present
+more results in the Supplementary Material). It shows that
+the model can extract and retain essential semantics in the
+text domain, and that these semantics can, in turn, be used
+to re-focus on meaningful regions within the image.
+Activation Map and Semantic Anchors.
+Our model’s
+activation maps (Fig. 8) precisely highlight discriminative
+fine-grained cues. Semantic Anchor’s shrink phase provides
+interpretability by visualizing the model’s focus (Fig. 7).
+4.7. Beneficial to Discriminability
+Notably, the above inconsistency is not a model failure but
+rather evidence that our method successfully learns trans-
+ferable, fine-grained visual concepts shared across seman-
+tically related categories.
+By identifying these common
+concepts, the model is compelled to learn more nuanced
+representations that capture the subtle distinctions between
+classes, thereby improving feature discriminability. To ver-
+ify discriminability, we conducted prototype classification
+Table 4. Prototype-classification accuracy of the vision encoder.
+ISIC
+ChestX EuroSAT CropDiseases
+CLIP-LoRA 49.83
+23.79
+93.0
+95.85
++ Ours
+50.68
+24.51
+93.64
+96.24
+Figure 9. The T-I-T pathway indicates that the model can focus
+on disease-relevant regions and capture fine-grained semantic re-
+lationships between different diseases, providing valuable inter-
+pretability for medical analysis even when the reconstructed text
+does not fully match the initial label.
+Figure 10. The I-T-I cycle pathway demonstrates how the model
+extracts and retains essential semantics in the text domain, which
+are then used to re-focus on meaningful regions within the image’s
+augmented feature space.
+using only the vision encoder. Tab. 4 shows consistent im-
+provements after applying our cycle-consistent regularizer.
+The enhanced feature discriminability is also visually con-
+firmed by the t-SNE plots in Supplementary Figure 15.
+5. Conclusion
+We proposed CC-CDFSL, a self-supervised regularization
+framework that enhances local feature alignment in CLIP-
+based CDFSL. By introducing the T-I-T, I-T-I cycle, and
+complementary Semantic Anchor module, our method ef-
+fectively captures fine-grained semantics, improving ro-
+bustness and interpretability. Extensive experiments on var-
+ious benchmark datasets demonstrate superior performance.
+
+
+=== PAGE 13 ===
+which contains more than 100,000 pre-X-ray views for 14
+lung diseases. Categories 1 to 14 correspond to 14 lung
+diseases, and category 15 indicates no disease. [35] stud-
+ied the images of eight diseases in this database and con-
+structed the ChestX-ray8 dataset, which comprises 108,948
+frontal view X-ray images of 32,717 unique patients with
+the text-mined eight disease image labels (where each im-
+age can have multi-labels) from the associated radiological
+reports using natural language processing. In this work, we
+use ChestX-ray8 for cross-domain testing, consistent with
+[12]. ChestX is the most dissimilar to miniImagenet across
+the four target domains as its images have lost perspective
+distortion, do not represent natural scenes, and have lost 2
+color channels. The samples of this dataset are listed in
+Fig. 14.
+Figure 14. Samples from ChestX.
+7. Applying Our Method to other ViT Variants
+Table 5 presents a comparative analysis of our method
+against the CLIP-LoRA baseline across other ViT archi-
+tectures, specifically ViT-B/32, and ViT-L/14, under the 1-
+shot setting. As observed, our method consistently demon-
+strates significant performance improvements over the base-
+line across all tested ViT variants and target domains.
+Table 5. Comparison with ViT-based methods in 1-shot.
+Backbone Method ChestX
+ISIC
+EuroSAT Crop.
+Ave.
+ViT-B/32 Baseline
+21.23
+36.32
+79.79
+81.13 54.62
++ Ours
+21.36
+38.26
+82.88
+83.98 56.62
+ViT-L/14 Baseline
+22.90
+38.45
+85.83
+89.83 59.25
++ Ours
+23.19
+38.72
+90.11
+90.77 60.70
+8. Experimental Data of Figure 2
+Figure 2 in the main paper quantifies the hypothesis that
+the domain gap and scarce training data in CDFSL hurt
+patch-level local alignment more severely than global align-
+ment.
+Table 6 reports these alignment scores for both
+global (CLS-token) and local (patch-level) representations
+of the baseline, CLIP-LoRA [41]. As observed, all cross-
+domain datasets exhibit lower local alignment scores com-
+pared to miniImageNet, with the exception of EuroSAT,
+whose images are dominated by foreground regions, con-
+firming the baseline’s inability to capture fine-grained cues
+under data scarcity.
+To further validate the efficacy of
+the proposed CC-CDFSL framework, we compare the lo-
+cal alignment scores before and after applying our method.
+Table 7 summarizes the results. Consistently, our method
+significantly improves these scores, demonstrating that the
+cycle-consistency and semantic anchor mechanisms suc-
+cessfully enhance patch-level semantics alignment under
+domain shift without additional annotations.
+Table 6. Alignment Scores of Global and Local Features.
+Dataset
+Global Feature
+Local Features
+Far Domain
+miniImageNet
+0.7056
+0.3821
+✗
+ChestX
+0.6768
+0.2391
+✓
+ISIC2018
+0.7261
+0.2360
+✓
+EuroSAT
+0.6768
+0.3845
+✓
+CropDiseases
+0.7012
+0.3811
+✓
+Table 7. Comparison of Local Feature Alignment Scores.
+Method
+ChestX
+ISIC
+EuroSAT
+Crop.
+Ave.
+Baseline
+0.2391
+0.2360
+0.3845
+0.3811 0.3102
++ Ours
+0.3293
+0.2661
+0.3796
+0.3877 0.3407
+9. Generalization to Base-to-New Setting
+The base-to-new generalization task refers to a scenario
+where a dataset is evenly divided by class into non-
+overlapping base classes and new classes. After a model
+is trained on a few-shot dataset from the base classes, its
+generalization ability is tested on the new classes. The har-
+monic mean (HM) of the classification accuracies on both
+is used to evaluate the overall performance:
+HM =
+2
+1
+Base +
+1
+New
+= 2 · Base · New
+Base + New
+(17)
+As shown in Table 8, CC-CDFSL consistently outper-
+forms MaPLe [20] across all datasets in terms of new-class
+accuracy and harmonic mean, with marginal improvements
+on base classes.
+9.1. Better Class Separation
+As illustrated in the Figure 15, features extracted by CLIP-
+LoRA tend to form less compact and more overlapping
+clusters, with different classes not well separated in the em-
+bedding space. In contrast, our method produces more dis-
+tinct and compact clusters for each class, resulting in clearer
+class boundaries and reduced intra-class variance. This in-
+dicates that our approach achieves better class separation
+
+
+=== PAGE 14 ===
+Table 8. Base-to-new generalization on 11 datasets. Ours (CC-CDFSL) consistently improves new-class accuracy and harmonic mean
+(HM) over MaPLe, validating the cross-task generality of cycle-consistent patch-level alignment.
+(a) Average over 11 datasets.
+Base
+New
+HM
+MaPLe
+82.19
+74.55
+78.18
++ Ours
+82.26
+75.75
+78.87
+(b) ImageNet.
+Base
+New
+HM
+MaPLe
+75.57
+70.88
+73.15
++ Ours
+75.59
+71.10
+73.28
+(c) Caltech101.
+Base
+New
+HM
+MaPLe
+98.02
+94.43
+96.19
++ Ours
+97.91
+95.49
+96.68
+(d) OxfordPets.
+Base
+New
+HM
+MaPLe
+95.64
+97.80
+96.71
++ Ours
+95.82
+97.99
+96.89
+(e) StanfordCars.
+Base
+New
+HM
+MaPLe
+72.56
+73.80
+73.17
++ Ours
+72.66
+74.84
+73.73
+(f) Flowers102.
+Base
+New
+HM
+MaPLe
+96.11
+72.44
+82.61
++ Ours
+96.07
+73.90
+83.19
+(g) Food101.
+Base
+New
+HM
+MaPLe
+90.75
+91.84
+91.29
++ Ours
+90.83
+92.00
+91.41
+(h) FGVCAircraft.
+Base
+New
+HM
+MaPLe
+38.34
+34.59
+36.37
++ Ours
+38.00
+36.01
+36.98
+(i) SUN397.
+Base
+New
+HM
+MaPLe
+80.92
+78.21
+79.54
++ Ours
+81.04
+79.08
+80.05
+(j) DTD.
+Base
+New
+HM
+MaPLe
+79.86
+59.54
+68.28
++ Ours
+79.90
+62.28
+70.00
+(k) EuroSAT.
+Base
+New
+HM
+MaPLe
+92.66
+68.39
+78.70
++ Ours
+93.57
+71.98
+81.37
+(l) UCF101.
+Base
+New
+HM
+MaPLe
+83.66
+78.04
+80.75
++ Ours
+83.51
+79.07
+81.23
+compared to the baseline. For ChestX, t-SNE embeddings
+are omitted: the grayscale chest X-rays exhibit minuscule
+lesion regions that yield highly overlapping clusters, ren-
+dering any inter-method distinctions imperceptible.
+CropDiseases
+EuroSAT
+ISIC
+Figure 15. t-SNE visualization of feature distributions on different
+datasets. The first row shows results from CLIP-LoRA. The sec-
+ond row shows results from our proposed method. Different colors
+denote different classes.
+10. Visualization
+10.1. Improved Focus on Relevant Semantics
+Figure 16 and Figure 17 respectively present the attention
+maps and Grad-CAM [30] heatmaps produced by the base-
+line model and our proposed method across four datasets.
+This demonstrates that our method enhances the model’s
+ability to focus on critical features in cross-domain few-shot
+learning tasks and simultaneously improves local alignment
+between local visual patches and textual semantics.
+ISIC
+EuroSAT
+ChestX
+CropDiseases
+Figure 16. Row 2 and Row 3 display the attention maps of the
+baseline and CC-CDFSL, respectively, showing that the latter lo-
+calizes critical regions more precisely.
+11. Comparison with SOTA CDFSL Methods
+We also evaluate our CC-CDFSL framework in comparison
+with the most competitive state-of-the-art (SOTA) CDFSL
+methods, covering a range of settings such as different back-
+bones, the use of source datasets, and whether fine-tuning
+is performed on the target domain (FT). MEM-FS [34],
+StyleAdv [9], FLoR [52], DAMIM [26], AttnTemp [53],
+CD-CLS [54], PMF [16], IM-DCL [37], StepSPT [38], and
+SeGD-VPT [51] are introduced as competitors. Tabs. 9
+and 10 present that our method achieves new SOTA aver-
+age accuracies of 67.90% and 58.85% for the 5-way 5-shot
+
+
