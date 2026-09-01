@@ -1,0 +1,58 @@
+[15:13:41 INFO] 
+==================================================
+[15:13:41 INFO] Evaluating: eurosat (5-shot)
+[15:13:41 INFO] Test dataset: EuroSATDataset(split=test, n_classes=10, n_samples=5400)
+[15:14:23 INFO] Loaded checkpoint: ./checkpoints_fsr_ensemble/eurosat_5shot_fsr_best.pth
+[15:14:23 INFO]   epoch=40, best_acc=94.70%
+[15:14:23 INFO] Running 400 episodes...
+[15:14:47 INFO]   Episode 10/400: 93.07 ± 2.61%
+[15:15:07 INFO]   Episode 20/400: 92.33 ± 1.89%
+[15:15:25 INFO]   Episode 30/400: 93.38 ± 1.53%
+[15:15:44 INFO]   Episode 40/400: 93.90 ± 1.22%
+[15:16:02 INFO]   Episode 50/400: 94.32 ± 1.06%
+[15:16:21 INFO]   Episode 60/400: 94.40 ± 0.90%
+[15:16:41 INFO]   Episode 70/400: 94.51 ± 0.80%
+[15:17:00 INFO]   Episode 80/400: 94.47 ± 0.73%
+[15:17:19 INFO]   Episode 90/400: 94.53 ± 0.67%
+[15:17:38 INFO]   Episode 100/400: 94.52 ± 0.66%
+[15:17:57 INFO]   Episode 110/400: 94.35 ± 0.63%
+[15:18:17 INFO]   Episode 120/400: 94.39 ± 0.59%
+[15:18:36 INFO]   Episode 130/400: 94.37 ± 0.56%
+[15:18:56 INFO]   Episode 140/400: 94.31 ± 0.53%
+[15:19:15 INFO]   Episode 150/400: 94.32 ± 0.51%
+[15:19:34 INFO]   Episode 160/400: 94.28 ± 0.50%
+[15:19:54 INFO]   Episode 170/400: 94.23 ± 0.48%
+[15:20:13 INFO]   Episode 180/400: 94.21 ± 0.47%
+[15:20:33 INFO]   Episode 190/400: 94.26 ± 0.46%
+[15:20:52 INFO]   Episode 200/400: 94.23 ± 0.45%
+[15:21:12 INFO]   Episode 210/400: 94.21 ± 0.43%
+[15:21:32 INFO]   Episode 220/400: 94.17 ± 0.42%
+[15:21:52 INFO]   Episode 230/400: 94.20 ± 0.41%
+[15:22:12 INFO]   Episode 240/400: 94.14 ± 0.41%
+[15:22:31 INFO]   Episode 250/400: 94.19 ± 0.40%
+[15:22:51 INFO]   Episode 260/400: 94.15 ± 0.39%
+[15:23:10 INFO]   Episode 270/400: 94.14 ± 0.38%
+[15:23:30 INFO]   Episode 280/400: 94.13 ± 0.38%
+[15:23:50 INFO]   Episode 290/400: 94.10 ± 0.37%
+[15:24:10 INFO]   Episode 300/400: 94.06 ± 0.37%
+[15:24:30 INFO]   Episode 310/400: 94.05 ± 0.36%
+[15:24:50 INFO]   Episode 320/400: 94.03 ± 0.35%
+[15:25:11 INFO]   Episode 330/400: 94.06 ± 0.35%
+[15:25:31 INFO]   Episode 340/400: 94.07 ± 0.34%
+[15:25:51 INFO]   Episode 350/400: 94.04 ± 0.34%
+[15:26:10 INFO]   Episode 360/400: 94.00 ± 0.34%
+[15:26:19 INFO]   Episode 370/400: 94.03 ± 0.33%
+[15:26:30 INFO]   Episode 380/400: 93.98 ± 0.33%
+[15:26:39 INFO]   Episode 390/400: 93.98 ± 0.32%
+[15:26:48 INFO]   Episode 400/400: 94.00 ± 0.32%
+[15:26:48 INFO] 
+Result: 94.00 ± 0.32% (400 episodes)
+[15:26:48 INFO] 
+============================================================
+[15:26:48 INFO] Final Summary:
+[15:26:48 INFO] ============================================================
+[15:26:48 INFO]   eurosat         5-shot: 94.00 ± 0.32%
+[15:26:48 INFO] 
+[Table Format]
+[15:26:48 INFO] Dataset		Mean±CI
+[15:26:48 INFO] eurosat	94.00±0.32

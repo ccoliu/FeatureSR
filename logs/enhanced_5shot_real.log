@@ -1,0 +1,45 @@
+=====================================================================================
+ 🚀 Method 1 (Prompt Ensemble) + Method 4 (TTA) 強化評估驗證
+ 測試設定: 5-shot | 測試 Episodes: 100 | 評估模型: Feature-SR (FSR)
+=====================================================================================
+[16:25:44 INFO] --- Testing Dataset: EUROSAT (5-shot, 100 episodes) ---
+[16:25:47 INFO] Loaded checkpoint (144 keys): ./checkpoints/eurosat_5shot_fsr_best.pth
+
+[EUROSAT] 結果對比 (5-way 5-shot):
+  1. Standard (原始單一通用 Prompt):       90.17 ± 0.89%
+  2. + Prompt Ensemble (領域多模板 M1):    84.15% (-6.03%)
+  3. + Test-Time Augmentation (TTA M4):    90.53% (+0.36%)
+  4. ⭐ 結合 M1 + M4 (Prompt + TTA):        84.44 ± 1.73% (-5.73%)
+[16:27:53 INFO] --- Testing Dataset: CROP_DISEASE (5-shot, 100 episodes) ---
+[CropDiseases] 使用路徑：data/CropDiseases/New Plant Diseases Dataset(Augmented)/New Plant Diseases Dataset(Augmented)/train
+[16:27:56 INFO] Loaded checkpoint (144 keys): ./checkpoints/crop_disease_5shot_fsr_best.pth
+
+[CROP_DISEASE] 結果對比 (5-way 5-shot):
+  1. Standard (原始單一通用 Prompt):       90.03 ± 1.36%
+  2. + Prompt Ensemble (領域多模板 M1):    85.04% (-4.99%)
+  3. + Test-Time Augmentation (TTA M4):    90.41% (+0.39%)
+  4. ⭐ 結合 M1 + M4 (Prompt + TTA):        85.77 ± 1.67% (-4.25%)
+[16:30:09 INFO] --- Testing Dataset: ISIC (5-shot, 100 episodes) ---
+[16:30:15 INFO] Loaded checkpoint (144 keys): ./checkpoints/isic_5shot_fsr_best.pth
+
+[ISIC] 結果對比 (5-way 5-shot):
+  1. Standard (原始單一通用 Prompt):       43.76 ± 1.38%
+  2. + Prompt Ensemble (領域多模板 M1):    25.15% (-18.61%)
+  3. + Test-Time Augmentation (TTA M4):    42.76% (-1.00%)
+  4. ⭐ 結合 M1 + M4 (Prompt + TTA):        25.37 ± 0.84% (-18.39%)
+[16:33:08 INFO] --- Testing Dataset: CHESTX (5-shot, 100 episodes) ---
+[16:33:13 INFO] Loaded checkpoint (144 keys): ./checkpoints/chestx_5shot_fsr_best.pth
+
+[CHESTX] 結果對比 (5-way 5-shot):
+  1. Standard (原始單一通用 Prompt):       22.88 ± 0.83%
+  2. + Prompt Ensemble (領域多模板 M1):    21.28% (-1.60%)
+  3. + Test-Time Augmentation (TTA M4):    22.20% (-0.68%)
+  4. ⭐ 結合 M1 + M4 (Prompt + TTA):        21.01 ± 0.81% (-1.87%)
+
+=====================================================================================
+ 🏆 4 大跨域資料集平均表現 (Average Across 4 Datasets):
+  - 原始 Standard 平均:               61.71%
+  - + Prompt Ensemble (M1) 平均:       53.90% (-7.81%)
+  - + TTA (M4) 平均:                   61.48% (-0.23%)
+  - ⭐ 兩者結合 (M1 + M4) 最終平均:     54.15% (-7.56%) 🚀
+=====================================================================================

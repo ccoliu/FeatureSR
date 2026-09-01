@@ -208,9 +208,14 @@ class CLIPLoRA(nn.Module):
         """代理到 clip_wrapper"""
         return self.clip.encode_image_with_patches(images)
 
-    def encode_text(self, class_names: List[str]) -> torch.Tensor:
+    def encode_text(
+        self,
+        class_names: List[str],
+        dataset_name: Optional[str] = None,
+        use_ensemble: bool = False,
+    ) -> torch.Tensor:
         """代理到 clip_wrapper"""
-        return self.clip.encode_text(class_names)
+        return self.clip.encode_text(class_names, dataset_name=dataset_name, use_ensemble=use_ensemble)
 
     def forward(self, images: torch.Tensor) -> Tuple[torch.Tensor, torch.Tensor]:
         return self.encode_image_with_patches(images)

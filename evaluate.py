@@ -99,6 +99,12 @@ def parse_args():
     parser.add_argument("--n_aug", type=int, default=4,
                         help="Augmentation 次數")
 
+    # 增強推論模式
+    parser.add_argument("--use_prompt_ensemble", action="store_true",
+                        help="是否啟用領域專屬 Multi-Prompt 特徵集成")
+    parser.add_argument("--use_tta", action="store_true",
+                        help="是否啟用測試期多視角特徵增強 (Test-Time Augmentation)")
+
     parser.add_argument("--device", type=str, default="cuda")
     parser.add_argument("--seed", type=int, default=42)
 
@@ -232,8 +238,19 @@ def evaluate_dataset(
         else:
             # 正常的路徑 (No adaptation)
             with torch.no_grad():
-                text_feat = clip_lora.encode_text(class_names)
-                cls_feat, _ = clip_lora.encode_image_with_patches(query_images)
+                text_feat = clip_lora.encode_text(
+                    class_names,
+                    dataset_name=dataset_name,
+                    use_ensemble=args.use_prompt_ensemble,
+                )
+                if args.use_tta:
+                    cls_feat_std, _ = clip_lora.encode_image_with_patches(query_images)
+                    cls_feat_flip, _ = clip_lora.encode_image_with_patches(torch.flip(query_images, dims=[-1]))
+                    cls_feat = F.normalize((F.normalize(cls_feat_std, dim=-1) + F.normalize(cls_feat_flip, dim=-1)) / 2.0, dim=-1)
+                else:
+                    cls_feat, _ = clip_lora.encode_image_with_patches(query_images)
+                    cls_feat = F.normalize(cls_feat, dim=-1)
+
                 logits = cls_feat @ text_feat.T
                 acc = compute_few_shot_accuracy(logits, query_labels)
                 accs.append(acc)

@@ -107,19 +107,37 @@ class CLIPWrapper(nn.Module):
 
         return cls_feat, patch_feat
 
-    def encode_text(self, class_names: List[str]) -> torch.Tensor:
+    def encode_text(
+        self,
+        class_names: List[str],
+        dataset_name: Optional[str] = None,
+        use_ensemble: bool = False,
+    ) -> torch.Tensor:
         """
-        用類別名稱生成文字特徵（使用 "a photo of a {class_name}" 模板）。
+        用類別名稱生成文字特徵。
+        支援標準單一 Prompt 模式與領域多模板集成 (Domain Multi-Prompt Ensemble) 模式。
 
         Args:
             class_names: 類別名稱列表，長度 C
+            dataset_name: 資料集名稱 (可選, 用於調用專屬領域 Prompt)
+            use_ensemble: 若為 True，則啟用領域專屬多模板特徵平均集成
 
         Returns:
             text_feat: [C, d] L2 normalized 文字特徵
         """
-        # 使用論文中提及的通用 prompt template
-        prompts = [f"a photo of a {name.replace('_', ' ')}" for name in class_names]
-        tokens = clip.tokenize(prompts).to(self.device)
+        if use_ensemble and dataset_name:
+            from utils.prompt_templates import get_domain_text_embeddings
+            return get_domain_text_embeddings(
+                clip_model=self.model,
+                class_names=class_names,
+                dataset_name=dataset_name,
+                device=self.device,
+                use_ensemble=True,
+            )
+
+        # 預設通用 Prompt 模式
+        prompts = [f"a photo of a {name.replace('___', ' ').replace('__', ' ').replace('_', ' ')}" for name in class_names]
+        tokens = clip.tokenize(prompts, truncate=True).to(self.device)
 
         with torch.no_grad():
             text_feat = self.model.encode_text(tokens)   # [C, d]

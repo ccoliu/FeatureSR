@@ -1,0 +1,20 @@
+[16:06:25 INFO] 
+==================================================
+[16:06:25 INFO] Evaluating: crop_disease (5-shot)
+[16:06:26 INFO] Test dataset: CropDiseaseDataset(split=test, n_classes=38, n_samples=14059)
+[16:06:57 INFO] Loaded checkpoint: ./checkpoints_fsr_ensemble/crop_disease_5shot_fsr_best.pth
+[16:06:57 INFO]   epoch=50, best_acc=91.02%
+[16:06:57 INFO] Running 400 episodes...
+[16:07:30 INFO]   Episode 10/400: 88.93 ± 4.01%
+[16:08:07 INFO]   Episode 20/400: 91.87 ± 2.53%
+[16:08:44 INFO]   Episode 30/400: 91.29 ± 2.22%
+[16:09:24 INFO]   Episode 40/400: 90.43 ± 2.12%
+[16:10:01 INFO]   Episode 50/400: 89.36 ± 2.13%
+[16:10:38 INFO]   Episode 60/400: 89.93 ± 1.87%
+[16:11:15 INFO]   Episode 70/400: 90.51 ± 1.67%
+[16:11:51 INFO]   Episode 80/400: 91.15 ± 1.52%
+[16:12:29 INFO]   Episode 90/400: 91.33 ± 1.42%
+[16:13:06 INFO]   Episode 100/400: 91.23 ± 1.31%
+[16:13:43 INFO]   Episode 110/400: 91.21 ± 1.25%
+[16:14:21 INFO]   Episode 120/400: 91.27 ± 1.16%
+[16:14:59 INFO]   Episode 130/400: 91.28 ± 1.13%

@@ -128,6 +128,10 @@ def parse_args():
                         help="僅使用固定 n_shot 數量的影像進行訓練（符合論文少樣本目標域微調設定）")
     parser.add_argument("--bscd_mode", action="store_true",
                         help="啟用 BSCD-FSL 官方協定：全量資料進 episodic pool，無 train/test 80/20 split")
+    parser.add_argument("--use_prompt_ensemble", action="store_true",
+                        help="啟用領域專屬 Multi-Prompt 特徵集成")
+    parser.add_argument("--use_tta", action="store_true",
+                        help="評估時啟用測試期多視角特徵增強 (Test-Time Augmentation)")
 
     return parser.parse_args()
 
@@ -178,6 +182,8 @@ def train_episode(
     cr_loss_fn: Optional[CrossResolutionConsistencyLoss] = None,
     lambda3: float = 0.3,
     scaler: Optional[torch.cuda.amp.GradScaler] = None,
+    dataset_name: Optional[str] = None,
+    use_prompt_ensemble: bool = False,
 ) -> dict:
     """
     一個 Few-shot Episode 的訓練步驟。
@@ -197,7 +203,11 @@ def train_episode(
 
     # ===== 1. 文字特徵（不需要梯度） =====
     with torch.no_grad():
-        text_feat = clip_lora.encode_text(class_names)      # [C, d]
+        text_feat = clip_lora.encode_text(
+            class_names,
+            dataset_name=dataset_name,
+            use_ensemble=use_prompt_ensemble,
+        )      # [C, d]
 
     # 使用 PyTorch 自動混合精度 (AMP) 進行加速
     with torch.cuda.amp.autocast(enabled=(scaler is not None)):
@@ -305,6 +315,9 @@ def evaluate(
     sampler: FewShotEpisodeSampler,
     n_episodes: int,
     device: str,
+    dataset_name: Optional[str] = None,
+    use_prompt_ensemble: bool = False,
+    use_tta: bool = False,
 ) -> dict:
     clip_lora.eval()
     accs = []
@@ -316,8 +329,20 @@ def evaluate(
         query_labels = episode["query_labels"].to(device)
         class_names  = episode["class_names"]
 
-        text_feat = clip_lora.encode_text(class_names)
-        q_cls, _ = clip_lora.encode_image_with_patches(query_images)
+        text_feat = clip_lora.encode_text(
+            class_names,
+            dataset_name=dataset_name,
+            use_ensemble=use_prompt_ensemble,
+        )
+
+        if use_tta:
+            q_cls_std, _ = clip_lora.encode_image_with_patches(query_images)
+            q_cls_flip, _ = clip_lora.encode_image_with_patches(torch.flip(query_images, dims=[-1]))
+            q_cls = F.normalize((F.normalize(q_cls_std, dim=-1) + F.normalize(q_cls_flip, dim=-1)) / 2.0, dim=-1)
+        else:
+            q_cls, _ = clip_lora.encode_image_with_patches(query_images)
+            q_cls = F.normalize(q_cls, dim=-1)
+
         q_logits = q_cls @ text_feat.T
 
         acc = compute_few_shot_accuracy(q_logits, query_labels)
@@ -464,6 +489,8 @@ def train_on_dataset(
                 cr_loss_fn=cr_loss_fn,
                 lambda3=args.lambda3,
                 scaler=scaler,
+                dataset_name=dataset_name,
+                use_prompt_ensemble=getattr(args, "use_prompt_ensemble", False),
             )
             for k in epoch_stats:
                 epoch_stats[k] += stats[k]
@@ -489,6 +516,9 @@ def train_on_dataset(
                 clip_lora, test_sampler,
                 n_episodes=args.n_eval_episodes,
                 device=device,
+                dataset_name=dataset_name,
+                use_prompt_ensemble=getattr(args, "use_prompt_ensemble", False),
+                use_tta=getattr(args, "use_tta", False),
             )
             mean_acc = eval_result["mean_acc"]
             ci = eval_result["ci"]
@@ -528,7 +558,14 @@ def train_on_dataset(
             feature_sr.load_state_dict(ckpt["feature_sr_state_dict"])
         logger.info(f"Loaded best checkpoint from epoch {ckpt['epoch']}")
 
-    final_result = evaluate(clip_lora, test_sampler, n_episodes=n_final, device=device)
+    final_result = evaluate(
+        clip_lora, test_sampler,
+        n_episodes=n_final,
+        device=device,
+        dataset_name=dataset_name,
+        use_prompt_ensemble=getattr(args, "use_prompt_ensemble", False),
+        use_tta=getattr(args, "use_tta", False),
+    )
     logger.info(
         f"Final ({mode_str}): {final_result['mean_acc']:.2f} ± {final_result['ci']:.2f}%"
         f" (n_episodes={n_final})"

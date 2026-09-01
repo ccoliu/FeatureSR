@@ -1,0 +1,31 @@
+=====================================================================================
+ 🚀 Method 1 (Prompt Ensemble) + Method 4 (TTA) 強化評估驗證
+ 測試設定: 5-shot | 測試 Episodes: 100 | 評估模型: Feature-SR (FSR)
+=====================================================================================
+[15:44:20 INFO] --- Testing Dataset: EUROSAT (5-shot, 100 episodes) ---
+[15:44:33 INFO] Loaded checkpoint: ./checkpoints/eurosat_5shot_fsr_best.pth
+
+[EUROSAT] 結果對比 (5-way 5-shot):
+  1. Standard (原始單一通用 Prompt):       48.87 ± 2.46%
+  2. + Prompt Ensemble (領域多模板 M1):    65.19% (+16.32%)
+  3. + Test-Time Augmentation (TTA M4):    49.05% (+0.19%)
+  4. ⭐ 結合 M1 + M4 (Prompt + TTA):        65.01 ± 2.04% (+16.15%)
+[15:46:50 INFO] --- Testing Dataset: CROP_DISEASE (5-shot, 100 episodes) ---
+[CropDiseases] 使用路徑：data/CropDiseases/New Plant Diseases Dataset(Augmented)/New Plant Diseases Dataset(Augmented)/train
+[15:46:53 INFO] Loaded checkpoint: ./checkpoints/crop_disease_5shot_fsr_best.pth
+
+[CROP_DISEASE] 結果對比 (5-way 5-shot):
+  1. Standard (原始單一通用 Prompt):       40.92 ± 2.77%
+  2. + Prompt Ensemble (領域多模板 M1):    59.95% (+19.03%)
+  3. + Test-Time Augmentation (TTA M4):    40.85% (-0.07%)
+  4. ⭐ 結合 M1 + M4 (Prompt + TTA):        59.95 ± 2.67% (+19.03%)
+[15:49:11 INFO] --- Testing Dataset: ISIC (5-shot, 100 episodes) ---
+[15:49:13 INFO] Loaded checkpoint: ./checkpoints/isic_5shot_fsr_best.pth
+
+[ISIC] 結果對比 (5-way 5-shot):
+  1. Standard (原始單一通用 Prompt):       20.29 ± 0.45%
+  2. + Prompt Ensemble (領域多模板 M1):    24.31% (+4.01%)
+  3. + Test-Time Augmentation (TTA M4):    20.27% (-0.03%)
+  4. ⭐ 結合 M1 + M4 (Prompt + TTA):        24.00 ± 0.63% (+3.71%)
+[15:52:13 INFO] --- Testing Dataset: CHESTX (5-shot, 100 episodes) ---
+[15:52:19 INFO] Loaded checkpoint: ./checkpoints/chestx_5shot_fsr_best.pth

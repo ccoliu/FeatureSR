@@ -1,0 +1,58 @@
+[15:23:05 INFO] 
+==================================================
+[15:23:05 INFO] Evaluating: chestx (5-shot)
+[15:23:06 INFO] Test dataset: ChestXDataset(split=test, n_classes=7, n_samples=6268)
+[15:23:27 INFO] Loaded checkpoint: ./checkpoints_ensemble/chestx_5shot_best.pth
+[15:23:27 INFO]   epoch=20, best_acc=22.91%
+[15:23:27 INFO] Running 400 episodes...
+[15:24:03 INFO]   Episode 10/400: 23.20 ± 3.31%
+[15:24:39 INFO]   Episode 20/400: 24.73 ± 2.53%
+[15:25:11 INFO]   Episode 30/400: 24.27 ± 1.99%
+[15:25:41 INFO]   Episode 40/400: 23.93 ± 1.60%
+[15:26:10 INFO]   Episode 50/400: 23.73 ± 1.46%
+[15:26:38 INFO]   Episode 60/400: 23.22 ± 1.32%
+[15:27:06 INFO]   Episode 70/400: 23.14 ± 1.22%
+[15:27:32 INFO]   Episode 80/400: 22.92 ± 1.10%
+[15:27:58 INFO]   Episode 90/400: 23.01 ± 1.02%
+[15:28:28 INFO]   Episode 100/400: 22.96 ± 0.95%
+[15:28:58 INFO]   Episode 110/400: 23.21 ± 0.90%
+[15:29:31 INFO]   Episode 120/400: 23.10 ± 0.88%
+[15:30:01 INFO]   Episode 130/400: 23.05 ± 0.84%
+[15:30:31 INFO]   Episode 140/400: 22.86 ± 0.79%
+[15:31:02 INFO]   Episode 150/400: 22.94 ± 0.76%
+[15:31:33 INFO]   Episode 160/400: 23.01 ± 0.73%
+[15:32:03 INFO]   Episode 170/400: 23.00 ± 0.71%
+[15:32:33 INFO]   Episode 180/400: 22.98 ± 0.68%
+[15:33:03 INFO]   Episode 190/400: 23.06 ± 0.66%
+[15:33:32 INFO]   Episode 200/400: 23.01 ± 0.65%
+[15:34:03 INFO]   Episode 210/400: 23.10 ± 0.63%
+[15:34:35 INFO]   Episode 220/400: 23.08 ± 0.62%
+[15:35:04 INFO]   Episode 230/400: 23.06 ± 0.60%
+[15:35:37 INFO]   Episode 240/400: 23.17 ± 0.59%
+[15:36:07 INFO]   Episode 250/400: 23.10 ± 0.58%
+[15:36:35 INFO]   Episode 260/400: 22.93 ± 0.57%
+[15:37:05 INFO]   Episode 270/400: 22.88 ± 0.56%
+[15:37:34 INFO]   Episode 280/400: 22.90 ± 0.54%
+[15:38:02 INFO]   Episode 290/400: 22.97 ± 0.53%
+[15:38:31 INFO]   Episode 300/400: 22.98 ± 0.52%
+[15:39:01 INFO]   Episode 310/400: 22.92 ± 0.52%
+[15:39:33 INFO]   Episode 320/400: 22.89 ± 0.51%
+[15:40:03 INFO]   Episode 330/400: 22.84 ± 0.50%
+[15:40:34 INFO]   Episode 340/400: 22.78 ± 0.49%
+[15:41:03 INFO]   Episode 350/400: 22.79 ± 0.48%
+[15:41:34 INFO]   Episode 360/400: 22.76 ± 0.48%
+[15:42:03 INFO]   Episode 370/400: 22.78 ± 0.47%
+[15:42:33 INFO]   Episode 380/400: 22.78 ± 0.47%
+[15:43:00 INFO]   Episode 390/400: 22.76 ± 0.46%
+[15:43:29 INFO]   Episode 400/400: 22.79 ± 0.45%
+[15:43:29 INFO] 
+Result: 22.79 ± 0.45% (400 episodes)
+[15:43:29 INFO] 
+============================================================
+[15:43:29 INFO] Final Summary:
+[15:43:29 INFO] ============================================================
+[15:43:29 INFO]   chestx          5-shot: 22.79 ± 0.45%
+[15:43:29 INFO] 
+[Table Format]
+[15:43:29 INFO] Dataset		Mean±CI
+[15:43:29 INFO] chestx	22.79±0.45
