@@ -1,0 +1,46 @@
+[21:01:04 INFO] Device: cuda
+[21:01:04 INFO] ============================================================
+[21:01:04 INFO] Dataset: isic, n_shot=5, Mode: Feature-SR (28x28)
+[21:01:04 INFO] ============================================================
+[21:01:04 INFO] Train: ISICDataset(split=train, n_classes=7, n_samples=35)
+[21:01:04 INFO] Test:  ISICDataset(split=test, n_classes=7, n_samples=2003)
+[21:01:04 INFO] Loading CLIP ViT-B/16...
+[21:01:17 INFO] Applying LoRA (r=4, alpha=1.0)...
+[21:01:17 INFO] Initializing Feature SR Module (scale=2, 14x14 -> 28x28)...
+[21:01:17 INFO] Trainable parameters: 10,350,592
+[21:01:17 INFO] LR Schedule: Cosine decay (no warmup)
+/var/tmp/cc-cdfsl/train.py:457: FutureWarning: `torch.cuda.amp.GradScaler(args...)` is deprecated. Please use `torch.amp.GradScaler('cuda', args...)` instead.
+  scaler = torch.cuda.amp.GradScaler() if device == "cuda" else None
+[21:01:17 INFO] FP16 Automatic Mixed Precision (AMP) enabled.
+[21:01:17 INFO] Initial evaluation (before training)...
+[21:02:30 INFO]   Baseline: 20.45 ± 0.78%
+/var/tmp/cc-cdfsl/train.py:213: FutureWarning: `torch.cuda.amp.autocast(args...)` is deprecated. Please use `torch.amp.autocast('cuda', args...)` instead.
+  with torch.cuda.amp.autocast(enabled=(scaler is not None)):
+[21:06:31 INFO] Epoch [  1/100] Loss: 2.3208 (CE:1.9386, TIT:0.1051, ITI:0.0156, CR:0.3574) Acc: 25.41%
+[21:42:08 INFO] Epoch [ 10/100] Loss: 0.3223 (CE:0.0007, TIT:0.1059, ITI:0.0011, CR:0.0166) Acc: 43.79%
+[21:50:48 INFO]   [Eval] Epoch 10: 42.13 ± 0.68% ✓ NEW BEST!
+[21:50:50 INFO]   Saved best checkpoint: checkpoints_lambda3_sweep/l3_0.1/isic_5shot_fsr_best.pth
+[22:30:18 INFO] Epoch [ 20/100] Loss: 0.3109 (CE:0.0003, TIT:0.1028, ITI:0.0007, CR:0.0077) Acc: 40.76%
+[22:38:56 INFO]   [Eval] Epoch 20: 41.70 ± 0.63%
+[23:18:15 INFO] Epoch [ 30/100] Loss: 0.3132 (CE:0.0002, TIT:0.1040, ITI:0.0004, CR:0.0036) Acc: 40.57%
+[23:26:58 INFO]   [Eval] Epoch 30: 40.21 ± 0.57%
+[00:06:16 INFO] Epoch [ 40/100] Loss: 0.3088 (CE:0.0001, TIT:0.1026, ITI:0.0002, CR:0.0025) Acc: 35.55%
+[00:15:04 INFO]   [Eval] Epoch 40: 36.40 ± 0.59%
+[ISICDataset] Strict few-shot training enabled. Total training samples: 35 (n_shot=5)
+Traceback (most recent call last):
+  File "/var/tmp/cc-cdfsl/train.py", line 621, in <module>
+    main()
+  File "/var/tmp/cc-cdfsl/train.py", line 603, in main
+    result = train_on_dataset(dataset_name, args, device)
+  File "/var/tmp/cc-cdfsl/train.py", line 478, in train_on_dataset
+    stats = train_episode(
+  File "/var/tmp/cc-cdfsl/train.py", line 284, in train_episode
+    acc = compute_few_shot_accuracy(q_logits, query_labels)
+  File "/var/tmp/cc-cdfsl/utils/metrics.py", line 64, in compute_few_shot_accuracy
+    return compute_accuracy(preds, query_labels)
+  File "/var/tmp/cc-cdfsl/utils/metrics.py", line 13, in compute_accuracy
+    correct = (predictions == targets).sum().item()
+torch.AcceleratorError: CUDA error: unknown error
+Search for `cudaErrorUnknown' in https://docs.nvidia.com/cuda/cuda-runtime-api/group__CUDART__TYPES.html for more information.
+For more detailed error information, run with CUDA_LOG_FILE=stderr
+

@@ -1,0 +1,28 @@
+[00:40:47 INFO] Device: cuda
+[00:40:47 INFO] ============================================================
+[00:40:47 INFO] Dataset: isic, n_shot=5, Mode: Feature-SR (28x28)
+[00:40:47 INFO] ============================================================
+[00:40:47 INFO] Train: ISICDataset(split=train, n_classes=7, n_samples=35)
+[00:40:47 INFO] Test:  ISICDataset(split=test, n_classes=7, n_samples=2003)
+[00:40:47 INFO] Loading CLIP ViT-B/16...
+[00:40:59 INFO] Applying LoRA (r=4, alpha=1.0)...
+[00:40:59 INFO] Initializing Feature SR Module (scale=2, 14x14 -> 28x28)...
+[00:40:59 INFO] Trainable parameters: 10,350,592
+[00:40:59 INFO] LR Schedule: Cosine decay (no warmup)
+/var/tmp/cc-cdfsl/train.py:457: FutureWarning: `torch.cuda.amp.GradScaler(args...)` is deprecated. Please use `torch.amp.GradScaler('cuda', args...)` instead.
+  scaler = torch.cuda.amp.GradScaler() if device == "cuda" else None
+[00:40:59 INFO] FP16 Automatic Mixed Precision (AMP) enabled.
+[00:40:59 INFO] Initial evaluation (before training)...
+[00:42:00 INFO]   Baseline: 20.40 ± 0.60%
+/var/tmp/cc-cdfsl/train.py:213: FutureWarning: `torch.cuda.amp.autocast(args...)` is deprecated. Please use `torch.amp.autocast('cuda', args...)` instead.
+  with torch.cuda.amp.autocast(enabled=(scaler is not None)):
+[00:45:26 INFO] Epoch [  1/100] Loss: 2.5307 (CE:1.9011, TIT:0.1019, ITI:0.0323, CR:0.2592) Acc: 26.19%
+[01:15:15 INFO] Epoch [ 10/100] Loss: 0.3203 (CE:0.0005, TIT:0.1051, ITI:0.0008, CR:0.0028) Acc: 38.80%
+[01:22:46 INFO]   [Eval] Epoch 10: 39.56 ± 0.57% ✓ NEW BEST!
+[01:22:47 INFO]   Saved best checkpoint: checkpoints_lambda3_sweep/l3_1.0/isic_5shot_fsr_best.pth
+[01:55:15 INFO] Epoch [ 20/100] Loss: 0.3162 (CE:0.0002, TIT:0.1047, ITI:0.0004, CR:0.0013) Acc: 38.91%
+[02:02:39 INFO]   [Eval] Epoch 20: 38.25 ± 0.60%
+[02:35:04 INFO] Epoch [ 30/100] Loss: 0.3124 (CE:0.0001, TIT:0.1036, ITI:0.0002, CR:0.0009) Acc: 38.47%
+[02:42:29 INFO]   [Eval] Epoch 30: 38.46 ± 0.62%
+[03:14:56 INFO] Epoch [ 40/100] Loss: 0.3119 (CE:0.0001, TIT:0.1036, ITI:0.0001, CR:0.0007) Acc: 38.39%
+[03:22:34 INFO]   [Eval] Epoch 40: 38.71 ± 0.61%

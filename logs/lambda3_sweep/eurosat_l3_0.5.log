@@ -1,0 +1,39 @@
+[15:21:09 INFO] Device: cuda
+[15:21:09 INFO] ============================================================
+[15:21:09 INFO] Dataset: eurosat, n_shot=5, Mode: Feature-SR (28x28)
+[15:21:09 INFO] ============================================================
+[15:21:09 INFO] Train: EuroSATDataset(split=train, n_classes=10, n_samples=50)
+[15:21:09 INFO] Test:  EuroSATDataset(split=test, n_classes=10, n_samples=5400)
+[15:21:09 INFO] Loading CLIP ViT-B/16...
+[15:21:19 INFO] Applying LoRA (r=4, alpha=1.0)...
+[15:21:19 INFO] Initializing Feature SR Module (scale=2, 14x14 -> 28x28)...
+[15:21:20 INFO] Trainable parameters: 10,350,592
+[15:21:20 INFO] LR Schedule: Cosine decay (no warmup)
+/var/tmp/cc-cdfsl/train.py:457: FutureWarning: `torch.cuda.amp.GradScaler(args...)` is deprecated. Please use `torch.amp.GradScaler('cuda', args...)` instead.
+  scaler = torch.cuda.amp.GradScaler() if device == "cuda" else None
+[15:21:20 INFO] FP16 Automatic Mixed Precision (AMP) enabled.
+[15:21:20 INFO] Initial evaluation (before training)...
+[15:21:57 INFO]   Baseline: 48.64 ± 3.40%
+/var/tmp/cc-cdfsl/train.py:213: FutureWarning: `torch.cuda.amp.autocast(args...)` is deprecated. Please use `torch.amp.autocast('cuda', args...)` instead.
+  with torch.cuda.amp.autocast(enabled=(scaler is not None)):
+[15:24:43 INFO] Epoch [  1/100] Loss: 0.8395 (CE:0.5902, TIT:0.0737, ITI:0.0914, CR:0.2410) Acc: 68.29%
+[EuroSATDataset] Strict few-shot training enabled. Total training samples: 50 (n_shot=5)
+Traceback (most recent call last):
+  File "/var/tmp/cc-cdfsl/train.py", line 621, in <module>
+    main()
+  File "/var/tmp/cc-cdfsl/train.py", line 603, in main
+    result = train_on_dataset(dataset_name, args, device)
+  File "/var/tmp/cc-cdfsl/train.py", line 478, in train_on_dataset
+    stats = train_episode(
+  File "/var/tmp/cc-cdfsl/train.py", line 273, in train_episode
+    scaler.step(optimizer)
+  File "/home/user/anaconda3/envs/research/lib/python3.10/site-packages/torch/amp/grad_scaler.py", line 478, in step
+    retval = self._maybe_opt_step(optimizer, optimizer_state, *args, **kwargs)
+  File "/home/user/anaconda3/envs/research/lib/python3.10/site-packages/torch/amp/grad_scaler.py", line 371, in _maybe_opt_step
+    if not sum(v.item() for v in optimizer_state["found_inf_per_device"].values()):
+  File "/home/user/anaconda3/envs/research/lib/python3.10/site-packages/torch/amp/grad_scaler.py", line 371, in <genexpr>
+    if not sum(v.item() for v in optimizer_state["found_inf_per_device"].values()):
+torch.AcceleratorError: CUDA error: unknown error
+Search for `cudaErrorUnknown' in https://docs.nvidia.com/cuda/cuda-runtime-api/group__CUDART__TYPES.html for more information.
+For more detailed error information, run with CUDA_LOG_FILE=stderr
+

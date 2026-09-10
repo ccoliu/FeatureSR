@@ -1,0 +1,58 @@
+[16:45:52 INFO] 
+==================================================
+[16:45:52 INFO] Evaluating: isic (5-shot)
+[16:45:53 INFO] Test dataset: ISICDataset(split=test, n_classes=7, n_samples=2003)
+[16:46:39 INFO] Loaded checkpoint: ./checkpoints_ensemble/isic_5shot_best.pth
+[16:46:39 INFO]   epoch=10, best_acc=44.44%
+[16:46:39 INFO] Running 400 episodes...
+[16:47:30 INFO]   Episode 10/400: 40.13 ± 4.79%
+[16:48:03 INFO]   Episode 20/400: 42.67 ± 3.14%
+[16:48:36 INFO]   Episode 30/400: 43.29 ± 2.27%
+[16:49:13 INFO]   Episode 40/400: 43.57 ± 1.85%
+[16:49:49 INFO]   Episode 50/400: 43.87 ± 1.58%
+[16:50:25 INFO]   Episode 60/400: 43.89 ± 1.51%
+[16:51:06 INFO]   Episode 70/400: 44.13 ± 1.41%
+[16:51:48 INFO]   Episode 80/400: 44.33 ± 1.36%
+[16:52:27 INFO]   Episode 90/400: 44.24 ± 1.27%
+[16:53:03 INFO]   Episode 100/400: 44.31 ± 1.25%
+[16:53:49 INFO]   Episode 110/400: 44.08 ± 1.22%
+[16:54:31 INFO]   Episode 120/400: 43.99 ± 1.17%
+[16:55:04 INFO]   Episode 130/400: 44.06 ± 1.12%
+[16:55:36 INFO]   Episode 140/400: 43.97 ± 1.09%
+[16:56:09 INFO]   Episode 150/400: 44.00 ± 1.06%
+[16:56:42 INFO]   Episode 160/400: 43.85 ± 1.03%
+[16:57:16 INFO]   Episode 170/400: 43.90 ± 1.00%
+[16:57:50 INFO]   Episode 180/400: 44.01 ± 0.96%
+[16:58:23 INFO]   Episode 190/400: 44.13 ± 0.93%
+[16:58:56 INFO]   Episode 200/400: 43.99 ± 0.92%
+[16:59:29 INFO]   Episode 210/400: 43.94 ± 0.91%
+[17:00:02 INFO]   Episode 220/400: 43.96 ± 0.89%
+[17:00:38 INFO]   Episode 230/400: 43.96 ± 0.87%
+[17:01:18 INFO]   Episode 240/400: 43.89 ± 0.84%
+[17:01:53 INFO]   Episode 250/400: 43.84 ± 0.82%
+[17:02:27 INFO]   Episode 260/400: 43.88 ± 0.80%
+[17:03:00 INFO]   Episode 270/400: 43.89 ± 0.79%
+[17:03:33 INFO]   Episode 280/400: 43.79 ± 0.77%
+[17:04:06 INFO]   Episode 290/400: 43.92 ± 0.75%
+[17:04:39 INFO]   Episode 300/400: 43.89 ± 0.74%
+[17:05:12 INFO]   Episode 310/400: 43.90 ± 0.73%
+[17:05:53 INFO]   Episode 320/400: 43.79 ± 0.72%
+[17:06:27 INFO]   Episode 330/400: 43.98 ± 0.71%
+[17:07:00 INFO]   Episode 340/400: 44.11 ± 0.70%
+[17:07:34 INFO]   Episode 350/400: 44.10 ± 0.69%
+[17:08:07 INFO]   Episode 360/400: 44.08 ± 0.68%
+[17:08:41 INFO]   Episode 370/400: 44.03 ± 0.67%
+[17:09:15 INFO]   Episode 380/400: 44.01 ± 0.66%
+[17:09:48 INFO]   Episode 390/400: 44.06 ± 0.65%
+[17:10:18 INFO]   Episode 400/400: 44.03 ± 0.64%
+[17:10:18 INFO] 
+Result: 44.03 ± 0.64% (400 episodes)
+[17:10:18 INFO] 
+============================================================
+[17:10:18 INFO] Final Summary:
+[17:10:18 INFO] ============================================================
+[17:10:18 INFO]   isic            5-shot: 44.03 ± 0.64%
+[17:10:18 INFO] 
+[Table Format]
+[17:10:18 INFO] Dataset		Mean±CI
+[17:10:18 INFO] isic	44.03±0.64

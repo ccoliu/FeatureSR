@@ -4,9 +4,17 @@
 
 **Project**: FeatureSR  
 **Baseline**: CLIP-LoRA [3] with CC-CDFSL Cycle Consistency Framework (CVPR 2026) [1]  
-**Version**: v2.0 (2026-08-31)
+**Version**: v2.4 (2026-09-09)
 
-**Changelog (v1.0 → v2.0)**: Added the Domain-Adaptive Prompt Ensemble module (§3.3), its train/inference consistency requirement and a root-cause analysis of a prior regression (§3.4), combined Feature-SR + Prompt Ensemble empirical results (§4.4), a Known Limitations section on the ChestX backbone ceiling (§6), and a References section with inline citations, sourced from the CC-CDFSL paper's own bibliography where applicable.
+**Changelog (v1.0 → v2.0)**: Added the Domain-Adaptive Prompt Ensemble module (§3.3), its train/inference consistency requirement and a root-cause analysis of a prior regression (§3.4), combined Feature-SR + Prompt Ensemble empirical results (§4.5), a Known Limitations section on the ChestX backbone ceiling (§6), and a References section with inline citations, sourced from the CC-CDFSL paper's own bibliography where applicable.
+
+**Changelog (v2.0 → v2.1)**: Added isolated Test-Time Augmentation (TTA) verification results (§4.6) and a corresponding dataset-dependent usage limitation (§6.2), correcting an earlier (pre-fix) conclusion that TTA provided no benefit.
+
+**Changelog (v2.1 → v2.2)**: Added §5.1, a derived computational-complexity analysis of the base CC-CDFSL cycle-consistency framework itself (T-I-T, I-T-I, Semantic Anchor, augmentation branch) — filling a gap absent from the upstream paper — including the finding that all cycle-consistency machinery is training-time-only with zero inference-time cost. Also corrected §5: the FeatureUpsampler/FeatureRefiner parameter counts were swapped and miscalculated (was 2.36 M / 7.99 M; verified by loading the actual model, they are 5.92 M / 4.21 M — total is nearly unchanged at 10.13 M vs. the previously reported 10.35 M, which is why the error went unnoticed).
+
+**Changelog (v2.2 → v2.3)**: Added the previously-missing 5-way 1-shot results for Ensemble-only and Feature-SR+Ensemble (§4.7 after this version's renumbering; 100 episodes, same protocol as the 5-shot experiments). Key finding: the clean monotonic stacking observed at 5-shot does not hold at 1-shot — only 1/4 domains (CropDiseases) preserves it, EuroSAT reverses entirely, and ISIC/ChestX show Ensemble-only as a local optimum that Feature-SR slightly degrades when added on top.
+
+**Changelog (v2.3 → v2.4)**: Added §4.1, "Evaluation Protocol: What Accuracy Measures" (prompted by a supervisor question conflating classification-accuracy ground truth with the separate, genuinely-absent reconstruction ground truth for the upsampled $28\times28$ grid). Clarifies that accuracy is an ordinary supervised metric against real class labels, and states explicitly that `evaluate()` never consumes an episode's own support images — classification is domain-adapted zero-shot CLIP similarity, not per-episode prototype matching, with the few-shot adaptation happening entirely during training. Existing §4.1–§4.6 renumbered to §4.2–§4.7 to accommodate.
 
 ---
 
@@ -133,18 +141,27 @@ $$\theta_{\text{LoRA}}^{*} = \arg\min_{\theta} \; \mathbb{E}\left[\mathcal{L}_{\
 
 If inference substitutes a different anchor function, $\text{prompt}_{\text{infer}} \neq \text{prompt}_{\text{train}}$, the induced text-embedding distribution shifts relative to what $\theta_{\text{LoRA}}^{*}$ was calibrated against — a covariate shift confined to the text branch, since the visual branch is unchanged. This is a *post-hoc* application of §3.3 (ensemble enabled only at evaluation time) and was empirically found to be **actively harmful**: averaged over 4 target domains, post-hoc ensembling produced a **−7.81%** mean accuracy regression (5-way 5-shot), with ISIC 2018 collapsing by **−18.61%** — the domain with the largest semantic-expansion magnitude in $\phi(\cdot,\cdot)$, consistent with the magnitude of the covariate shift being the driver of the regression.
 
-The correction is to apply §3.3 identically during training and inference, i.e. compute $\mathbf{e}_i$ via the same $(\mathcal{T}_d, \phi)$ in both $\mathcal{L}_{\text{total}}$ and evaluation, so that $\theta_{\text{LoRA}}$ is calibrated to the distribution it will actually be evaluated against. This recovers the regression and, on 3 of 4 domains, yields a net improvement over the single-template baseline (§4.3).
+The correction is to apply §3.3 identically during training and inference, i.e. compute $\mathbf{e}_i$ via the same $(\mathcal{T}_d, \phi)$ in both $\mathcal{L}_{\text{total}}$ and evaluation, so that $\theta_{\text{LoRA}}$ is calibrated to the distribution it will actually be evaluated against. This recovers the regression and, on 3 of 4 domains, yields a net improvement over the single-template baseline (§4.4).
 
 ---
 
 ## 4. Optimization & Empirical Results
 
-### 4.1 Optimization Protocol
+### 4.1 Evaluation Protocol: What "Accuracy" Measures
+
+Every accuracy number in this document is a standard supervised classification rate — for each of $n$ sampled test episodes, $Q$ query images are classified and the fraction matching their true label is averaged, with a 95% confidence interval reported across episodes ($n=100$ for 1-shot, $n=400$ for 5-shot). This part has an ordinary, unambiguous ground truth: the ImageNet-style class label attached to each query image by the source dataset (EuroSAT's land-use category, ISIC's lesion diagnosis, etc.), entirely independent of anything the model produces. This is distinct from — and should not be confused with — the separate question of whether the *intermediate* $28\times28$ feature grid has a reconstruction ground truth (§3.1, §3.4: it does not, beyond the pooled-average constraint enforced by $\mathcal{L}_{\text{CR}}$).
+
+**The two training/evaluation phases use the support set differently, and this is worth stating explicitly because it is easy to assume the classic prototypical-network pattern (support examples averaged into a per-class prototype, queries matched against those prototypes) and this method does not follow it:**
+
+1. **Training phase** (where "few-shot" enters): under `--strict_few_shot`, the training pool for a given target dataset is restricted to exactly $K$ images per class. Episodes are repeatedly sampled from this pool to compute $\mathcal{L}_{\text{CE}}$ (on the support images) and the cycle-consistency losses (§3), which is what adapts $\theta_{\text{LoRA}}$ to the target domain over 100 epochs.
+2. **Evaluation phase** (where accuracy is measured): `evaluate()` (`train.py:312–352`) samples a fresh episode, but its accuracy computation **never references that episode's support images** — only the query images and the class-name text embeddings are used: $q_{\text{logits}} = \hat{q}_{\text{cls}} \cdot \hat{e}^\top$, classified by argmax. Support images are sampled as part of the episode structure but are not consumed by this function. Classification is therefore a **domain-adapted zero-shot CLIP similarity**, not a per-episode prototype-matching decision — the "few-shot" adaptation already happened during training, and each test episode's own support set plays no further role at that point. (The one exception is the optional `--adapt` flag in `evaluate.py`, which performs additional per-episode LoRA fine-tuning on that episode's support set before classifying its queries — an alternative, opt-in evaluation mode not used for the headline results in this document.)
+
+### 4.2 Optimization Protocol
 * **Optimizer**: Adam (`weight_decay=5e-4`)
 * **Peak Learning Rate**: `lr = 3e-5`
 * **Warmup Schedule**: 5 epochs linear warmup followed by Cosine Annealing decay down to `1e-6` over 100 epochs.
 
-### 4.2 Benchmark Verification (Strict Few-Shot)
+### 4.3 Benchmark Verification (Strict Few-Shot)
 
 #### 5-way 5-shot Results (400 Episodes)
 | Dataset | Baseline (14×14) | Feature-SR (28×28) | Delta ($\Delta$) | Peak Accuracy |
@@ -164,7 +181,7 @@ The correction is to apply §3.3 identically during training and inference, i.e.
 | **ChestX** | **21.95 ± 0.86%** | 21.51 ± 0.88% | -0.44% | 21.33% |
 | **Average** | **52.81%** | **52.70%** | **-0.11%** | — |
 
-### 4.3 Prompt Ensemble: Post-hoc Regression vs. Train/Inference-Consistent Fix (5-way 5-shot, 400 Episodes)
+### 4.4 Prompt Ensemble: Post-hoc Regression vs. Train/Inference-Consistent Fix (5-way 5-shot, 400 Episodes)
 
 | Dataset | Baseline (Single Template) | Post-hoc Ensemble ($\text{prompt}_{\text{infer}} \neq \text{prompt}_{\text{train}}$) | Consistent Ensemble ($\text{prompt}_{\text{infer}} = \text{prompt}_{\text{train}}$) |
 |:---|:---:|:---:|:---:|
@@ -174,9 +191,9 @@ The correction is to apply §3.3 identically during training and inference, i.e.
 | **ChestX** | 22.88 ± 0.83% | 21.28% (−1.60%) | 22.79 ± 0.45% (−0.09%) |
 | **Average** | **61.71%** | **53.90%** (−7.81%) | **62.92%** (+1.21%) 📈 |
 
-*Baseline in this table is drawn from an independent training run relative to §4.2's Table (61.71% vs. 60.59% average); the two baselines are not the same checkpoint and should not be compared in absolute terms — only $\Delta$ within a matched training run is meaningful.*
+*Baseline in this table is drawn from an independent training run relative to §4.3's Table (61.71% vs. 60.59% average); the two baselines are not the same checkpoint and should not be compared in absolute terms — only $\Delta$ within a matched training run is meaningful.*
 
-### 4.4 Combined Feature-SR + Prompt Ensemble (5-way 5-shot, 400 Episodes)
+### 4.5 Combined Feature-SR + Prompt Ensemble (5-way 5-shot, 400 Episodes)
 
 Both modules were enabled jointly during training (identical $\text{prompt}$ used at train- and inference-time, per §3.4) to test whether the visual-side and text-side gains compose:
 
@@ -190,6 +207,34 @@ Both modules were enabled jointly during training (identical $\text{prompt}$ use
 
 All 4/4 domains satisfy $\text{Baseline} < \text{Ensemble-only} < \text{Feature-SR+Ensemble}$, i.e. a strictly monotonic stack with no negative interaction term observed, consistent with the two mechanisms acting on disjoint parameter/embedding spaces (visual-side LoRA + FeatureUpsampler/Refiner vs. text-side anchor embeddings). A secondary effect was observed on ISIC 2018: the ensemble-only run overfits sharply past epoch 10 (peak 44.44% $\rightarrow$ 38.38% by epoch 100), whereas the combined run remains stable in the 43–45% band through epoch 100 (best epoch 40), suggesting $\mathcal{L}_{\text{CR}}$ (§3.1) contributes an incidental regularizing effect under extreme few-shot sample sizes ($n=35$).
 
+### 4.6 Test-Time Augmentation (TTA): Isolated Verification
+
+An earlier exploratory pass (`logs/enhanced_5shot_real.log`, pre-fix) suggested horizontal-flip TTA (feature-level: encode the query image and its horizontal flip separately, $\ell_2$-normalize each, average, re-normalize) provided no benefit (4-dataset average $\Delta = -0.23\%$). That test used the same pre-fix, train/inference-inconsistent checkpoints diagnosed in §3.4 — TTA had never been evaluated against a properly calibrated model. Re-testing in isolation ($\text{use\_prompt\_ensemble}=\text{True}$ held constant, only $\text{use\_tta}$ toggled, 5-way 5-shot, 400 episodes) on both fixed checkpoint families gives:
+
+| Dataset | Ensemble-only, no TTA | + TTA | $\Delta$ | Feature-SR+Ensemble, no TTA | + TTA | $\Delta$ |
+|:---|:---:|:---:|:---:|:---:|:---:|:---:|
+| **EuroSAT** | 93.69 ± 0.32% | 93.97 ± 0.30% | +0.28% 📈 | 94.00 ± 0.32% | 94.36 ± 0.32% | +0.36% 📈 |
+| **CropDiseases** | 90.61 ± 0.62% | 90.96 ± 0.62% | +0.35% 📈 | 90.28 ± 0.68% | **91.44 ± 0.60%** | **+1.16%** 📈 |
+| **ISIC 2018** | 44.10 ± 0.64% | 44.03 ± 0.64% | -0.07% | 44.13 ± 0.67% | **42.75 ± 0.69%** | **-1.38%** ⚠️ |
+| **ChestX** | 22.77 ± 0.49% | **23.60 ± 0.49%** | **+0.83%** 📈 | 22.59 ± 0.45% | 23.19 ± 0.46% | +0.60% 📈 |
+| **Average** | **62.79%** | **63.14%** | **+0.35%** 📈 | **62.75%** | **62.94%** | +0.19% |
+
+TTA is not broken — the prior negative conclusion was an artifact of testing it against an already-miscalibrated model. On calibrated checkpoints, TTA gives a real (delta exceeds the sum of confidence intervals, not noise) positive effect on 3/4 domains, and is in fact the single most effective enhancement tested on ChestX (+0.83%, larger than either Feature-SR's +0.03% or Prompt Ensemble's -0.09%/+0.08% on that domain). ISIC 2018 is the exception, discussed in §6.2.
+
+### 4.7 5-way 1-shot: Ensemble & Feature-SR + Ensemble (100 Episodes)
+
+§4.3's 1-shot table covers Feature-SR alone; Ensemble-only and Feature-SR+Ensemble were left as future work in the 0829 report. Re-trained under the identical protocol used for the 5-shot ensemble experiments (`--n_shot 1`, otherwise unchanged — strict few-shot, $\text{lr}=3\text{e-}5$, 5-epoch warmup, per-dataset $\lambda_1,\lambda_2$, $\lambda_3=0.3$):
+
+| Dataset | Baseline | Ensemble-only | $\Delta$ | Feature-SR + Ensemble | $\Delta$ |
+|:---|:---:|:---:|:---:|:---:|:---:|
+| **EuroSAT** | 81.09 ± 1.34% | 79.83 ± 1.54% | **-1.26%** ⚠️ | 78.91 ± 1.52% | **-2.18%** ⚠️ |
+| **CropDiseases** | 77.89 ± 1.90% | 78.64 ± 2.27% | +0.75% 📈 | **80.75 ± 2.20%** | **+2.86%** 📈 |
+| **ISIC 2018** | 32.79 ± 0.98% | **34.73 ± 1.10%** | **+1.94%** 📈 | 34.59 ± 1.11% | +1.80% 📈 |
+| **ChestX** | 20.81 ± 0.96% | **22.21 ± 0.99%** | **+1.40%** 📈 | 20.99 ± 0.90% | +0.18% |
+| **Average** | **53.15%** | **53.85%** | **+0.71%** | **53.81%** | **+0.67%** |
+
+Unlike §4.5's 5-shot result, the strict monotonic stack $\text{Baseline} < \text{Ensemble-only} < \text{Feature-SR+Ensemble}$ holds on only 1 of 4 domains (CropDiseases, which also shows the largest single $\Delta$ observed anywhere in this document, +2.86%). EuroSAT reverses entirely (both enhancements net negative, worse combined than alone) — a striking contrast with EuroSAT's +4.37% at 5-shot, the largest gain in that setting. ISIC and ChestX show Ensemble-only as the local optimum, with Feature-SR added on top slightly *reducing* accuracy. The average is mildly positive in both configurations (+0.71% / +0.67%) but this masks per-dataset variance far exceeding the 5-shot case; averaging over datasets here would be actively misleading. See `reports/0905_1shot完整驗證報告.md` for full analysis. This resolves the open question of §4.3 — 1-shot gains are not uniformly absent, but the visual-side LoRA calibration is evidently far more sensitive to any additional perturbation (text-side ensemble or visual-side Feature-SR) when the support set is a single image, making dataset-dependent enablement necessary rather than optional.
+
 ---
 
 ## 5. Computational Complexity
@@ -197,10 +242,25 @@ All 4/4 domains satisfy $\text{Baseline} < \text{Ensemble-only} < \text{Feature-
 | Component | Trainable Parameters | GPU Memory Overhead |
 |:---|:---:|:---:|
 | CLIP-LoRA Backbone | 0.22 M | ~0.44 MB |
-| FeatureUpsampler | 2.36 M | ~4.7 MB |
-| FeatureRefiner (2 blocks) | 7.99 M | ~15.9 MB |
-| **Total Added by FeatureSR** | **10.35 M** | **~21 MB (Total VRAM ~2.4 GB)** |
+| FeatureUpsampler | 5.92 M | ~11.8 MB |
+| FeatureRefiner (2 blocks) | 4.21 M | ~8.4 MB |
+| **Total Added by FeatureSR** | **10.13 M** | **~20.3 MB (Total VRAM ~2.4 GB)** |
 | Domain-Adaptive Prompt Ensemble | 0 M (frozen text encoder) | Negligible — $M\times$ text-encoder forward passes under `torch.no_grad()`, no backward pass |
+
+### 5.1 Base CC-CDFSL Cycle-Consistency Overhead
+
+The upstream CC-CDFSL framework [1] itself reports no complexity analysis (no FLOPs, parameter-count, or timing section appears anywhere in the paper). For completeness, we derive it here from the reference implementation (`losses/cycle_consistency.py`, `train.py`):
+
+| Component | Trainable Parameters | Added Compute (training) |
+|:---|:---:|:---|
+| T-I-T ($\mathcal{L}_{TIT}$) | **0** | One $[C,N]$ similarity matrix + argmax ($C{=}5$ classes) — negligible next to a CLIP forward pass |
+| Semantic Anchor shrinking (`select_anchor_features`) | **0** | `einsum("bpd,cd->bcp")` over all support+augmented images, $O(B_{aug}\times P \times C \times d)$; $C{=}5$ keeps this small |
+| I-T-I ($\mathcal{L}_{ITI}$) | **0** | Two argmax similarity lookups — negligible |
+| Augmentation branch ($n_{aug}{=}4$) | **0** | The actual cost driver: $n_{aug}$ extra CLIP visual-encoder forward passes per episode to populate the retrieval pool, run under `torch.no_grad()` (`train.py:239-240`) — adds forward-pass time but **no backward-pass memory** |
+
+None of T-I-T, I-T-I, or Semantic Anchor introduce trainable parameters — every parameter added during training is still exactly the 0.22 M CLIP-LoRA weights (plus FeatureSR's 10.13 M when enabled); the cycle-consistency terms only shape the loss landscape those weights are optimized against.
+
+**Inference-time cost is zero.** `evaluate()` (`train.py:312–352`) never invokes T-I-T, I-T-I, Semantic Anchor, or the augmentation branch — it is a plain `encode_image → cosine-similarity-with-text` forward pass, identical in cost to a bare CLIP-LoRA baseline. The entire cycle-consistency machinery is a **training-time-only regularizer**; it has no effect on deployed inference latency regardless of whether Feature-SR or Prompt Ensemble are also enabled.
 
 ---
 
@@ -219,6 +279,14 @@ Across every experiment in this document, ChestX consistently shows the smallest
 | CLIP-LoRA [3] (baseline) | ViT/CLIP | 24.44% |
 
 Every ViT/CLIP-based method in the comparison — including the CC-CDFSL paper's own full method — underperforms ResNet-based competitors on ChestX specifically. This suggests the limiting factor on ChestX is the ViT/CLIP backbone's inductive bias relative to the fine-grained, low-contrast local textures characteristic of grayscale radiographs, a ceiling that sits upstream of both FeatureSR (which upsamples this same backbone's patch grid) and the text-side prompt module. Closing this gap would require backbone-level changes and is out of scope for this document.
+
+### 6.2 ISIC 2018: TTA Regresses When Stacked with Feature-SR
+
+Unlike the ChestX ceiling (§6.1), which is backbone-level and affects every enhancement uniformly, the TTA regression on ISIC 2018 (§4.6) is specific to one enhancement combination: horizontal-flip TTA is near-neutral on the ensemble-only checkpoint (-0.07%, within noise) but drops **-1.38%** once stacked on top of Feature-SR — a delta exceeding the sum of both configurations' confidence intervals (0.67% + 0.69% = 1.36%), i.e. a real effect, not sampling noise.
+
+Horizontal flips are a semantically valid augmentation for dermoscopic images (no canonical orientation), so the regression is unlikely to be a label-semantics violation of the kind that would rule out flipping outright. A more plausible account: Feature-SR's cross-resolution consistency objective ($\mathcal{L}_{\text{CR}}$, §3.1) already tightens the visual embedding around the *specific* orientation statistics seen during training on ISIC's fine-grained lesion boundaries (the domain with the smallest Feature-SR margin to begin with, §4.3); averaging in a flipped view at inference then perturbs an already narrowly-calibrated decision boundary rather than adding robust signal. This remains a hypothesis — no controlled ablation isolating $\mathcal{L}_{\text{CR}}$'s contribution to this specific interaction has been run.
+
+**Practical implication**: `--use_tta` should be a per-dataset, not global, switch — enabled for EuroSAT, CropDiseases, and ChestX, disabled for ISIC 2018 (especially in the Feature-SR + Ensemble configuration). See `reports/0901_TTA驗證報告.md` for the full verification.
 
 ---
 

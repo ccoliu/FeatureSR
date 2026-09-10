@@ -1,0 +1,20 @@
+[00:28:41 INFO] Device: cuda
+[00:28:41 INFO] ============================================================
+[00:28:41 INFO] Dataset: isic, n_shot=5, Mode: Feature-SR (28x28)
+[00:28:41 INFO] ============================================================
+[00:28:42 INFO] Train: ISICDataset(split=train, n_classes=7, n_samples=35)
+[00:28:42 INFO] Test:  ISICDataset(split=test, n_classes=7, n_samples=2003)
+[00:28:42 INFO] Loading CLIP ViT-B/16...
+[00:28:53 INFO] Applying LoRA (r=4, alpha=1.0)...
+[00:28:53 INFO] Initializing Feature SR Module (scale=2, 14x14 -> 28x28)...
+[00:28:53 INFO] Trainable parameters: 10,350,592
+[00:28:53 INFO] LR Schedule: Cosine decay (no warmup)
+/var/tmp/cc-cdfsl/train.py:457: FutureWarning: `torch.cuda.amp.GradScaler(args...)` is deprecated. Please use `torch.amp.GradScaler('cuda', args...)` instead.
+  scaler = torch.cuda.amp.GradScaler() if device == "cuda" else None
+[00:28:53 INFO] FP16 Automatic Mixed Precision (AMP) enabled.
+[00:28:53 INFO] Initial evaluation (before training)...
+[00:30:39 INFO]   Baseline: 20.56 ± 0.64%
+/var/tmp/cc-cdfsl/train.py:213: FutureWarning: `torch.cuda.amp.autocast(args...)` is deprecated. Please use `torch.amp.autocast('cuda', args...)` instead.
+  with torch.cuda.amp.autocast(enabled=(scaler is not None)):
+[W910 00:31:08.656173495 CUDACachingAllocator.cpp:3933] memory allocation failed with OOM on device 0 while trying to allocate 1967128576 bytes (free: 0, total: 12884377600).
+[W910 00:31:32.729869910 CUDACachingAllocator.cpp:3933] memory allocation failed with OOM on device 0 while trying to allocate 1967128576 bytes (free: 0, total: 12884377600).

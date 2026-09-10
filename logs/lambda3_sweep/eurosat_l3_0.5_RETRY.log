@@ -1,0 +1,15 @@
+[17:04:26 INFO] Device: cuda
+[17:04:26 INFO] ============================================================
+[17:04:26 INFO] Dataset: eurosat, n_shot=5, Mode: Feature-SR (28x28)
+[17:04:26 INFO] ============================================================
+[17:04:26 INFO] Train: EuroSATDataset(split=train, n_classes=10, n_samples=50)
+[17:04:26 INFO] Test:  EuroSATDataset(split=test, n_classes=10, n_samples=5400)
+[17:04:26 INFO] Loading CLIP ViT-B/16...
+[17:04:33 INFO] Applying LoRA (r=4, alpha=1.0)...
+[17:04:33 INFO] Initializing Feature SR Module (scale=2, 14x14 -> 28x28)...
+[17:04:33 INFO] Trainable parameters: 10,350,592
+[17:04:33 INFO] LR Schedule: Cosine decay (no warmup)
+/var/tmp/cc-cdfsl/train.py:457: FutureWarning: `torch.cuda.amp.GradScaler(args...)` is deprecated. Please use `torch.amp.GradScaler('cuda', args...)` instead.
+  scaler = torch.cuda.amp.GradScaler() if device == "cuda" else None
+[17:04:33 INFO] FP16 Automatic Mixed Precision (AMP) enabled.
+[17:04:33 INFO] Initial evaluation (before training)...

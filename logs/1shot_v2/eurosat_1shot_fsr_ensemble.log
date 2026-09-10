@@ -1,0 +1,46 @@
+[22:34:29 INFO] Device: cuda
+[22:34:30 INFO] ============================================================
+[22:34:30 INFO] Dataset: eurosat, n_shot=1, Mode: Feature-SR (28x28)
+[22:34:30 INFO] ============================================================
+[22:34:30 INFO] Train: EuroSATDataset(split=train, n_classes=10, n_samples=10)
+[22:34:30 INFO] Test:  EuroSATDataset(split=test, n_classes=10, n_samples=5400)
+[22:34:30 INFO] Loading CLIP ViT-B/16...
+[22:34:36 INFO] Applying LoRA (r=4, alpha=1.0)...
+[22:34:36 INFO] Initializing Feature SR Module (scale=2, 14x14 -> 28x28)...
+[22:34:36 INFO] Trainable parameters: 10,350,592
+[22:34:36 INFO] LR Schedule: Linear warmup (5 epochs) + Cosine decay
+/var/tmp/cc-cdfsl/train.py:457: FutureWarning: `torch.cuda.amp.GradScaler(args...)` is deprecated. Please use `torch.amp.GradScaler('cuda', args...)` instead.
+  scaler = torch.cuda.amp.GradScaler() if device == "cuda" else None
+[22:34:36 INFO] FP16 Automatic Mixed Precision (AMP) enabled.
+[22:34:36 INFO] Initial evaluation (before training)...
+[22:35:08 INFO]   Baseline: 48.69 ± 3.11%
+/var/tmp/cc-cdfsl/train.py:213: FutureWarning: `torch.cuda.amp.autocast(args...)` is deprecated. Please use `torch.amp.autocast('cuda', args...)` instead.
+  with torch.cuda.amp.autocast(enabled=(scaler is not None)):
+[22:36:40 INFO] Epoch [  1/100] Loss: 1.2757 (CE:0.7379, TIT:0.1309, ITI:0.2608, CR:0.9644) Acc: 65.37%
+[22:50:20 INFO] Epoch [ 10/100] Loss: 0.1503 (CE:0.0056, TIT:0.0729, ITI:0.0704, CR:0.0708) Acc: 80.45%
+[22:51:32 INFO]   [Eval] Epoch 10: 80.01 ± 1.48% ✓ NEW BEST!
+[22:51:32 INFO]   Saved best checkpoint: checkpoints_1shot_fsr_ensemble/eurosat_1shot_fsr_best.pth
+[23:06:44 INFO] Epoch [ 20/100] Loss: 0.1726 (CE:0.0012, TIT:0.1061, ITI:0.0296, CR:0.0209) Acc: 75.37%
+[23:07:55 INFO]   [Eval] Epoch 20: 75.65 ± 1.65%
+[23:23:08 INFO] Epoch [ 30/100] Loss: 0.2210 (CE:0.0005, TIT:0.1424, ITI:0.0210, CR:0.0090) Acc: 73.92%
+[23:24:19 INFO]   [Eval] Epoch 30: 76.48 ± 1.53%
+[23:39:31 INFO] Epoch [ 40/100] Loss: 0.2187 (CE:0.0003, TIT:0.1429, ITI:0.0138, CR:0.0045) Acc: 76.40%
+[23:40:43 INFO]   [Eval] Epoch 40: 77.09 ± 1.39%
+[23:55:57 INFO] Epoch [ 50/100] Loss: 0.2147 (CE:0.0002, TIT:0.1408, ITI:0.0112, CR:0.0033) Acc: 77.39%
+[23:57:09 INFO]   [Eval] Epoch 50: 78.65 ± 1.59%
+[00:12:23 INFO] Epoch [ 60/100] Loss: 0.2224 (CE:0.0002, TIT:0.1463, ITI:0.0097, CR:0.0025) Acc: 78.23%
+[00:13:34 INFO]   [Eval] Epoch 60: 76.33 ± 1.66%
+[00:28:47 INFO] Epoch [ 70/100] Loss: 0.2213 (CE:0.0002, TIT:0.1459, ITI:0.0083, CR:0.0021) Acc: 77.65%
+[00:29:58 INFO]   [Eval] Epoch 70: 80.25 ± 1.88% ✓ NEW BEST!
+[00:29:58 INFO]   Saved best checkpoint: checkpoints_1shot_fsr_ensemble/eurosat_1shot_fsr_best.pth
+[00:45:09 INFO] Epoch [ 80/100] Loss: 0.2272 (CE:0.0001, TIT:0.1500, ITI:0.0075, CR:0.0019) Acc: 78.35%
+[00:46:22 INFO]   [Eval] Epoch 80: 79.69 ± 1.69%
+[01:01:36 INFO] Epoch [ 90/100] Loss: 0.2284 (CE:0.0001, TIT:0.1509, ITI:0.0075, CR:0.0017) Acc: 77.09%
+[01:02:47 INFO]   [Eval] Epoch 90: 77.63 ± 1.47%
+[01:18:01 INFO] Epoch [100/100] Loss: 0.2184 (CE:0.0001, TIT:0.1443, ITI:0.0068, CR:0.0016) Acc: 78.25%
+[01:19:12 INFO]   [Eval] Epoch 100: 79.24 ± 1.61%
+[01:19:12 INFO] 
+Best Acc: 80.25% at Epoch 70
+[01:19:12 INFO] Loaded best checkpoint from epoch 70
+[01:20:23 INFO] Final (Feature-SR (28x28)): 78.91 ± 1.52% (n_episodes=100)
+[EuroSATDataset] Strict few-shot training enabled. Total training samples: 10 (n_shot=1)

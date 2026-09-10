@@ -83,6 +83,35 @@ Evaluated across **4 diverse cross-domain datasets** under the **Strict Few-Shot
 
 ---
 
+### 5. Test-Time Augmentation（TTA，依資料集決定）
+
+> `--use_tta`（水平翻轉 + 原圖特徵平均融合）早期曾在「訓練/測試 prompt 不一致」的壞掉 checkpoint 上測過，結果近乎雜訊（平均 -0.23%），因此一度被認為沒用。修復後重新隔離驗證，發現 TTA 本身沒問題——3/4 資料集穩定正向，但 ISIC 疊加 Feature-SR 後會顯著掉分，**不建議全域開啟，需依資料集決定**。詳見 [`reports/0901_TTA驗證報告.md`](reports/0901_TTA驗證報告.md)。
+
+| 資料集 | 無 TTA（Ensemble-only / FSR+Ensemble）| 有 TTA | Delta | 建議 |
+|:---|:---:|:---:|:---:|:---:|
+| **EuroSAT** | 93.69% / 94.00% | 93.97% / 94.36% | +0.28% / +0.36% | ✅ 開啟 |
+| **CropDiseases** | 90.61% / 90.28% | 90.96% / **91.44%** | +0.35% / **+1.16%** | ✅ 開啟 |
+| **ISIC 2018** | 44.10% / 44.13% | 44.03% / **42.75%** | -0.07% / **-1.38%** ⚠️ | ❌ 關閉（尤其搭配 Feature-SR）|
+| **ChestX** | 22.77% / 22.59% | **23.60%** / 23.19% | **+0.83%** / +0.60% | ✅ 開啟（目前對 ChestX 效果最好的單一手段）|
+
+---
+
+### 6. 5-way 1-shot: Ensemble & Feature-SR + Ensemble（100 Episodes）⚠️
+
+> 補齊 §3、§4 一直缺少的 1-shot 版本（同一套訓練協定，`--n_shot 1`）。**跟 5-shot 不同，1-shot 沒有全資料集一致的單調疊加模式**，效果依資料集劇烈分化，不建議直接假設 1-shot 也會正向。詳見 [`reports/0905_1shot完整驗證報告.md`](reports/0905_1shot完整驗證報告.md)。
+
+| Dataset | Baseline | Ensemble-only | Δ | Feature-SR + Ensemble | Δ |
+|:---|:---:|:---:|:---:|:---:|:---:|
+| **EuroSAT** | 81.09 ± 1.34% | 79.83 ± 1.54% | **-1.26%** ⚠️ | 78.91 ± 1.52% | **-2.18%** ⚠️ |
+| **CropDiseases** | 77.89 ± 1.90% | 78.64 ± 2.27% | +0.75% 📈 | **80.75 ± 2.20%** | **+2.86%** 📈 |
+| **ISIC 2018** | 32.79 ± 0.98% | **34.73 ± 1.10%** | **+1.94%** 📈 | 34.59 ± 1.11% | +1.80% 📈 |
+| **ChestX** | 20.81 ± 0.96% | **22.21 ± 0.99%** | **+1.40%** 📈 | 20.99 ± 0.90% | +0.18% |
+| **Average** | **53.15%** | **53.85%** | **+0.71%** | **53.81%** | **+0.67%** |
+
+* 只有 CropDiseases 維持 5-shot 那種 Baseline < Ensemble-only < FSR+Ensemble 單調遞增模式(且增益是目前所有實驗最大的單一 Δ,+2.86%);EuroSAT 反而整體轉負,ISIC/ChestX 則是 Ensemble-only 已是最佳點、疊加 Feature-SR 略降。平均雖小幅正向,但掩蓋了資料集間的劇烈分化。
+
+---
+
 ## 🛠️ Installation & Environment Setup
 
 ### 1. Clone the repository
@@ -246,7 +275,7 @@ bash scripts/run_all_optimized.sh
 | `--sr_refiner_layers`| `int`| `2` | Number of Transformer Refiner blocks in Feature-SR module |
 | `--sr_refiner_heads` | `int` | `8` | Number of attention heads in Transformer Refiner |
 | `--use_prompt_ensemble` | `flag` | `False` | Enables domain multi-template prompt ensemble (must be set during training too — see Benchmark Results §3) |
-| `--use_tta` | `flag` | `False` | Enables test-time augmentation (horizontal-flip feature averaging) during evaluation |
+| `--use_tta` | `flag` | `False` | Enables test-time augmentation (horizontal-flip feature averaging). Dataset-dependent — recommended for EuroSAT/CropDiseases/ChestX, **not** for ISIC (regresses when stacked with Feature-SR, see Benchmark Results §5) |
 | `--lambda1` | `float` | `1.0` | Weight for Text-Image-Text (T-I-T) cyclic loss |
 | `--lambda2` | `float` | `0.5` | Weight for Image-Text-Image (I-T-I) cyclic loss |
 | `--lambda3` | `float` | `0.3` | Weight for Cross-Resolution Consistency loss ($\mathcal{L}_{\text{CR}}$) |

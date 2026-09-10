@@ -18,3 +18,42 @@
 [16:13:36 INFO]   Episode 110/400: 90.81 ± 1.22%
 [16:14:13 INFO]   Episode 120/400: 90.68 ± 1.15%
 [16:14:51 INFO]   Episode 130/400: 90.85 ± 1.10%
+[16:15:28 INFO]   Episode 140/400: 90.88 ± 1.04%
+[16:16:07 INFO]   Episode 150/400: 90.90 ± 0.98%
+[16:16:45 INFO]   Episode 160/400: 90.92 ± 0.95%
+[16:17:21 INFO]   Episode 170/400: 90.84 ± 0.92%
+[16:17:56 INFO]   Episode 180/400: 90.90 ± 0.89%
+[16:18:34 INFO]   Episode 190/400: 90.91 ± 0.86%
+[16:19:10 INFO]   Episode 200/400: 90.66 ± 0.85%
+[16:19:47 INFO]   Episode 210/400: 90.79 ± 0.82%
+[16:20:24 INFO]   Episode 220/400: 90.81 ± 0.81%
+[16:21:00 INFO]   Episode 230/400: 90.86 ± 0.79%
+[16:21:37 INFO]   Episode 240/400: 90.98 ± 0.77%
+[16:22:16 INFO]   Episode 250/400: 90.97 ± 0.75%
+[16:22:54 INFO]   Episode 260/400: 91.05 ± 0.72%
+[16:23:31 INFO]   Episode 270/400: 91.18 ± 0.70%
+[16:24:08 INFO]   Episode 280/400: 91.22 ± 0.70%
+[16:24:45 INFO]   Episode 290/400: 91.09 ± 0.69%
+[16:25:23 INFO]   Episode 300/400: 91.14 ± 0.68%
+[16:26:02 INFO]   Episode 310/400: 91.12 ± 0.66%
+[16:26:40 INFO]   Episode 320/400: 91.07 ± 0.66%
+[16:27:17 INFO]   Episode 330/400: 91.04 ± 0.65%
+[16:27:53 INFO]   Episode 340/400: 91.06 ± 0.64%
+[16:28:31 INFO]   Episode 350/400: 91.05 ± 0.63%
+[16:29:07 INFO]   Episode 360/400: 91.09 ± 0.61%
+[16:29:47 INFO]   Episode 370/400: 91.01 ± 0.61%
+[16:30:31 INFO]   Episode 380/400: 90.99 ± 0.62%
+[16:31:08 INFO]   Episode 390/400: 90.99 ± 0.62%
+[16:31:45 INFO]   Episode 400/400: 90.96 ± 0.62%
+[16:31:45 INFO] 
+Result: 90.96 ± 0.62% (400 episodes)
+[16:31:45 INFO] 
+============================================================
+[16:31:45 INFO] Final Summary:
+[16:31:45 INFO] ============================================================
+[16:31:45 INFO]   crop_disease    5-shot: 90.96 ± 0.62%
+[16:31:45 INFO] 
+[Table Format]
+[16:31:45 INFO] Dataset		Mean±CI
+[16:31:45 INFO] crop_disease	90.96±0.62
+[CropDiseases] 使用路徑：data/CropDiseases/New Plant Diseases Dataset(Augmented)/New Plant Diseases Dataset(Augmented)/train

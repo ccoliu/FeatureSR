@@ -1,0 +1,44 @@
+[15:56:24 INFO] Device: cuda
+[15:56:24 INFO] ============================================================
+[15:56:24 INFO] Dataset: eurosat, n_shot=5, Mode: Feature-SR (28x28)
+[15:56:24 INFO] ============================================================
+[15:56:24 INFO] Train: EuroSATDataset(split=train, n_classes=10, n_samples=50)
+[15:56:24 INFO] Test:  EuroSATDataset(split=test, n_classes=10, n_samples=5400)
+[15:56:24 INFO] Loading CLIP ViT-B/16...
+[EuroSATDataset] Strict few-shot training enabled. Total training samples: 50 (n_shot=5)
+[15:57:08 INFO] Applying LoRA (r=4, alpha=1.0)...
+[15:57:08 INFO] Initializing Feature SR Module (scale=2, 14x14 -> 28x28)...
+[15:57:08 INFO] Trainable parameters: 10,350,592
+[15:57:08 INFO] LR Schedule: Cosine decay (no warmup)
+[15:57:08 INFO] FP16 Automatic Mixed Precision (AMP) enabled.
+[15:57:08 INFO] Initial evaluation (before training)...
+[15:57:17 INFO]   Baseline: 48.32 ± 3.21%
+[15:57:55 INFO] Epoch [  1/100] Loss: 0.8405 (CE:0.5851, TIT:0.0782, ITI:0.0875, CR:0.2413) Acc: 67.93%
+[16:03:33 INFO] Epoch [ 10/100] Loss: 0.2035 (CE:0.0005, TIT:0.1330, ITI:0.0044, CR:0.0052) Acc: 90.12%
+[16:04:45 INFO]   [Eval] Epoch 10: 90.61 ± 0.40% ✓ NEW BEST!
+[16:04:45 INFO]   Saved best checkpoint: checkpoints_lambda3_sweep/l3_0.5/eurosat_5shot_fsr_best.pth
+[16:11:01 INFO] Epoch [ 20/100] Loss: 0.2072 (CE:0.0002, TIT:0.1370, ITI:0.0024, CR:0.0022) Acc: 89.60%
+[16:12:14 INFO]   [Eval] Epoch 20: 89.82 ± 0.40%
+[16:18:30 INFO] Epoch [ 30/100] Loss: 0.2037 (CE:0.0001, TIT:0.1350, ITI:0.0018, CR:0.0015) Acc: 89.09%
+[16:19:43 INFO]   [Eval] Epoch 30: 89.03 ± 0.45%
+[16:26:01 INFO] Epoch [ 40/100] Loss: 0.2060 (CE:0.0001, TIT:0.1368, ITI:0.0015, CR:0.0009) Acc: 88.01%
+[16:27:14 INFO]   [Eval] Epoch 40: 88.24 ± 0.45%
+[16:33:31 INFO] Epoch [ 50/100] Loss: 0.2048 (CE:0.0001, TIT:0.1361, ITI:0.0012, CR:0.0006) Acc: 88.65%
+[16:34:44 INFO]   [Eval] Epoch 50: 88.65 ± 0.45%
+[16:41:00 INFO] Epoch [ 60/100] Loss: 0.2058 (CE:0.0001, TIT:0.1368, ITI:0.0011, CR:0.0005) Acc: 87.56%
+[16:42:12 INFO]   [Eval] Epoch 60: 87.83 ± 0.45%
+[16:48:30 INFO] Epoch [ 70/100] Loss: 0.2014 (CE:0.0001, TIT:0.1339, ITI:0.0010, CR:0.0004) Acc: 87.79%
+[16:49:43 INFO]   [Eval] Epoch 70: 88.45 ± 0.41%
+[16:56:00 INFO] Epoch [ 80/100] Loss: 0.2070 (CE:0.0001, TIT:0.1378, ITI:0.0009, CR:0.0003) Acc: 88.09%
+[16:57:12 INFO]   [Eval] Epoch 80: 88.02 ± 0.43%
+[17:03:27 INFO] Epoch [ 90/100] Loss: 0.2026 (CE:0.0001, TIT:0.1348, ITI:0.0008, CR:0.0003) Acc: 87.63%
+[17:04:39 INFO]   [Eval] Epoch 90: 87.74 ± 0.42%
+[17:10:57 INFO] Epoch [100/100] Loss: 0.2016 (CE:0.0001, TIT:0.1342, ITI:0.0007, CR:0.0003) Acc: 87.57%
+[17:12:10 INFO]   [Eval] Epoch 100: 87.60 ± 0.44%
+[17:12:10 INFO]
+Best Acc: 90.61% at Epoch 10
+[17:12:10 INFO] Loaded best checkpoint from epoch 10
+[17:13:22 INFO] Final (Feature-SR (28x28)): 89.93 ± 0.42% (n_episodes=400)
+
+# 註：此 log 於 server127（RTX 4090）執行，非本機 3060。原始 log 含 CLIP 權重下載進度條與
+# FutureWarning，已於存檔時清除，數值內容與時間戳皆逐行保留未更動。

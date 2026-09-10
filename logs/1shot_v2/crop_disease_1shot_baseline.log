@@ -1,0 +1,48 @@
+[01:20:31 INFO] Device: cuda
+[01:20:31 INFO] ============================================================
+[01:20:31 INFO] Dataset: crop_disease, n_shot=1, Mode: Baseline (14x14)
+[01:20:31 INFO] ============================================================
+[01:20:32 INFO] Train: CropDiseaseDataset(split=train, n_classes=38, n_samples=38)
+[01:20:32 INFO] Test:  CropDiseaseDataset(split=test, n_classes=38, n_samples=14059)
+[01:20:32 INFO] Loading CLIP ViT-B/16...
+[01:20:39 INFO] Applying LoRA (r=4, alpha=1.0)...
+[01:20:39 INFO] Trainable parameters: 221,184
+[01:20:39 INFO] LR Schedule: Linear warmup (5 epochs) + Cosine decay
+/var/tmp/cc-cdfsl/train.py:457: FutureWarning: `torch.cuda.amp.GradScaler(args...)` is deprecated. Please use `torch.amp.GradScaler('cuda', args...)` instead.
+  scaler = torch.cuda.amp.GradScaler() if device == "cuda" else None
+[01:20:39 INFO] FP16 Automatic Mixed Precision (AMP) enabled.
+[01:20:39 INFO] Initial evaluation (before training)...
+[01:21:15 INFO]   Baseline: 38.69 ± 3.98%
+/var/tmp/cc-cdfsl/train.py:213: FutureWarning: `torch.cuda.amp.autocast(args...)` is deprecated. Please use `torch.amp.autocast('cuda', args...)` instead.
+  with torch.cuda.amp.autocast(enabled=(scaler is not None)):
+[01:22:40 INFO] Epoch [  1/100] Loss: 3.0468 (CE:2.5021, TIT:0.0717, ITI:0.3153) Acc: 38.37%
+[01:35:09 INFO] Epoch [ 10/100] Loss: 0.6713 (CE:0.1705, TIT:0.0501, ITI:0.3004) Acc: 71.71%
+[01:36:19 INFO]   [Eval] Epoch 10: 71.85 ± 2.43% ✓ NEW BEST!
+[01:36:19 INFO]   Saved best checkpoint: checkpoints_1shot_baseline/crop_disease_1shot_best.pth
+[01:50:06 INFO] Epoch [ 20/100] Loss: 0.4215 (CE:0.0227, TIT:0.0493, ITI:0.2330) Acc: 77.25%
+[01:51:15 INFO]   [Eval] Epoch 20: 77.21 ± 1.98% ✓ NEW BEST!
+[01:51:15 INFO]   Saved best checkpoint: checkpoints_1shot_baseline/crop_disease_1shot_best.pth
+[02:05:03 INFO] Epoch [ 30/100] Loss: 0.2838 (CE:0.0035, TIT:0.0872, ITI:0.1287) Acc: 75.87%
+[02:06:13 INFO]   [Eval] Epoch 30: 77.64 ± 2.24% ✓ NEW BEST!
+[02:06:13 INFO]   Saved best checkpoint: checkpoints_1shot_baseline/crop_disease_1shot_best.pth
+[02:19:59 INFO] Epoch [ 40/100] Loss: 0.2504 (CE:0.0023, TIT:0.1185, ITI:0.0864) Acc: 77.27%
+[02:21:09 INFO]   [Eval] Epoch 40: 76.36 ± 2.10%
+[02:34:54 INFO] Epoch [ 50/100] Loss: 0.2261 (CE:0.0016, TIT:0.1514, ITI:0.0487) Acc: 74.68%
+[02:36:05 INFO]   [Eval] Epoch 50: 75.08 ± 2.24%
+[02:49:52 INFO] Epoch [ 60/100] Loss: 0.2245 (CE:0.0010, TIT:0.1707, ITI:0.0351) Acc: 75.23%
+[02:51:02 INFO]   [Eval] Epoch 60: 74.28 ± 2.29%
+[03:04:47 INFO] Epoch [ 70/100] Loss: 0.2207 (CE:0.0013, TIT:0.1716, ITI:0.0319) Acc: 74.21%
+[03:05:58 INFO]   [Eval] Epoch 70: 73.45 ± 2.02%
+[03:19:44 INFO] Epoch [ 80/100] Loss: 0.2187 (CE:0.0008, TIT:0.1841, ITI:0.0225) Acc: 73.01%
+[03:20:53 INFO]   [Eval] Epoch 80: 75.24 ± 2.11%
+[03:34:39 INFO] Epoch [ 90/100] Loss: 0.2311 (CE:0.0010, TIT:0.1973, ITI:0.0219) Acc: 73.05%
+[03:35:48 INFO]   [Eval] Epoch 90: 74.32 ± 2.07%
+[03:49:36 INFO] Epoch [100/100] Loss: 0.2337 (CE:0.0006, TIT:0.1984, ITI:0.0231) Acc: 73.95%
+[03:50:46 INFO]   [Eval] Epoch 100: 73.11 ± 2.14%
+[03:50:46 INFO] 
+Best Acc: 77.64% at Epoch 30
+[03:50:46 INFO] Loaded best checkpoint from epoch 30
+[03:51:55 INFO] Final (Baseline (14x14)): 77.89 ± 1.90% (n_episodes=100)
+[CropDiseases] 使用路徑：data/CropDiseases/New Plant Diseases Dataset(Augmented)/New Plant Diseases Dataset(Augmented)/train
+[CropDiseaseDataset] Strict few-shot training enabled. Total training samples: 38 (n_shot=1)
+[CropDiseases] 使用路徑：data/CropDiseases/New Plant Diseases Dataset(Augmented)/New Plant Diseases Dataset(Augmented)/train

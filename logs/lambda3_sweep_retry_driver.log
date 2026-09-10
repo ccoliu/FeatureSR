@@ -1,0 +1,69 @@
+======================================================
+ Lambda3 sweep 補跑：EuroSAT{0.1,0.5} + ISIC{0.5}
+ 開始時間: 2026-09-10 11:37:18
+======================================================
+
+>>> [RETRY lambda3=0.1] eurosat
+[11:37:20 INFO] Device: cuda
+[11:37:20 INFO] ============================================================
+[11:37:20 INFO] Dataset: eurosat, n_shot=5, Mode: Feature-SR (28x28)
+[11:37:20 INFO] ============================================================
+[11:37:20 INFO] Train: EuroSATDataset(split=train, n_classes=10, n_samples=50)
+[11:37:20 INFO] Test:  EuroSATDataset(split=test, n_classes=10, n_samples=5400)
+[11:37:20 INFO] Loading CLIP ViT-B/16...
+[11:37:22 INFO] Applying LoRA (r=4, alpha=1.0)...
+[11:37:22 INFO] Initializing Feature SR Module (scale=2, 14x14 -> 28x28)...
+[11:37:22 INFO] Trainable parameters: 10,350,592
+[11:37:22 INFO] LR Schedule: Cosine decay (no warmup)
+/var/tmp/cc-cdfsl/train.py:457: FutureWarning: `torch.cuda.amp.GradScaler(args...)` is deprecated. Please use `torch.amp.GradScaler('cuda', args...)` instead.
+  scaler = torch.cuda.amp.GradScaler() if device == "cuda" else None
+[11:37:22 INFO] FP16 Automatic Mixed Precision (AMP) enabled.
+[11:37:22 INFO] Initial evaluation (before training)...
+[11:37:59 INFO]   Baseline: 50.43 ± 3.42%
+/var/tmp/cc-cdfsl/train.py:213: FutureWarning: `torch.cuda.amp.autocast(args...)` is deprecated. Please use `torch.amp.autocast('cuda', args...)` instead.
+  with torch.cuda.amp.autocast(enabled=(scaler is not None)):
+[11:40:36 INFO] Epoch [  1/100] Loss: 0.7619 (CE:0.5725, TIT:0.1020, ITI:0.0465, CR:0.2707) Acc: 69.24%
+[12:04:16 INFO] Epoch [ 10/100] Loss: 0.2032 (CE:0.0006, TIT:0.1330, ITI:0.0069, CR:0.0173) Acc: 89.73%
+[12:08:50 INFO]   [Eval] Epoch 10: 89.54 ± 0.44% ✓ NEW BEST!
+[12:08:50 INFO]   Saved best checkpoint: checkpoints_lambda3_sweep/l3_0.1/eurosat_5shot_fsr_best.pth
+[12:34:58 INFO] Epoch [ 20/100] Loss: 0.1975 (CE:0.0002, TIT:0.1303, ITI:0.0049, CR:0.0076) Acc: 89.21%
+[12:39:33 INFO]   [Eval] Epoch 20: 89.48 ± 0.43%
+[13:06:02 INFO] Epoch [ 30/100] Loss: 0.2079 (CE:0.0002, TIT:0.1379, ITI:0.0019, CR:0.0047) Acc: 89.05%
+[13:10:43 INFO]   [Eval] Epoch 30: 89.56 ± 0.42% ✓ NEW BEST!
+[13:10:43 INFO]   Saved best checkpoint: checkpoints_lambda3_sweep/l3_0.1/eurosat_5shot_fsr_best.pth
+[13:37:23 INFO] Epoch [ 40/100] Loss: 0.2099 (CE:0.0001, TIT:0.1394, ITI:0.0013, CR:0.0031) Acc: 89.68%
+[13:42:11 INFO]   [Eval] Epoch 40: 89.20 ± 0.42%
+[14:12:08 INFO] Epoch [ 50/100] Loss: 0.2084 (CE:0.0001, TIT:0.1384, ITI:0.0023, CR:0.0020) Acc: 88.53%
+[14:16:58 INFO]   [Eval] Epoch 50: 89.16 ± 0.44%
+[14:49:05 INFO] Epoch [ 60/100] Loss: 0.2101 (CE:0.0001, TIT:0.1398, ITI:0.0009, CR:0.0016) Acc: 88.09%
+[14:55:45 INFO]   [Eval] Epoch 60: 88.53 ± 0.45%
+[15:25:26 INFO] Epoch [ 70/100] Loss: 0.2113 (CE:0.0001, TIT:0.1406, ITI:0.0011, CR:0.0014) Acc: 88.73%
+[15:30:17 INFO]   [Eval] Epoch 70: 88.52 ± 0.42%
+[15:56:29 INFO] Epoch [ 80/100] Loss: 0.2113 (CE:0.0001, TIT:0.1406, ITI:0.0012, CR:0.0011) Acc: 88.64%
+[16:00:56 INFO]   [Eval] Epoch 80: 88.76 ± 0.39%
+[16:26:01 INFO] Epoch [ 90/100] Loss: 0.2107 (CE:0.0001, TIT:0.1402, ITI:0.0012, CR:0.0010) Acc: 88.92%
+[16:30:27 INFO]   [Eval] Epoch 90: 88.20 ± 0.43%
+[16:55:22 INFO] Epoch [100/100] Loss: 0.2102 (CE:0.0001, TIT:0.1398, ITI:0.0013, CR:0.0010) Acc: 88.72%
+[16:59:48 INFO]   [Eval] Epoch 100: 88.40 ± 0.41%
+[16:59:48 INFO] 
+Best Acc: 89.56% at Epoch 30
+[16:59:50 INFO] Loaded best checkpoint from epoch 30
+[17:04:15 INFO] Final (Feature-SR (28x28)): 88.82 ± 0.43% (n_episodes=400)
+[EuroSATDataset] Strict few-shot training enabled. Total training samples: 50 (n_shot=5)
+
+>>> [RETRY lambda3=0.5] eurosat
+[17:04:26 INFO] Device: cuda
+[17:04:26 INFO] ============================================================
+[17:04:26 INFO] Dataset: eurosat, n_shot=5, Mode: Feature-SR (28x28)
+[17:04:26 INFO] ============================================================
+[17:04:26 INFO] Train: EuroSATDataset(split=train, n_classes=10, n_samples=50)
+[17:04:26 INFO] Test:  EuroSATDataset(split=test, n_classes=10, n_samples=5400)
+[17:04:26 INFO] Loading CLIP ViT-B/16...
+[17:04:33 INFO] Applying LoRA (r=4, alpha=1.0)...
+[17:04:33 INFO] Initializing Feature SR Module (scale=2, 14x14 -> 28x28)...
+[17:04:33 INFO] Trainable parameters: 10,350,592
+[17:04:33 INFO] LR Schedule: Cosine decay (no warmup)
+/var/tmp/cc-cdfsl/train.py:457: FutureWarning: `torch.cuda.amp.GradScaler(args...)` is deprecated. Please use `torch.amp.GradScaler('cuda', args...)` instead.
+  scaler = torch.cuda.amp.GradScaler() if device == "cuda" else None
+[17:04:33 INFO] FP16 Automatic Mixed Precision (AMP) enabled.
+[17:04:33 INFO] Initial evaluation (before training)...
