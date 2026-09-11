@@ -361,7 +361,8 @@ def train_on_dataset(
     device: str,
 ) -> dict:
     """對單一資料集進行訓練"""
-    mode_str = "Feature-SR (28x28)" if args.use_feature_sr else "Baseline (14x14)"
+    sr_output_size = 14 * args.sr_scale
+    mode_str = f"Feature-SR ({sr_output_size}x{sr_output_size})" if args.use_feature_sr else "Baseline (14x14)"
     logger.info(f"{'='*60}")
     logger.info(f"Dataset: {dataset_name}, n_shot={args.n_shot}, Mode: {mode_str}")
     logger.info(f"{'='*60}")
@@ -414,7 +415,7 @@ def train_on_dataset(
     feature_sr = None
     cr_loss_fn = None
     if args.use_feature_sr:
-        logger.info(f"Initializing Feature SR Module (scale={args.sr_scale}, 14x14 -> 28x28)...")
+        logger.info(f"Initializing Feature SR Module (scale={args.sr_scale}, 14x14 -> {sr_output_size}x{sr_output_size})...")
         feature_sr = FeatureSRModule(
             feat_dim=clip_wrapper.output_dim,
             input_size=14,
