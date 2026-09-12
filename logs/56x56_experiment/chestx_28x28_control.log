@@ -1,0 +1,48 @@
+[02:18:39 INFO] Device: cuda
+[02:18:39 INFO] ============================================================
+[02:18:39 INFO] Dataset: chestx, n_shot=5, Mode: Feature-SR (28x28)
+[02:18:39 INFO] ============================================================
+[02:18:40 INFO] Train: ChestXDataset(split=train, n_classes=7, n_samples=35)
+[02:18:40 INFO] Test:  ChestXDataset(split=test, n_classes=7, n_samples=6268)
+[02:18:40 INFO] Loading CLIP ViT-B/16...
+[02:18:42 INFO] Applying LoRA (r=4, alpha=1.0)...
+[02:18:42 INFO] Initializing Feature SR Module (scale=2, 14x14 -> 28x28)...
+[02:18:42 INFO] Trainable parameters: 6,145,024
+[02:18:42 INFO] LR Schedule: Cosine decay (no warmup)
+/home/ccoliu/FeatureSR/train.py:458: FutureWarning: `torch.cuda.amp.GradScaler(args...)` is deprecated. Please use `torch.amp.GradScaler('cuda', args...)` instead.
+  scaler = torch.cuda.amp.GradScaler() if device == "cuda" else None
+[02:18:42 INFO] FP16 Automatic Mixed Precision (AMP) enabled.
+[02:18:42 INFO] Initial evaluation (before training)...
+[02:19:45 INFO]   Baseline: 21.15 ± 0.66%
+/home/ccoliu/FeatureSR/train.py:213: FutureWarning: `torch.cuda.amp.autocast(args...)` is deprecated. Please use `torch.amp.autocast('cuda', args...)` instead.
+  with torch.cuda.amp.autocast(enabled=(scaler is not None)):
+[02:22:06 INFO] Epoch [  1/100] Loss: 3.5053 (CE:2.9550, TIT:0.1586, ITI:0.0545, CR:0.1570) Acc: 20.87%
+[02:43:14 INFO] Epoch [ 10/100] Loss: 0.5819 (CE:0.0008, TIT:0.1919, ITI:0.0064, CR:0.0068) Acc: 22.64%
+[02:51:41 INFO]   [Eval] Epoch 10: 22.31 ± 0.44% ✓ NEW BEST!
+[02:51:42 INFO]   Saved best checkpoint: checkpoints_56x56/chestx_28x28_control/chestx_5shot_fsr_best.pth
+[03:15:11 INFO] Epoch [ 20/100] Loss: 0.5810 (CE:0.0003, TIT:0.1929, ITI:0.0022, CR:0.0027) Acc: 22.56%
+[03:23:39 INFO]   [Eval] Epoch 20: 22.57 ± 0.43% ✓ NEW BEST!
+[03:23:39 INFO]   Saved best checkpoint: checkpoints_56x56/chestx_28x28_control/chestx_5shot_fsr_best.pth
+[03:47:08 INFO] Epoch [ 30/100] Loss: 0.5793 (CE:0.0002, TIT:0.1927, ITI:0.0012, CR:0.0016) Acc: 21.61%
+[03:55:38 INFO]   [Eval] Epoch 30: 21.79 ± 0.47%
+[04:19:09 INFO] Epoch [ 40/100] Loss: 0.5930 (CE:0.0001, TIT:0.1973, ITI:0.0013, CR:0.0012) Acc: 22.08%
+[04:27:40 INFO]   [Eval] Epoch 40: 21.93 ± 0.43%
+[04:51:10 INFO] Epoch [ 50/100] Loss: 0.5808 (CE:0.0001, TIT:0.1933, ITI:0.0009, CR:0.0009) Acc: 21.64%
+[04:59:38 INFO]   [Eval] Epoch 50: 21.85 ± 0.50%
+[05:23:08 INFO] Epoch [ 60/100] Loss: 0.5793 (CE:0.0001, TIT:0.1929, ITI:0.0004, CR:0.0007) Acc: 20.89%
+[05:31:35 INFO]   [Eval] Epoch 60: 21.29 ± 0.46%
+[05:55:03 INFO] Epoch [ 70/100] Loss: 0.5860 (CE:0.0001, TIT:0.1952, ITI:0.0004, CR:0.0006) Acc: 21.21%
+[06:03:30 INFO]   [Eval] Epoch 70: 21.63 ± 0.46%
+[06:27:13 INFO] Epoch [ 80/100] Loss: 0.5812 (CE:0.0001, TIT:0.1936, ITI:0.0004, CR:0.0005) Acc: 21.05%
+[06:35:44 INFO]   [Eval] Epoch 80: 21.81 ± 0.46%
+[06:59:14 INFO] Epoch [ 90/100] Loss: 0.5795 (CE:0.0001, TIT:0.1930, ITI:0.0003, CR:0.0005) Acc: 21.71%
+[07:07:45 INFO]   [Eval] Epoch 90: 22.46 ± 0.47%
+[07:31:14 INFO] Epoch [100/100] Loss: 0.5819 (CE:0.0001, TIT:0.1938, ITI:0.0003, CR:0.0005) Acc: 22.77%
+[07:39:42 INFO]   [Eval] Epoch 100: 21.74 ± 0.45%
+[07:39:42 INFO] 
+Best Acc: 22.57% at Epoch 20
+/home/ccoliu/FeatureSR/train.py:556: FutureWarning: You are using `torch.load` with `weights_only=False` (the current default value), which uses the default pickle module implicitly. It is possible to construct malicious pickle data which will execute arbitrary code during unpickling (See https://github.com/pytorch/pytorch/blob/main/SECURITY.md#untrusted-models for more details). In a future release, the default value for `weights_only` will be flipped to `True`. This limits the functions that could be executed during unpickling. Arbitrary objects will no longer be allowed to be loaded via this mode unless they are explicitly allowlisted by the user via `torch.serialization.add_safe_globals`. We recommend you start setting `weights_only=True` for any use case where you don't have full control of the loaded file. Please open an issue on GitHub for any issues related to this experimental feature.
+  ckpt = torch.load(final_ckpt, map_location=device)
+[07:39:42 INFO] Loaded best checkpoint from epoch 20
+[07:48:10 INFO] Final (Feature-SR (28x28)): 22.70 ± 0.46% (n_episodes=400)
+[ChestXDataset] Strict few-shot training enabled. Total training samples: 35 (n_shot=5)
