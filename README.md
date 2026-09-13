@@ -27,15 +27,17 @@
 
 Evaluated across **4 diverse cross-domain datasets** under the **Strict Few-Shot Protocol** (1-shot & 5-shot, mean $\pm$ 95% Confidence Interval):
 
+> **架構備註（2026-09-13 更新）**：以下 Feature-SR 數字全部採用 ablation 驗證過的精簡架構 `sr_refiner_layers=0`（拿掉 FeatureRefiner Transformer 層——內部消融證實它在任何測試資料集上都沒有可量測的貢獻，卻佔了新增參數量的 41.6%，詳見 [`reports/0909_FeatureSR內部Ablation報告.md`](reports/0909_FeatureSR內部Ablation報告.md)）。舊版 `refiner=2` 數字見 `docs/FeatureSR_Methodology.md` 的 v2.4→v2.5 changelog。
+
 ### 1. 5-way 5-shot Performance (400 Episodes)
 
 | Dataset | Domain | Baseline (14×14) | **Feature-SR (28×28)** | Delta ($\Delta$) | Peak Accuracy |
 |:---|:---:|:---:|:---:|:---:|:---:|
-| **EuroSAT** | Satellite / Remote Sensing | 88.79 ± 0.48% | **90.16 ± 0.40%** | **+1.37%** 📈 | **90.43%** |
-| **CropDiseases** | Agriculture / Plant Leaves | 89.68 ± 0.70% | **90.61 ± 0.65%** | **+0.93%** 📈 | **90.41%** |
-| **ISIC 2018** | Dermatology / Skin Lesions | 41.44 ± 0.64% | **43.20 ± 0.63%** | **+1.76%** 📈 | **43.30%** |
-| **ChestX** | Medical / Chest Radiographs | 22.43 ± 0.46% | **22.46 ± 0.42%** | **+0.03%** 📈 | **22.64%** |
-| **Average** | — | **60.59%** | **61.61%** | **+1.02%** 📈 | — |
+| **EuroSAT** | Satellite / Remote Sensing | 88.79 ± 0.48% | **89.96 ± 0.43%** | **+1.17%** 📈 | **90.02%** |
+| **CropDiseases** | Agriculture / Plant Leaves | 89.68 ± 0.70% | **90.23 ± 0.65%** | **+0.55%** 📈 | **90.45%** |
+| **ISIC 2018** | Dermatology / Skin Lesions | 41.44 ± 0.64% | **43.06 ± 0.64%** | **+1.62%** 📈 | **43.13%** |
+| **ChestX** | Medical / Chest Radiographs | 22.43 ± 0.46% | **22.70 ± 0.46%** | **+0.27%** 📈 | **22.57%** |
+| **Average** | — | **60.59%** | **61.74%** | **+1.15%** 📈 | — |
 
 * Feature-SR achieves **100% positive gains across all 4 benchmark datasets**, breaking the 90% accuracy barrier on both CropDiseases and EuroSAT.
 
@@ -43,11 +45,11 @@ Evaluated across **4 diverse cross-domain datasets** under the **Strict Few-Shot
 
 | Dataset | Baseline (14×14) | **Feature-SR (28×28)** | Delta ($\Delta$) | Peak Accuracy |
 |:---|:---:|:---:|:---:|:---:|
-| **EuroSAT** | **80.59 ± 1.29%** | 80.29 ± 1.54% | -0.30% | **82.00%** |
-| **CropDiseases** | **77.77 ± 2.00%** | 76.37 ± 2.22% | -1.40% | **80.00%** |
-| **ISIC 2018** | 30.93 ± 1.11% | **32.63 ± 1.20%** | **+1.70%** 📈 | **32.91%** |
-| **ChestX** | **21.95 ± 0.86%** | 21.51 ± 0.88% | -0.44% | **21.33%** |
-| **Average** | **52.81%** | **52.70%** | **-0.11%** | — |
+| **EuroSAT** | **80.59 ± 1.29%** | 77.77 ± 1.51% | -2.82% | **79.40%** |
+| **CropDiseases** | **77.77 ± 2.00%** | 76.53 ± 2.17% | -1.24% | **77.73%** |
+| **ISIC 2018** | 30.93 ± 1.11% | **33.85 ± 1.05%** | **+2.92%** 📈 | **33.92%** |
+| **ChestX** | **21.95 ± 0.86%** | 21.09 ± 0.86% | -0.86% | **21.72%** |
+| **Average** | **52.81%** | **52.31%** | **-0.50%** | — |
 
 ---
 
@@ -73,13 +75,13 @@ Evaluated across **4 diverse cross-domain datasets** under the **Strict Few-Shot
 
 | Dataset | Baseline | Ensemble-only | **Feature-SR + Ensemble** ⭐⭐ | vs Baseline | vs Ensemble-only |
 |:---|:---:|:---:|:---:|:---:|:---:|
-| **EuroSAT** | 90.17 ± 0.89% | 93.81 ± 0.32% | **94.54 ± 0.30%** | **+4.37%** 📈 | +0.73% |
-| **CropDiseases** | 90.03 ± 1.36% | 90.57 ± 0.64% | **90.97 ± 0.60%** | **+0.94%** 📈 | +0.40% |
-| **ISIC 2018** | 43.76 ± 1.38% | 44.49 ± 0.61% | **44.77 ± 0.65%** | **+1.01%** 📈 | +0.28% |
-| **ChestX** | 22.88 ± 0.83% | 22.79 ± 0.45% | **22.96 ± 0.47%** | +0.08% | +0.17% |
-| **Average** | **61.71%** | **62.92%** | **63.31%** | **+1.60%** 📈 | **+0.39%** 📈 |
+| **EuroSAT** | 90.17 ± 0.89% | 93.81 ± 0.32% | **94.33 ± 0.32%** | **+4.16%** 📈 | +0.52% |
+| **CropDiseases** | 90.03 ± 1.36% | 90.57 ± 0.64% | **90.11 ± 0.67%** | +0.08% | -0.46%（雜訊範圍內）|
+| **ISIC 2018** | 43.76 ± 1.38% | 44.49 ± 0.61% | **45.43 ± 0.70%** | **+1.67%** 📈 | +0.94% |
+| **ChestX** | 22.88 ± 0.83% | 22.79 ± 0.45% | **22.98 ± 0.47%** | +0.10% | +0.19% |
+| **Average** | **61.71%** | **62.92%** | **63.21%** | **+1.50%** 📈 | +0.29% |
 
-* 4/4 資料集全部呈現 baseline < ensemble-only < Feature-SR + ensemble 的一致遞增疊加模式，證實兩個增益來源正交可疊加。ChestX 增益幅度最小，是已知的 backbone 架構限制（ViT/CLIP 在此領域天生不如 ResNet 系方法，詳見論文附錄 Table 9），非方法失效。
+* 2/4 資料集（EuroSAT、ISIC）呈現 baseline < ensemble-only < Feature-SR + ensemble 的乾淨遞增模式；CropDiseases 在 ensemble-only 與 FSR+ensemble 之間基本持平（差距在信賴區間內，非負向交互作用）；ChestX 連 baseline < ensemble-only 都不成立（本來就是雜訊等級差異）。ChestX 整體增益幅度最小，是已知的 backbone 架構限制（ViT/CLIP 在此領域天生不如 ResNet 系方法，詳見論文附錄 Table 9），非方法失效。
 
 ---
 
@@ -89,10 +91,12 @@ Evaluated across **4 diverse cross-domain datasets** under the **Strict Few-Shot
 
 | 資料集 | 無 TTA（Ensemble-only / FSR+Ensemble）| 有 TTA | Delta | 建議 |
 |:---|:---:|:---:|:---:|:---:|
-| **EuroSAT** | 93.69% / 94.00% | 93.97% / 94.36% | +0.28% / +0.36% | ✅ 開啟 |
-| **CropDiseases** | 90.61% / 90.28% | 90.96% / **91.44%** | +0.35% / **+1.16%** | ✅ 開啟 |
-| **ISIC 2018** | 44.10% / 44.13% | 44.03% / **42.75%** | -0.07% / **-1.38%** ⚠️ | ❌ 關閉（尤其搭配 Feature-SR）|
-| **ChestX** | 22.77% / 22.59% | **23.60%** / 23.19% | **+0.83%** / +0.60% | ✅ 開啟（目前對 ChestX 效果最好的單一手段）|
+| **EuroSAT** | 93.69% / 94.29% | 93.97% / 94.27% | +0.28% / -0.02% | 皆非顯著效果 |
+| **CropDiseases** | 90.61% / 90.73% | 90.96% / 90.89% | +0.35% / +0.16% | 皆非顯著效果 |
+| **ISIC 2018** | 44.10% / 45.48% | 44.03% / 44.63% | -0.07% / -0.85% | 皆非顯著效果（FSR+Ens 仍偏負，保守起見可關閉）|
+| **ChestX** | 22.77% / 23.34% | **23.60%** / 22.89% | +0.83% / -0.45% | 皆非顯著效果 |
+
+> **2026-09-13 更新**：改用 refiner=0 架構重測後，套用文件一致的顯著性判準（$|\Delta|$ 超過雙邊信賴區間之和），**上表沒有一格達到顯著**——包含原本被稱為「對 ChestX 最有效手段」的 Ensemble-only +0.83%（信賴區間和為 0.98%，未過門檻）。舊版（refiner=2）ISIC 的 -1.38% 曾是唯一過門檻的顯著效果，refiner=0 下降為 -0.85%，不再顯著。結論趨於保守：**TTA 的效果目前都在雜訊範圍內，per-dataset 開關應視為軟性經驗法則，不是已證實的效果**。詳見 `docs/FeatureSR_Methodology.md` §4.6、§6.2。
 
 ---
 
@@ -102,13 +106,13 @@ Evaluated across **4 diverse cross-domain datasets** under the **Strict Few-Shot
 
 | Dataset | Baseline | Ensemble-only | Δ | Feature-SR + Ensemble | Δ |
 |:---|:---:|:---:|:---:|:---:|:---:|
-| **EuroSAT** | 81.09 ± 1.34% | 79.83 ± 1.54% | **-1.26%** ⚠️ | 78.91 ± 1.52% | **-2.18%** ⚠️ |
-| **CropDiseases** | 77.89 ± 1.90% | 78.64 ± 2.27% | +0.75% 📈 | **80.75 ± 2.20%** | **+2.86%** 📈 |
-| **ISIC 2018** | 32.79 ± 0.98% | **34.73 ± 1.10%** | **+1.94%** 📈 | 34.59 ± 1.11% | +1.80% 📈 |
-| **ChestX** | 20.81 ± 0.96% | **22.21 ± 0.99%** | **+1.40%** 📈 | 20.99 ± 0.90% | +0.18% |
-| **Average** | **53.15%** | **53.85%** | **+0.71%** | **53.81%** | **+0.67%** |
+| **EuroSAT** | 81.09 ± 1.34% | 79.83 ± 1.54% | **-1.26%** ⚠️ | 78.32 ± 1.55% | **-2.77%** ⚠️ |
+| **CropDiseases** | 77.89 ± 1.90% | 78.64 ± 2.27% | +0.75% 📈 | 78.43 ± 2.25% | +0.54%（雜訊範圍內）|
+| **ISIC 2018** | 32.79 ± 0.98% | **34.73 ± 1.10%** | **+1.94%** 📈 | 33.33 ± 1.14% | +0.54%（雜訊範圍內）|
+| **ChestX** | 20.81 ± 0.96% | **22.21 ± 0.99%** | **+1.40%** 📈 | 21.28 ± 0.91% | +0.47%（雜訊範圍內）|
+| **Average** | **53.15%** | **53.85%** | **+0.71%** | **52.84%** | **-0.31%** |
 
-* 只有 CropDiseases 維持 5-shot 那種 Baseline < Ensemble-only < FSR+Ensemble 單調遞增模式(且增益是目前所有實驗最大的單一 Δ,+2.86%);EuroSAT 反而整體轉負,ISIC/ChestX 則是 Ensemble-only 已是最佳點、疊加 Feature-SR 略降。平均雖小幅正向,但掩蓋了資料集間的劇烈分化。
+* 改用 refiner=0 架構重測後（2026-09-13），舊版最大的單一亮點——CropDiseases 的 +2.86%——縮水到 +0.54%，落在自身信賴區間內，不再是穩健效果；FSR+Ensemble 在 4 個資料集上全部落在 Ensemble-only 之下或持平，1-shot 下疊加 Feature-SR 已經看不到淨正效益（平均由 +0.67% 轉為 -0.31%）。EuroSAT 依然整體轉負,ISIC/ChestX 則是 Ensemble-only 已是最佳點、疊加 Feature-SR 略降。結論不變甚至更強：1-shot 下 Feature-SR 的效果不穩定、依資料集決定，不應假設它在極端少樣本情境下必然正向。
 
 ---
 

@@ -4,7 +4,7 @@
 
 **Project**: FeatureSR  
 **Baseline**: CLIP-LoRA [3] with CC-CDFSL Cycle Consistency Framework (CVPR 2026) [1]  
-**Version**: v2.4 (2026-09-09)
+**Version**: v2.5 (2026-09-13)
 
 **Changelog (v1.0 → v2.0)**: Added the Domain-Adaptive Prompt Ensemble module (§3.3), its train/inference consistency requirement and a root-cause analysis of a prior regression (§3.4), combined Feature-SR + Prompt Ensemble empirical results (§4.5), a Known Limitations section on the ChestX backbone ceiling (§6), and a References section with inline citations, sourced from the CC-CDFSL paper's own bibliography where applicable.
 
@@ -15,6 +15,8 @@
 **Changelog (v2.2 → v2.3)**: Added the previously-missing 5-way 1-shot results for Ensemble-only and Feature-SR+Ensemble (§4.7 after this version's renumbering; 100 episodes, same protocol as the 5-shot experiments). Key finding: the clean monotonic stacking observed at 5-shot does not hold at 1-shot — only 1/4 domains (CropDiseases) preserves it, EuroSAT reverses entirely, and ISIC/ChestX show Ensemble-only as a local optimum that Feature-SR slightly degrades when added on top.
 
 **Changelog (v2.3 → v2.4)**: Added §4.1, "Evaluation Protocol: What Accuracy Measures" (prompted by a supervisor question conflating classification-accuracy ground truth with the separate, genuinely-absent reconstruction ground truth for the upsampled $28\times28$ grid). Clarifies that accuracy is an ordinary supervised metric against real class labels, and states explicitly that `evaluate()` never consumes an episode's own support images — classification is domain-adapted zero-shot CLIP similarity, not per-episode prototype matching, with the few-shot adaptation happening entirely during training. Existing §4.1–§4.6 renumbered to §4.2–§4.7 to accommodate.
+
+**Changelog (v2.4 → v2.5)**: Switched the reported Feature-SR architecture from `sr_refiner_layers=2` to `sr_refiner_layers=0` throughout the document (new §6.3), following an internal ablation (`reports/0909_FeatureSR內部Ablation報告.md`) that found the Refiner contributes no measurable gain on any tested dataset despite being 41.6% of FeatureSR's added parameters, and a follow-up resolution sweep (`reports/0912_56x56解析度實驗報告.md`) that found the same for grid density (28×28 vs. 56×56). All Feature-SR-involving benchmark numbers were re-measured under `refiner=0` and replaced in §4.3 (both shot counts), §4.5, §4.6, and §4.7; §5's complexity table was updated to remove the Refiner's parameter/memory line (10.13 M → 5.92 M total added by FeatureSR). §6.2 (ISIC TTA regression) was revised: the regression shrinks from a statistically significant -1.38% (`refiner=2`) to a non-significant -0.85% (`refiner=0`), narrowing but not resolving the original $\mathcal{L}_{\text{CR}}$-calibration hypothesis. Also corrected two pre-existing overclaims noticed while rewriting these sections: §4.5's "all 4/4 domains monotonic" claim was not actually true for ChestX even under the old numbers (Baseline exceeded Ensemble-only), and §4.6's characterization of Ensemble-only ChestX TTA (+0.83%) as "the single most effective enhancement" did not itself clear the document's own significance threshold. Baseline and Ensemble-only (non-Feature-SR) numbers are unchanged throughout, since neither instantiates a FeatureSR module. The λ3 sensitivity analysis (`reports/0910_Lambda3敏感度分析報告.md`) still uses `refiner=2` and was not re-derived (§6.3 explains why this is not expected to matter for its conclusion).
 
 ---
 
@@ -163,23 +165,25 @@ Every accuracy number in this document is a standard supervised classification r
 
 ### 4.3 Benchmark Verification (Strict Few-Shot)
 
+*As of v2.5, all Feature-SR numbers in this document use the ablation-verified architecture, `sr_refiner_layers=0` (§6.3) — the FeatureRefiner Transformer block is dropped entirely, leaving only FeatureUpsampler + $\mathcal{L}_{\text{CR}}$. See the v2.4 → v2.5 changelog for the superseded `refiner=2` numbers.*
+
 #### 5-way 5-shot Results (400 Episodes)
 | Dataset | Baseline (14×14) | Feature-SR (28×28) | Delta ($\Delta$) | Peak Accuracy |
 |:---|:---:|:---:|:---:|:---:|
-| **EuroSAT** | 88.79 ± 0.48% | **90.16 ± 0.40%** | **+1.37%** 📈 | 90.43% |
-| **CropDiseases** | 89.68 ± 0.70% | **90.61 ± 0.65%** | **+0.93%** 📈 | 90.41% |
-| **ISIC 2018** | 41.44 ± 0.64% | **43.20 ± 0.63%** | **+1.76%** 📈 | 43.30% |
-| **ChestX** | 22.43 ± 0.46% | **22.46 ± 0.42%** | **+0.03%** 📈 | 22.64% |
-| **Average** | **60.59%** | **61.61%** | **+1.02%** 📈 | — |
+| **EuroSAT** | 88.79 ± 0.48% | **89.96 ± 0.43%** | **+1.17%** 📈 | 90.02% |
+| **CropDiseases** | 89.68 ± 0.70% | **90.23 ± 0.65%** | **+0.55%** 📈 | 90.45% |
+| **ISIC 2018** | 41.44 ± 0.64% | **43.06 ± 0.64%** | **+1.62%** 📈 | 43.13% |
+| **ChestX** | 22.43 ± 0.46% | **22.70 ± 0.46%** | **+0.27%** 📈 | 22.57% |
+| **Average** | **60.59%** | **61.74%** | **+1.15%** 📈 | — |
 
 #### 5-way 1-shot Results (100 Episodes)
 | Dataset | Baseline (14×14) | Feature-SR (28×28) | Delta ($\Delta$) | Peak Accuracy |
 |:---|:---:|:---:|:---:|:---:|
-| **EuroSAT** | **80.59 ± 1.29%** | 80.29 ± 1.54% | -0.30% | 82.00% |
-| **CropDiseases** | **77.77 ± 2.00%** | 76.37 ± 2.22% | -1.40% | 80.00% |
-| **ISIC 2018** | 30.93 ± 1.11% | **32.63 ± 1.20%** | **+1.70%** 📈 | 32.91% |
-| **ChestX** | **21.95 ± 0.86%** | 21.51 ± 0.88% | -0.44% | 21.33% |
-| **Average** | **52.81%** | **52.70%** | **-0.11%** | — |
+| **EuroSAT** | **80.59 ± 1.29%** | 77.77 ± 1.51% | -2.82% | 79.40% |
+| **CropDiseases** | **77.77 ± 2.00%** | 76.53 ± 2.17% | -1.24% | 77.73% |
+| **ISIC 2018** | 30.93 ± 1.11% | **33.85 ± 1.05%** | **+2.92%** 📈 | 33.92% |
+| **ChestX** | **21.95 ± 0.86%** | 21.09 ± 0.86% | -0.86% | 21.72% |
+| **Average** | **52.81%** | **52.31%** | **-0.50%** | — |
 
 ### 4.4 Prompt Ensemble: Post-hoc Regression vs. Train/Inference-Consistent Fix (5-way 5-shot, 400 Episodes)
 
@@ -199,13 +203,13 @@ Both modules were enabled jointly during training (identical $\text{prompt}$ use
 
 | Dataset | Baseline | Ensemble-only | **Feature-SR + Ensemble** | vs. Baseline | Best Epoch |
 |:---|:---:|:---:|:---:|:---:|:---:|
-| **EuroSAT** | 90.17% | 93.81% | **94.54 ± 0.30%** | **+4.37%** | 40 |
-| **CropDiseases** | 90.03% | 90.57% | **90.97 ± 0.60%** | **+0.94%** | 50 |
-| **ISIC 2018** | 43.76% | 44.49% | **44.77 ± 0.65%** | **+1.01%** | 40 |
-| **ChestX** | 22.88% | 22.79% | **22.96 ± 0.47%** | +0.08% | 70 |
-| **Average** | **61.71%** | **62.92%** | **63.31%** | **+1.60%** | — |
+| **EuroSAT** | 90.17% | 93.81% | **94.33 ± 0.32%** | **+4.16%** | 20 |
+| **CropDiseases** | 90.03% | 90.57% | **90.11 ± 0.67%** | +0.08% | 60 |
+| **ISIC 2018** | 43.76% | 44.49% | **45.43 ± 0.70%** | **+1.67%** 📈 | 10 |
+| **ChestX** | 22.88% | 22.79% | **22.98 ± 0.47%** | +0.10% | 50 |
+| **Average** | **61.71%** | **62.92%** | **63.21%** | **+1.50%** 📈 | — |
 
-All 4/4 domains satisfy $\text{Baseline} < \text{Ensemble-only} < \text{Feature-SR+Ensemble}$, i.e. a strictly monotonic stack with no negative interaction term observed, consistent with the two mechanisms acting on disjoint parameter/embedding spaces (visual-side LoRA + FeatureUpsampler/Refiner vs. text-side anchor embeddings). A secondary effect was observed on ISIC 2018: the ensemble-only run overfits sharply past epoch 10 (peak 44.44% $\rightarrow$ 38.38% by epoch 100), whereas the combined run remains stable in the 43–45% band through epoch 100 (best epoch 40), suggesting $\mathcal{L}_{\text{CR}}$ (§3.1) contributes an incidental regularizing effect under extreme few-shot sample sizes ($n=35$).
+The strictly monotonic stack $\text{Baseline} < \text{Ensemble-only} < \text{Feature-SR+Ensemble}$ holds cleanly on 2/4 domains (EuroSAT, ISIC 2018). CropDiseases now lands essentially flat between Ensemble-only and Feature-SR+Ensemble (90.57% vs. 90.11%, $\Delta=-0.46\%$, within the sum of both configurations' confidence intervals — noise, not a real regression). ChestX was already a pre-existing exception even under the previous (`refiner=2`) numbers — its Baseline (22.88%) exceeds Ensemble-only (22.79%), so the "all 4/4 monotonic" claim in earlier drafts of this document was not accurate for ChestX and is corrected here: 2/4 domains show clean monotonic stacking, the other 2 show effectively flat, noise-level differences between adjacent configurations rather than a negative interaction. A secondary effect was observed on ISIC 2018: the ensemble-only run overfits sharply past epoch 10 (peak 44.44% $\rightarrow$ 38.38% by epoch 100), whereas the combined run peaks early (epoch 10) and holds up better than epoch-100 ensemble-only, suggesting $\mathcal{L}_{\text{CR}}$ (§3.1) contributes an incidental regularizing effect under extreme few-shot sample sizes ($n=35$).
 
 ### 4.6 Test-Time Augmentation (TTA): Isolated Verification
 
@@ -213,13 +217,15 @@ An earlier exploratory pass (`logs/enhanced_5shot_real.log`, pre-fix) suggested 
 
 | Dataset | Ensemble-only, no TTA | + TTA | $\Delta$ | Feature-SR+Ensemble, no TTA | + TTA | $\Delta$ |
 |:---|:---:|:---:|:---:|:---:|:---:|:---:|
-| **EuroSAT** | 93.69 ± 0.32% | 93.97 ± 0.30% | +0.28% 📈 | 94.00 ± 0.32% | 94.36 ± 0.32% | +0.36% 📈 |
-| **CropDiseases** | 90.61 ± 0.62% | 90.96 ± 0.62% | +0.35% 📈 | 90.28 ± 0.68% | **91.44 ± 0.60%** | **+1.16%** 📈 |
-| **ISIC 2018** | 44.10 ± 0.64% | 44.03 ± 0.64% | -0.07% | 44.13 ± 0.67% | **42.75 ± 0.69%** | **-1.38%** ⚠️ |
-| **ChestX** | 22.77 ± 0.49% | **23.60 ± 0.49%** | **+0.83%** 📈 | 22.59 ± 0.45% | 23.19 ± 0.46% | +0.60% 📈 |
-| **Average** | **62.79%** | **63.14%** | **+0.35%** 📈 | **62.75%** | **62.94%** | +0.19% |
+| **EuroSAT** | 93.69 ± 0.32% | 93.97 ± 0.30% | +0.28% | 94.29 ± 0.30% | 94.27 ± 0.33% | -0.02% |
+| **CropDiseases** | 90.61 ± 0.62% | 90.96 ± 0.62% | +0.35% | 90.73 ± 0.66% | 90.89 ± 0.62% | +0.16% |
+| **ISIC 2018** | 44.10 ± 0.64% | 44.03 ± 0.64% | -0.07% | 45.48 ± 0.73% | 44.63 ± 0.62% | -0.85% |
+| **ChestX** | 22.77 ± 0.49% | **23.60 ± 0.49%** | **+0.83%** 📈 | 23.34 ± 0.48% | 22.89 ± 0.46% | -0.45% |
+| **Average** | **62.79%** | **63.14%** | **+0.35%** 📈 | **63.46%** | **63.17%** | -0.29% |
 
-TTA is not broken — the prior negative conclusion was an artifact of testing it against an already-miscalibrated model. On calibrated checkpoints, TTA gives a real (delta exceeds the sum of confidence intervals, not noise) positive effect on 3/4 domains, and is in fact the single most effective enhancement tested on ChestX (+0.83%, larger than either Feature-SR's +0.03% or Prompt Ensemble's -0.09%/+0.08% on that domain). ISIC 2018 is the exception, discussed in §6.2.
+Applying the significance criterion used throughout this document ($|\Delta|$ exceeding the sum of both configurations' 95% CIs) to the **Feature-SR+Ensemble** columns under the ablation-verified `refiner=0` architecture (§6.3): none of the four deltas clear their threshold (EuroSAT: 0.02% vs. 0.63%; CropDiseases: 0.16% vs. 1.28%; ISIC: 0.85% vs. 1.35%; ChestX: 0.45% vs. 0.94%). This is a materially different picture from the `refiner=2` numbers previously reported here — ISIC's regression was -1.38% (exceeding its 1.36% threshold, a real effect) and CropDiseases' gain was +1.16% (just under its 1.28% threshold) — see the v2.4→v2.5 changelog. Re-checking the **Ensemble-only** column (unaffected by the refiner change, since it never uses Feature-SR) against the same criterion also shows ChestX's +0.83% falling just short of its 0.98% threshold — this column's text in earlier drafts of this document called it "the single most effective enhancement tested on ChestX," which overstated the case; by the stated criterion it is not distinguishable from noise either, merely the largest point estimate observed for that domain.
+
+The practical conclusion is therefore more conservative than previously stated: **none of the TTA deltas measured in this table (Ensemble-only or Feature-SR+Ensemble, any domain) clear the paper's own significance bar.** ISIC's Feature-SR+Ensemble point estimate remains negative (discussed further in §6.2) and ChestX's remain positive in both columns, but none should be presented as a confirmed effect at $n=400$ episodes. Per-dataset TTA enablement should be treated as a soft heuristic based on point estimates, not a proven per-dataset switch — a larger-episode re-check would be needed before this drove a deployment decision.
 
 ### 4.7 5-way 1-shot: Ensemble & Feature-SR + Ensemble (100 Episodes)
 
@@ -227,13 +233,15 @@ TTA is not broken — the prior negative conclusion was an artifact of testing i
 
 | Dataset | Baseline | Ensemble-only | $\Delta$ | Feature-SR + Ensemble | $\Delta$ |
 |:---|:---:|:---:|:---:|:---:|:---:|
-| **EuroSAT** | 81.09 ± 1.34% | 79.83 ± 1.54% | **-1.26%** ⚠️ | 78.91 ± 1.52% | **-2.18%** ⚠️ |
-| **CropDiseases** | 77.89 ± 1.90% | 78.64 ± 2.27% | +0.75% 📈 | **80.75 ± 2.20%** | **+2.86%** 📈 |
-| **ISIC 2018** | 32.79 ± 0.98% | **34.73 ± 1.10%** | **+1.94%** 📈 | 34.59 ± 1.11% | +1.80% 📈 |
-| **ChestX** | 20.81 ± 0.96% | **22.21 ± 0.99%** | **+1.40%** 📈 | 20.99 ± 0.90% | +0.18% |
-| **Average** | **53.15%** | **53.85%** | **+0.71%** | **53.81%** | **+0.67%** |
+| **EuroSAT** | 81.09 ± 1.34% | 79.83 ± 1.54% | **-1.26%** ⚠️ | 78.32 ± 1.55% | **-2.77%** ⚠️ |
+| **CropDiseases** | 77.89 ± 1.90% | 78.64 ± 2.27% | +0.75% 📈 | 78.43 ± 2.25% | +0.54% |
+| **ISIC 2018** | 32.79 ± 0.98% | **34.73 ± 1.10%** | **+1.94%** 📈 | 33.33 ± 1.14% | +0.54% |
+| **ChestX** | 20.81 ± 0.96% | **22.21 ± 0.99%** | **+1.40%** 📈 | 21.28 ± 0.91% | +0.47% |
+| **Average** | **53.15%** | **53.85%** | **+0.71%** | **52.84%** | **-0.31%** |
 
-Unlike §4.5's 5-shot result, the strict monotonic stack $\text{Baseline} < \text{Ensemble-only} < \text{Feature-SR+Ensemble}$ holds on only 1 of 4 domains (CropDiseases, which also shows the largest single $\Delta$ observed anywhere in this document, +2.86%). EuroSAT reverses entirely (both enhancements net negative, worse combined than alone) — a striking contrast with EuroSAT's +4.37% at 5-shot, the largest gain in that setting. ISIC and ChestX show Ensemble-only as the local optimum, with Feature-SR added on top slightly *reducing* accuracy. The average is mildly positive in both configurations (+0.71% / +0.67%) but this masks per-dataset variance far exceeding the 5-shot case; averaging over datasets here would be actively misleading. See `reports/0905_1shot完整驗證報告.md` for full analysis. This resolves the open question of §4.3 — 1-shot gains are not uniformly absent, but the visual-side LoRA calibration is evidently far more sensitive to any additional perturbation (text-side ensemble or visual-side Feature-SR) when the support set is a single image, making dataset-dependent enablement necessary rather than optional.
+*(Numbers updated in v2.5 to the ablation-verified `refiner=0` architecture — see the v2.4→v2.5 changelog for the superseded `refiner=2` numbers, which showed a much larger CropDiseases gain, +2.86%, the single largest $\Delta$ reported anywhere in the pre-v2.5 document.)*
+
+Under `refiner=0`, the strict monotonic stack $\text{Baseline} < \text{Ensemble-only} < \text{Feature-SR+Ensemble}$ holds on 0 of 4 domains at 1-shot — Feature-SR+Ensemble is at or below Ensemble-only on all four datasets, and the CropDiseases combo that was previously the standout success (+2.86% under `refiner=2`) shrinks to +0.54%, well within its own confidence interval (±2.25%) and therefore not distinguishable from Ensemble-only alone. EuroSAT again reverses entirely (both enhancements net negative) — a striking contrast with EuroSAT's +4.16% at 5-shot (§4.5). ISIC and ChestX both show Ensemble-only as the local optimum, with Feature-SR added on top giving back roughly half of the Ensemble-only gain. The average across all four Feature-SR+Ensemble deltas is now mildly *negative* (-0.31%, vs. +0.67% under `refiner=2`), though — as before — averaging over datasets here is not a meaningful summary given the per-dataset variance (a full reversal on EuroSAT alongside small positive deltas elsewhere). See `reports/0905_1shot完整驗證報告.md` for the original (`refiner=2`) full analysis; the qualitative conclusion is strengthened rather than overturned by the `refiner=0` numbers: 1-shot gains from Feature-SR (with or without Ensemble) are unreliable and dataset-dependent, and the visual-side LoRA calibration is evidently far more sensitive to any additional perturbation when the support set is a single image, making dataset-dependent enablement necessary rather than optional — if anything, removing the Refiner *removes* the one 1-shot configuration (CropDiseases combo) that had previously looked like a clear win.
 
 ---
 
@@ -243,9 +251,11 @@ Unlike §4.5's 5-shot result, the strict monotonic stack $\text{Baseline} < \tex
 |:---|:---:|:---:|
 | CLIP-LoRA Backbone | 0.22 M | ~0.44 MB |
 | FeatureUpsampler | 5.92 M | ~11.8 MB |
-| FeatureRefiner (2 blocks) | 4.21 M | ~8.4 MB |
-| **Total Added by FeatureSR** | **10.13 M** | **~20.3 MB (Total VRAM ~2.4 GB)** |
+| ~~FeatureRefiner (2 blocks)~~ | ~~4.21 M~~ **0 M (removed, §6.3)** | ~~~8.4 MB~~ **0 MB** |
+| **Total Added by FeatureSR** | **5.92 M** | **~11.8 MB (Total VRAM ~2.4 GB)** |
 | Domain-Adaptive Prompt Ensemble | 0 M (frozen text encoder) | Negligible — $M\times$ text-encoder forward passes under `torch.no_grad()`, no backward pass |
+
+As of v2.5, FeatureRefiner is dropped from the reported architecture entirely (§6.3): the internal ablation found it contributed nothing measurable on any tested dataset while accounting for 41.6% of FeatureSR's added trainable parameters under the old `refiner=2` configuration (4.21 M / 10.13 M). The Total VRAM figure (~2.4 GB) is essentially unchanged from the `refiner=2` configuration, since it is dominated by the CLIP-ViT-B/16 backbone's own activations, not by either the Upsampler or the (now-removed) Refiner.
 
 ### 5.1 Base CC-CDFSL Cycle-Consistency Overhead
 
@@ -258,7 +268,7 @@ The upstream CC-CDFSL framework [1] itself reports no complexity analysis (no FL
 | I-T-I ($\mathcal{L}_{ITI}$) | **0** | Two argmax similarity lookups — negligible |
 | Augmentation branch ($n_{aug}{=}4$) | **0** | The actual cost driver: $n_{aug}$ extra CLIP visual-encoder forward passes per episode to populate the retrieval pool, run under `torch.no_grad()` (`train.py:239-240`) — adds forward-pass time but **no backward-pass memory** |
 
-None of T-I-T, I-T-I, or Semantic Anchor introduce trainable parameters — every parameter added during training is still exactly the 0.22 M CLIP-LoRA weights (plus FeatureSR's 10.13 M when enabled); the cycle-consistency terms only shape the loss landscape those weights are optimized against.
+None of T-I-T, I-T-I, or Semantic Anchor introduce trainable parameters — every parameter added during training is still exactly the 0.22 M CLIP-LoRA weights (plus FeatureSR's 5.92 M when enabled, §6.3); the cycle-consistency terms only shape the loss landscape those weights are optimized against.
 
 **Inference-time cost is zero.** `evaluate()` (`train.py:312–352`) never invokes T-I-T, I-T-I, Semantic Anchor, or the augmentation branch — it is a plain `encode_image → cosine-similarity-with-text` forward pass, identical in cost to a bare CLIP-LoRA baseline. The entire cycle-consistency machinery is a **training-time-only regularizer**; it has no effect on deployed inference latency regardless of whether Feature-SR or Prompt Ensemble are also enabled.
 
@@ -268,7 +278,7 @@ None of T-I-T, I-T-I, or Semantic Anchor introduce trainable parameters — ever
 
 ### 6.1 ChestX: A Backbone-Architecture Ceiling, Not a Method Failure
 
-Across every experiment in this document, ChestX consistently shows the smallest gain from either enhancement (Feature-SR: +0.03%; Prompt Ensemble: −0.09%; combined: +0.08%). Cross-referencing the CC-CDFSL paper's [1] own Appendix Table 9 (comparison against SOTA CDFSL methods, 5-way 5-shot) shows this is not specific to FeatureSR or the prompt module:
+Across every experiment in this document, ChestX consistently shows the smallest gain from either enhancement (Feature-SR: +0.27%; Prompt Ensemble: −0.09%; combined: +0.10%). Cross-referencing the CC-CDFSL paper's [1] own Appendix Table 9 (comparison against SOTA CDFSL methods, 5-way 5-shot) shows this is not specific to FeatureSR or the prompt module:
 
 | Method | Backbone | ChestX (5-shot) |
 |:---|:---:|:---:|
@@ -280,13 +290,19 @@ Across every experiment in this document, ChestX consistently shows the smallest
 
 Every ViT/CLIP-based method in the comparison — including the CC-CDFSL paper's own full method — underperforms ResNet-based competitors on ChestX specifically. This suggests the limiting factor on ChestX is the ViT/CLIP backbone's inductive bias relative to the fine-grained, low-contrast local textures characteristic of grayscale radiographs, a ceiling that sits upstream of both FeatureSR (which upsamples this same backbone's patch grid) and the text-side prompt module. Closing this gap would require backbone-level changes and is out of scope for this document.
 
-### 6.2 ISIC 2018: TTA Regresses When Stacked with Feature-SR
+### 6.2 ISIC 2018: TTA and Feature-SR Show a Consistently Negative (but No Longer Statistically Significant) Interaction
 
-Unlike the ChestX ceiling (§6.1), which is backbone-level and affects every enhancement uniformly, the TTA regression on ISIC 2018 (§4.6) is specific to one enhancement combination: horizontal-flip TTA is near-neutral on the ensemble-only checkpoint (-0.07%, within noise) but drops **-1.38%** once stacked on top of Feature-SR — a delta exceeding the sum of both configurations' confidence intervals (0.67% + 0.69% = 1.36%), i.e. a real effect, not sampling noise.
+*Updated in v2.5.* Under the previously-reported `refiner=2` architecture, horizontal-flip TTA was near-neutral on the ensemble-only checkpoint (-0.07%, within noise) but dropped **-1.38%** once stacked on top of Feature-SR — a delta exceeding the sum of both configurations' confidence intervals (0.67% + 0.69% = 1.36%), reported at the time as a real effect. Re-measured under the ablation-verified `refiner=0` architecture (§6.3, §4.6), the same comparison gives **-0.85%** (45.48% → 44.63%), which no longer exceeds its own CI-sum threshold (0.73% + 0.62% = 1.35%) — i.e. it is not statistically distinguishable from noise at $n=400$ episodes.
 
-Horizontal flips are a semantically valid augmentation for dermoscopic images (no canonical orientation), so the regression is unlikely to be a label-semantics violation of the kind that would rule out flipping outright. A more plausible account: Feature-SR's cross-resolution consistency objective ($\mathcal{L}_{\text{CR}}$, §3.1) already tightens the visual embedding around the *specific* orientation statistics seen during training on ISIC's fine-grained lesion boundaries (the domain with the smallest Feature-SR margin to begin with, §4.3); averaging in a flipped view at inference then perturbs an already narrowly-calibrated decision boundary rather than adding robust signal. This remains a hypothesis — no controlled ablation isolating $\mathcal{L}_{\text{CR}}$'s contribution to this specific interaction has been run.
+The point estimate is still negative in both architectures, and removing the Refiner roughly halved its magnitude (-1.38% → -0.85%) without flipping its sign. This is consistent with — though not proof of — the original hypothesis: the FeatureRefiner's self-attention was an additional source of over-tight calibration around ISIC's specific training-time orientation statistics, on top of whatever $\mathcal{L}_{\text{CR}}$ (§3.1) itself contributes. Since the Refiner is now removed from the reported architecture entirely, isolating $\mathcal{L}_{\text{CR}}$'s remaining share of this interaction (e.g. re-running this comparison at $\lambda_3=0$) is still an open, un-run ablation — the hypothesis is narrowed, not resolved.
 
-**Practical implication**: `--use_tta` should be a per-dataset, not global, switch — enabled for EuroSAT, CropDiseases, and ChestX, disabled for ISIC 2018 (especially in the Feature-SR + Ensemble configuration). See `reports/0901_TTA驗證報告.md` for the full verification.
+**Practical implication (revised)**: given neither architecture shows a statistically confirmed TTA effect on ISIC 2018 in either direction, `--use_tta` should not be presented as a proven per-dataset switch for this domain — treat the negative point estimate as a mild caution rather than a documented regression, and prefer leaving TTA off for ISIC 2018 in the Feature-SR + Ensemble configuration only if a conservative default is desired, not because the effect is confirmed. See `reports/0901_TTA驗證報告.md` for the original (`refiner=2`) full verification.
+
+### 6.3 FeatureRefiner Removed from the Reported Architecture
+
+*Added in v2.5.* An internal ablation (`reports/0909_FeatureSR內部Ablation報告.md`) tested `sr_refiner_layers=0` (Refiner removed) against the previously-reported `sr_refiner_layers=2` default on EuroSAT, CropDiseases, and ISIC 2018 at 5-shot: the Refiner's $\Delta$ was +0.03%, +0.67%, and -0.17% respectively — all within the sum of the two configurations' confidence intervals, i.e. no measurable contribution on any tested dataset, despite accounting for 41.6% of FeatureSR's added trainable parameters (4.21 M of 10.13 M) and its only $O(P^2)$-cost component. A follow-up sensitivity sweep on the upsampling grid density itself (`reports/0912_56x56解析度實驗報告.md`) found the same pattern one level up: doubling the grid from 28×28 to 56×56 (with the Refiner already removed) also produced no measurable gain on any of the four datasets, while increasing FeatureUpsampler's own parameter count by 61% (5.92 M → 9.54 M, driven by its positional embedding and residual-branch LayerNorm scaling quadratically with grid side length).
+
+Given this, **v2.5 of this document adopts `sr_refiner_layers=0` as the reported architecture throughout** (§4.3, §4.5, §4.6, §4.7, §5), and all Feature-SR-involving benchmark numbers were re-measured under it rather than left as an asterisked caveat on top of the old `refiner=2` numbers. Ensemble-only and Baseline numbers are unaffected, since neither configuration instantiates a FeatureSR module at all. The λ3 sensitivity analysis (`reports/0910_Lambda3敏感度分析報告.md`) was run independently of this change and remains valid: it used `refiner=2` throughout, and its central finding — $\mathcal{L}_{\text{CR}}$'s optimal weight is dataset-dependent and non-transferable across EuroSAT/ISIC 2018 — is a property of $\mathcal{L}_{\text{CR}}$ and the Upsampler, not of the (now-removed) Refiner; re-deriving it under `refiner=0` is not expected to change its qualitative conclusion and has not been prioritized.
 
 ---
 
