@@ -1,0 +1,60 @@
+[14:21:47 INFO] 
+==================================================
+[14:21:47 INFO] Evaluating: isic (5-shot)
+[14:21:47 INFO] Test dataset: ISICDataset(split=test, n_classes=7, n_samples=2003)
+/home/ccoliu/FeatureSR/evaluate.py:147: FutureWarning: You are using `torch.load` with `weights_only=False` (the current default value), which uses the default pickle module implicitly. It is possible to construct malicious pickle data which will execute arbitrary code during unpickling (See https://github.com/pytorch/pytorch/blob/main/SECURITY.md#untrusted-models for more details). In a future release, the default value for `weights_only` will be flipped to `True`. This limits the functions that could be executed during unpickling. Arbitrary objects will no longer be allowed to be loaded via this mode unless they are explicitly allowlisted by the user via `torch.serialization.add_safe_globals`. We recommend you start setting `weights_only=True` for any use case where you don't have full control of the loaded file. Please open an issue on GitHub for any issues related to this experimental feature.
+  ckpt = torch.load(checkpoint_path, map_location=device)
+[14:21:49 INFO] Loaded checkpoint: ./checkpoints_refiner0/fsr_ensemble_5shot/isic_5shot_fsr_best.pth
+[14:21:49 INFO]   epoch=10, best_acc=46.02%
+[14:21:49 INFO] Running 400 episodes...
+[14:21:55 INFO]   Episode 10/400: 44.67 ± 4.29%
+[14:22:02 INFO]   Episode 20/400: 45.07 ± 2.52%
+[14:22:09 INFO]   Episode 30/400: 44.49 ± 2.18%
+[14:22:16 INFO]   Episode 40/400: 45.00 ± 1.87%
+[14:22:22 INFO]   Episode 50/400: 45.17 ± 1.83%
+[14:22:29 INFO]   Episode 60/400: 45.31 ± 1.61%
+[14:22:36 INFO]   Episode 70/400: 45.39 ± 1.54%
+[14:22:43 INFO]   Episode 80/400: 45.78 ± 1.42%
+[14:22:49 INFO]   Episode 90/400: 45.47 ± 1.40%
+[14:22:56 INFO]   Episode 100/400: 45.33 ± 1.29%
+[14:23:03 INFO]   Episode 110/400: 45.27 ± 1.24%
+[14:23:10 INFO]   Episode 120/400: 45.01 ± 1.17%
+[14:23:18 INFO]   Episode 130/400: 45.16 ± 1.11%
+[14:23:25 INFO]   Episode 140/400: 44.99 ± 1.06%
+[14:23:31 INFO]   Episode 150/400: 44.97 ± 1.02%
+[14:23:39 INFO]   Episode 160/400: 45.01 ± 0.99%
+[14:23:45 INFO]   Episode 170/400: 45.06 ± 0.94%
+[14:23:52 INFO]   Episode 180/400: 45.03 ± 0.92%
+[14:23:59 INFO]   Episode 190/400: 44.81 ± 0.90%
+[14:24:05 INFO]   Episode 200/400: 44.87 ± 0.88%
+[14:24:12 INFO]   Episode 210/400: 44.88 ± 0.86%
+[14:24:19 INFO]   Episode 220/400: 44.96 ± 0.84%
+[14:24:26 INFO]   Episode 230/400: 45.01 ± 0.83%
+[14:24:32 INFO]   Episode 240/400: 44.84 ± 0.83%
+[14:24:39 INFO]   Episode 250/400: 44.79 ± 0.81%
+[14:24:47 INFO]   Episode 260/400: 44.76 ± 0.81%
+[14:24:54 INFO]   Episode 270/400: 44.70 ± 0.78%
+[14:25:01 INFO]   Episode 280/400: 44.68 ± 0.77%
+[14:25:07 INFO]   Episode 290/400: 44.70 ± 0.75%
+[14:25:15 INFO]   Episode 300/400: 44.59 ± 0.73%
+[14:25:22 INFO]   Episode 310/400: 44.52 ± 0.72%
+[14:25:28 INFO]   Episode 320/400: 44.56 ± 0.70%
+[14:25:35 INFO]   Episode 330/400: 44.56 ± 0.69%
+[14:25:42 INFO]   Episode 340/400: 44.65 ± 0.68%
+[14:25:48 INFO]   Episode 350/400: 44.67 ± 0.67%
+[14:25:55 INFO]   Episode 360/400: 44.69 ± 0.66%
+[14:26:01 INFO]   Episode 370/400: 44.71 ± 0.65%
+[14:26:08 INFO]   Episode 380/400: 44.68 ± 0.64%
+[14:26:15 INFO]   Episode 390/400: 44.62 ± 0.63%
+[14:26:22 INFO]   Episode 400/400: 44.63 ± 0.62%
+[14:26:22 INFO] 
+Result: 44.63 ± 0.62% (400 episodes)
+[14:26:22 INFO] 
+============================================================
+[14:26:22 INFO] Final Summary:
+[14:26:22 INFO] ============================================================
+[14:26:22 INFO]   isic            5-shot: 44.63 ± 0.62%
+[14:26:22 INFO] 
+[Table Format]
+[14:26:22 INFO] Dataset		Mean±CI
+[14:26:22 INFO] isic	44.63±0.62

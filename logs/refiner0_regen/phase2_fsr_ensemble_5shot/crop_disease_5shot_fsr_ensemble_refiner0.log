@@ -1,0 +1,54 @@
+[22:19:12 INFO] Device: cuda
+[22:19:12 INFO] ============================================================
+[22:19:12 INFO] Dataset: crop_disease, n_shot=5, Mode: Feature-SR (28x28)
+[22:19:12 INFO] ============================================================
+[22:19:12 INFO] Train: CropDiseaseDataset(split=train, n_classes=38, n_samples=190)
+[22:19:12 INFO] Test:  CropDiseaseDataset(split=test, n_classes=38, n_samples=14059)
+[22:19:12 INFO] Loading CLIP ViT-B/16...
+[22:19:14 INFO] Applying LoRA (r=4, alpha=1.0)...
+[22:19:14 INFO] Initializing Feature SR Module (scale=2, 14x14 -> 28x28)...
+[22:19:14 INFO] Trainable parameters: 6,145,024
+[22:19:14 INFO] LR Schedule: Linear warmup (5 epochs) + Cosine decay
+/home/ccoliu/FeatureSR/train.py:458: FutureWarning: `torch.cuda.amp.GradScaler(args...)` is deprecated. Please use `torch.amp.GradScaler('cuda', args...)` instead.
+  scaler = torch.cuda.amp.GradScaler() if device == "cuda" else None
+[22:19:14 INFO] FP16 Automatic Mixed Precision (AMP) enabled.
+[22:19:14 INFO] Initial evaluation (before training)...
+[22:19:26 INFO]   Baseline: 38.61 ± 3.85%
+/home/ccoliu/FeatureSR/train.py:213: FutureWarning: `torch.cuda.amp.autocast(args...)` is deprecated. Please use `torch.amp.autocast('cuda', args...)` instead.
+  with torch.cuda.amp.autocast(enabled=(scaler is not None)):
+[22:20:04 INFO] Epoch [  1/100] Loss: 1.9793 (CE:0.9219, TIT:0.0800, ITI:0.4675, CR:0.9203) Acc: 59.25%
+/home/ccoliu/FeatureSR/.venv/lib/python3.12/site-packages/torch/optim/lr_scheduler.py:240: UserWarning: The epoch parameter in `scheduler.step()` was not necessary and is being deprecated where possible. Please use `scheduler.step()` to step the scheduler. During the deprecation, if epoch is different from None, the closed form is used instead of the new chainable form, where available. Please open an issue if you are unable to replicate your use case: https://github.com/pytorch/pytorch/issues/new/choose.
+  warnings.warn(EPOCH_DEPRECATION_WARNING, UserWarning)
+[22:25:40 INFO] Epoch [ 10/100] Loss: 0.3601 (CE:0.2131, TIT:0.1100, ITI:0.0109, CR:0.0688) Acc: 85.36%
+[22:27:15 INFO]   [Eval] Epoch 10: 85.82 ± 0.94% ✓ NEW BEST!
+[22:27:15 INFO]   Saved best checkpoint: checkpoints_refiner0/fsr_ensemble_5shot/crop_disease_5shot_fsr_best.pth
+[22:33:29 INFO] Epoch [ 20/100] Loss: 0.1787 (CE:0.0476, TIT:0.1170, ITI:0.0054, CR:0.0199) Acc: 89.47%
+[22:35:02 INFO]   [Eval] Epoch 20: 88.77 ± 0.77% ✓ NEW BEST!
+[22:35:02 INFO]   Saved best checkpoint: checkpoints_refiner0/fsr_ensemble_5shot/crop_disease_5shot_fsr_best.pth
+[22:41:17 INFO] Epoch [ 30/100] Loss: 0.1427 (CE:0.0194, TIT:0.1161, ITI:0.0028, CR:0.0099) Acc: 88.36%
+[22:42:53 INFO]   [Eval] Epoch 30: 90.57 ± 0.63% ✓ NEW BEST!
+[22:42:53 INFO]   Saved best checkpoint: checkpoints_refiner0/fsr_ensemble_5shot/crop_disease_5shot_fsr_best.pth
+[22:49:09 INFO] Epoch [ 40/100] Loss: 0.1341 (CE:0.0146, TIT:0.1154, ITI:0.0017, CR:0.0049) Acc: 90.01%
+[22:50:43 INFO]   [Eval] Epoch 40: 89.75 ± 0.65%
+[22:56:56 INFO] Epoch [ 50/100] Loss: 0.1266 (CE:0.0089, TIT:0.1152, ITI:0.0010, CR:0.0031) Acc: 89.23%
+[22:58:31 INFO]   [Eval] Epoch 50: 90.23 ± 0.67%
+[23:04:45 INFO] Epoch [ 60/100] Loss: 0.1199 (CE:0.0030, TIT:0.1152, ITI:0.0007, CR:0.0021) Acc: 89.73%
+[23:06:20 INFO]   [Eval] Epoch 60: 90.69 ± 0.59% ✓ NEW BEST!
+[23:06:20 INFO]   Saved best checkpoint: checkpoints_refiner0/fsr_ensemble_5shot/crop_disease_5shot_fsr_best.pth
+[23:12:35 INFO] Epoch [ 70/100] Loss: 0.1240 (CE:0.0044, TIT:0.1183, ITI:0.0005, CR:0.0017) Acc: 90.03%
+[23:14:12 INFO]   [Eval] Epoch 70: 90.23 ± 0.60%
+[23:20:27 INFO] Epoch [ 80/100] Loss: 0.1207 (CE:0.0040, TIT:0.1155, ITI:0.0005, CR:0.0016) Acc: 90.75%
+[23:22:03 INFO]   [Eval] Epoch 80: 90.12 ± 0.64%
+[23:28:16 INFO] Epoch [ 90/100] Loss: 0.1245 (CE:0.0032, TIT:0.1203, ITI:0.0004, CR:0.0015) Acc: 90.87%
+[23:29:53 INFO]   [Eval] Epoch 90: 90.36 ± 0.62%
+[23:36:07 INFO] Epoch [100/100] Loss: 0.1263 (CE:0.0052, TIT:0.1201, ITI:0.0004, CR:0.0014) Acc: 90.81%
+[23:37:42 INFO]   [Eval] Epoch 100: 89.68 ± 0.64%
+[23:37:42 INFO] 
+Best Acc: 90.69% at Epoch 60
+/home/ccoliu/FeatureSR/train.py:556: FutureWarning: You are using `torch.load` with `weights_only=False` (the current default value), which uses the default pickle module implicitly. It is possible to construct malicious pickle data which will execute arbitrary code during unpickling (See https://github.com/pytorch/pytorch/blob/main/SECURITY.md#untrusted-models for more details). In a future release, the default value for `weights_only` will be flipped to `True`. This limits the functions that could be executed during unpickling. Arbitrary objects will no longer be allowed to be loaded via this mode unless they are explicitly allowlisted by the user via `torch.serialization.add_safe_globals`. We recommend you start setting `weights_only=True` for any use case where you don't have full control of the loaded file. Please open an issue on GitHub for any issues related to this experimental feature.
+  ckpt = torch.load(final_ckpt, map_location=device)
+[23:37:42 INFO] Loaded best checkpoint from epoch 60
+[23:39:16 INFO] Final (Feature-SR (28x28)): 90.11 ± 0.67% (n_episodes=400)
+[CropDiseases] 使用路徑：data/CropDiseases/New Plant Diseases Dataset(Augmented)/New Plant Diseases Dataset(Augmented)/train
+[CropDiseaseDataset] Strict few-shot training enabled. Total training samples: 190 (n_shot=5)
+[CropDiseases] 使用路徑：data/CropDiseases/New Plant Diseases Dataset(Augmented)/New Plant Diseases Dataset(Augmented)/train

@@ -1,0 +1,60 @@
+[14:10:31 INFO] 
+==================================================
+[14:10:31 INFO] Evaluating: eurosat (5-shot)
+[14:10:31 INFO] Test dataset: EuroSATDataset(split=test, n_classes=10, n_samples=5400)
+/home/ccoliu/FeatureSR/evaluate.py:147: FutureWarning: You are using `torch.load` with `weights_only=False` (the current default value), which uses the default pickle module implicitly. It is possible to construct malicious pickle data which will execute arbitrary code during unpickling (See https://github.com/pytorch/pytorch/blob/main/SECURITY.md#untrusted-models for more details). In a future release, the default value for `weights_only` will be flipped to `True`. This limits the functions that could be executed during unpickling. Arbitrary objects will no longer be allowed to be loaded via this mode unless they are explicitly allowlisted by the user via `torch.serialization.add_safe_globals`. We recommend you start setting `weights_only=True` for any use case where you don't have full control of the loaded file. Please open an issue on GitHub for any issues related to this experimental feature.
+  ckpt = torch.load(checkpoint_path, map_location=device)
+[14:10:32 INFO] Loaded checkpoint: ./checkpoints_refiner0/fsr_ensemble_5shot/eurosat_5shot_fsr_best.pth
+[14:10:32 INFO]   epoch=20, best_acc=94.39%
+[14:10:32 INFO] Running 400 episodes...
+[14:10:34 INFO]   Episode 10/400: 93.47 ± 1.80%
+[14:10:36 INFO]   Episode 20/400: 93.07 ± 1.35%
+[14:10:38 INFO]   Episode 30/400: 93.11 ± 1.02%
+[14:10:40 INFO]   Episode 40/400: 93.13 ± 0.91%
+[14:10:42 INFO]   Episode 50/400: 93.52 ± 0.87%
+[14:10:44 INFO]   Episode 60/400: 93.42 ± 0.80%
+[14:10:46 INFO]   Episode 70/400: 93.54 ± 0.76%
+[14:10:48 INFO]   Episode 80/400: 93.60 ± 0.69%
+[14:10:50 INFO]   Episode 90/400: 93.73 ± 0.66%
+[14:10:52 INFO]   Episode 100/400: 93.84 ± 0.62%
+[14:10:54 INFO]   Episode 110/400: 93.87 ± 0.58%
+[14:10:56 INFO]   Episode 120/400: 93.93 ± 0.56%
+[14:10:58 INFO]   Episode 130/400: 94.04 ± 0.53%
+[14:11:00 INFO]   Episode 140/400: 94.03 ± 0.51%
+[14:11:02 INFO]   Episode 150/400: 93.88 ± 0.50%
+[14:11:04 INFO]   Episode 160/400: 93.99 ± 0.48%
+[14:11:06 INFO]   Episode 170/400: 94.04 ± 0.47%
+[14:11:08 INFO]   Episode 180/400: 94.10 ± 0.47%
+[14:11:10 INFO]   Episode 190/400: 94.21 ± 0.45%
+[14:11:11 INFO]   Episode 200/400: 94.26 ± 0.44%
+[14:11:13 INFO]   Episode 210/400: 94.26 ± 0.42%
+[14:11:15 INFO]   Episode 220/400: 94.27 ± 0.41%
+[14:11:17 INFO]   Episode 230/400: 94.34 ± 0.40%
+[14:11:19 INFO]   Episode 240/400: 94.37 ± 0.39%
+[14:11:21 INFO]   Episode 250/400: 94.31 ± 0.38%
+[14:11:23 INFO]   Episode 260/400: 94.27 ± 0.37%
+[14:11:25 INFO]   Episode 270/400: 94.17 ± 0.37%
+[14:11:27 INFO]   Episode 280/400: 94.17 ± 0.36%
+[14:11:29 INFO]   Episode 290/400: 94.21 ± 0.35%
+[14:11:31 INFO]   Episode 300/400: 94.24 ± 0.34%
+[14:11:33 INFO]   Episode 310/400: 94.24 ± 0.34%
+[14:11:35 INFO]   Episode 320/400: 94.26 ± 0.34%
+[14:11:37 INFO]   Episode 330/400: 94.31 ± 0.33%
+[14:11:39 INFO]   Episode 340/400: 94.32 ± 0.32%
+[14:11:41 INFO]   Episode 350/400: 94.34 ± 0.32%
+[14:11:43 INFO]   Episode 360/400: 94.30 ± 0.32%
+[14:11:45 INFO]   Episode 370/400: 94.28 ± 0.31%
+[14:11:47 INFO]   Episode 380/400: 94.30 ± 0.31%
+[14:11:49 INFO]   Episode 390/400: 94.28 ± 0.31%
+[14:11:50 INFO]   Episode 400/400: 94.29 ± 0.30%
+[14:11:50 INFO] 
+Result: 94.29 ± 0.30% (400 episodes)
+[14:11:51 INFO] 
+============================================================
+[14:11:51 INFO] Final Summary:
+[14:11:51 INFO] ============================================================
+[14:11:51 INFO]   eurosat         5-shot: 94.29 ± 0.30%
+[14:11:51 INFO] 
+[Table Format]
+[14:11:51 INFO] Dataset		Mean±CI
+[14:11:51 INFO] eurosat	94.29±0.30

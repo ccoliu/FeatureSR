@@ -1,0 +1,51 @@
+[07:52:08 INFO] Device: cuda
+[07:52:08 INFO] ============================================================
+[07:52:08 INFO] Dataset: eurosat, n_shot=1, Mode: Feature-SR (28x28)
+[07:52:08 INFO] ============================================================
+[07:52:08 INFO] Train: EuroSATDataset(split=train, n_classes=10, n_samples=10)
+[07:52:08 INFO] Test:  EuroSATDataset(split=test, n_classes=10, n_samples=5400)
+[07:52:08 INFO] Loading CLIP ViT-B/16...
+[07:52:10 INFO] Applying LoRA (r=4, alpha=1.0)...
+[07:52:10 INFO] Initializing Feature SR Module (scale=2, 14x14 -> 28x28)...
+[07:52:10 INFO] Trainable parameters: 6,145,024
+[07:52:10 INFO] LR Schedule: Linear warmup (5 epochs) + Cosine decay
+/home/ccoliu/FeatureSR/train.py:458: FutureWarning: `torch.cuda.amp.GradScaler(args...)` is deprecated. Please use `torch.amp.GradScaler('cuda', args...)` instead.
+  scaler = torch.cuda.amp.GradScaler() if device == "cuda" else None
+[07:52:10 INFO] FP16 Automatic Mixed Precision (AMP) enabled.
+[07:52:10 INFO] Initial evaluation (before training)...
+[07:52:18 INFO]   Baseline: 50.51 ± 3.47%
+/home/ccoliu/FeatureSR/train.py:213: FutureWarning: `torch.cuda.amp.autocast(args...)` is deprecated. Please use `torch.amp.autocast('cuda', args...)` instead.
+  with torch.cuda.amp.autocast(enabled=(scaler is not None)):
+[07:52:39 INFO] Epoch [  1/100] Loss: 1.2480 (CE:0.7467, TIT:0.0785, ITI:0.5204, CR:0.9316) Acc: 64.68%
+/home/ccoliu/FeatureSR/.venv/lib/python3.12/site-packages/torch/optim/lr_scheduler.py:240: UserWarning: The epoch parameter in `scheduler.step()` was not necessary and is being deprecated where possible. Please use `scheduler.step()` to step the scheduler. During the deprecation, if epoch is different from None, the closed form is used instead of the new chainable form, where available. Please open an issue if you are unable to replicate your use case: https://github.com/pytorch/pytorch/issues/new/choose.
+  warnings.warn(EPOCH_DEPRECATION_WARNING, UserWarning)
+[07:55:50 INFO] Epoch [ 10/100] Loss: 0.1112 (CE:0.0058, TIT:0.0360, ITI:0.1988, CR:0.0386) Acc: 79.43%
+[07:56:09 INFO]   [Eval] Epoch 10: 79.16 ± 1.58% ✓ NEW BEST!
+[07:56:09 INFO]   Saved best checkpoint: checkpoints_refiner0/fsr_ensemble_1shot/eurosat_1shot_fsr_best.pth
+[07:59:41 INFO] Epoch [ 20/100] Loss: 0.1741 (CE:0.0010, TIT:0.1091, ITI:0.0296, CR:0.0120) Acc: 79.04%
+[07:59:59 INFO]   [Eval] Epoch 20: 79.68 ± 1.50% ✓ NEW BEST!
+[07:59:59 INFO]   Saved best checkpoint: checkpoints_refiner0/fsr_ensemble_1shot/eurosat_1shot_fsr_best.pth
+[08:03:32 INFO] Epoch [ 30/100] Loss: 0.1964 (CE:0.0004, TIT:0.1264, ITI:0.0216, CR:0.0068) Acc: 78.68%
+[08:03:51 INFO]   [Eval] Epoch 30: 78.11 ± 1.60%
+[08:07:23 INFO] Epoch [ 40/100] Loss: 0.2141 (CE:0.0003, TIT:0.1392, ITI:0.0184, CR:0.0046) Acc: 77.67%
+[08:07:41 INFO]   [Eval] Epoch 40: 79.19 ± 1.54%
+[08:11:13 INFO] Epoch [ 50/100] Loss: 0.2153 (CE:0.0003, TIT:0.1413, ITI:0.0106, CR:0.0032) Acc: 77.23%
+[08:11:32 INFO]   [Eval] Epoch 50: 77.31 ± 1.66%
+[08:15:04 INFO] Epoch [ 60/100] Loss: 0.2209 (CE:0.0002, TIT:0.1453, ITI:0.0100, CR:0.0024) Acc: 78.11%
+[08:15:22 INFO]   [Eval] Epoch 60: 77.23 ± 1.51%
+[08:18:54 INFO] Epoch [ 70/100] Loss: 0.2207 (CE:0.0002, TIT:0.1455, ITI:0.0086, CR:0.0019) Acc: 79.08%
+[08:19:13 INFO]   [Eval] Epoch 70: 80.00 ± 1.44% ✓ NEW BEST!
+[08:19:13 INFO]   Saved best checkpoint: checkpoints_refiner0/fsr_ensemble_1shot/eurosat_1shot_fsr_best.pth
+[08:22:46 INFO] Epoch [ 80/100] Loss: 0.2201 (CE:0.0002, TIT:0.1453, ITI:0.0074, CR:0.0017) Acc: 79.80%
+[08:23:04 INFO]   [Eval] Epoch 80: 77.63 ± 1.74%
+[08:26:37 INFO] Epoch [ 90/100] Loss: 0.2207 (CE:0.0002, TIT:0.1458, ITI:0.0068, CR:0.0015) Acc: 80.08%
+[08:26:55 INFO]   [Eval] Epoch 90: 79.28 ± 1.75%
+[08:30:27 INFO] Epoch [100/100] Loss: 0.2172 (CE:0.0002, TIT:0.1436, ITI:0.0055, CR:0.0015) Acc: 77.76%
+[08:30:45 INFO]   [Eval] Epoch 100: 79.88 ± 1.53%
+[08:30:45 INFO] 
+Best Acc: 80.00% at Epoch 70
+/home/ccoliu/FeatureSR/train.py:556: FutureWarning: You are using `torch.load` with `weights_only=False` (the current default value), which uses the default pickle module implicitly. It is possible to construct malicious pickle data which will execute arbitrary code during unpickling (See https://github.com/pytorch/pytorch/blob/main/SECURITY.md#untrusted-models for more details). In a future release, the default value for `weights_only` will be flipped to `True`. This limits the functions that could be executed during unpickling. Arbitrary objects will no longer be allowed to be loaded via this mode unless they are explicitly allowlisted by the user via `torch.serialization.add_safe_globals`. We recommend you start setting `weights_only=True` for any use case where you don't have full control of the loaded file. Please open an issue on GitHub for any issues related to this experimental feature.
+  ckpt = torch.load(final_ckpt, map_location=device)
+[08:30:45 INFO] Loaded best checkpoint from epoch 70
+[08:31:04 INFO] Final (Feature-SR (28x28)): 78.32 ± 1.55% (n_episodes=100)
+[EuroSATDataset] Strict few-shot training enabled. Total training samples: 10 (n_shot=1)
