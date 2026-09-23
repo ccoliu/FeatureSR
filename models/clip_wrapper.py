@@ -112,6 +112,7 @@ class CLIPWrapper(nn.Module):
         class_names: List[str],
         dataset_name: Optional[str] = None,
         use_ensemble: bool = False,
+        with_grad: bool = False,
     ) -> torch.Tensor:
         """
         用類別名稱生成文字特徵。
@@ -121,11 +122,14 @@ class CLIPWrapper(nn.Module):
             class_names: 類別名稱列表，長度 C
             dataset_name: 資料集名稱 (可選, 用於調用專屬領域 Prompt)
             use_ensemble: 若為 True，則啟用領域專屬多模板特徵平均集成
+            with_grad: 文字塔有 LoRA 時需為 True，讓梯度流回文字端 LoRA
 
         Returns:
             text_feat: [C, d] L2 normalized 文字特徵
         """
         if use_ensemble and dataset_name:
+            if with_grad:
+                raise NotImplementedError("Prompt ensemble 尚未支援文字塔 LoRA（ensemble 路徑固定在 no_grad 下計算）")
             from utils.prompt_templates import get_domain_text_embeddings
             return get_domain_text_embeddings(
                 clip_model=self.model,
@@ -139,7 +143,7 @@ class CLIPWrapper(nn.Module):
         prompts = [f"a photo of a {name.replace('___', ' ').replace('__', ' ').replace('_', ' ')}" for name in class_names]
         tokens = clip.tokenize(prompts, truncate=True).to(self.device)
 
-        with torch.no_grad():
+        with torch.set_grad_enabled(with_grad and torch.is_grad_enabled()):
             text_feat = self.model.encode_text(tokens)   # [C, d]
 
         text_feat = F.normalize(text_feat.float(), dim=-1)

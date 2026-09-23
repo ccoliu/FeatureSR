@@ -1,0 +1,50 @@
+[16:07:09 INFO] Episodic protocol | crop_disease 5-way 5-shot | 400 episodes × 100 epochs | tag=nofsr_nocc_loraboth_r2
+[16:07:09 INFO] Args: {'dataset': 'crop_disease', 'data_root': './data', 'n_way': 5, 'n_shot': 5, 'n_query': 15, 'n_episodes': None, 'backbone': 'ViT-B/16', 'lora_encoder': 'both', 'lora_qkv_mode': 'separate', 'lora_out_proj': False, 'lora_r': 2, 'lora_alpha': 1.0, 'lora_dropout': 0.25, 'epochs': 100, 'batch_size': 32, 'lr': 0.0002, 'weight_decay': 0.01, 'no_ce_aug': False, 'lambda1': 0.0, 'lambda2': 0.0, 'top_k': 10, 'n_aug': 4, 'use_feature_sr': False, 'sr_scale': 2, 'sr_refiner_layers': 0, 'sr_refiner_heads': 8, 'lambda3': 0.3, 'seed': 42, 'no_amp': False, 'save_dir': './results_episodic', 'tag': None, 'log_every': 10}
+[16:07:09 INFO] Episode pool (BSCD 全量): CropDiseaseDataset(split=train, n_classes=38, n_samples=70295)
+[16:07:11 INFO] LoRA trainable parameters: 184,320 (encoder=both, qkv=separate, out_proj=False)
+/home/ccoliu/FeatureSR/train_episodic.py:144: FutureWarning: `torch.cuda.amp.GradScaler(args...)` is deprecated. Please use `torch.amp.GradScaler('cuda', args...)` instead.
+  scaler = torch.cuda.amp.GradScaler(enabled=use_amp)
+/home/ccoliu/FeatureSR/.venv/lib/python3.12/site-packages/torch/optim/lr_scheduler.py:224: UserWarning: Detected call of `lr_scheduler.step()` before `optimizer.step()`. In PyTorch 1.1.0 and later, you should call them in the opposite order: `optimizer.step()` before `lr_scheduler.step()`.  Failure to do this will result in PyTorch skipping the first value of the learning rate schedule. See more details at https://pytorch.org/docs/stable/optim.html#how-to-adjust-learning-rate
+  warnings.warn(
+[16:08:01 INFO]   [10/400] running 74.93 ± 6.32% | last loss 0.8575 (ce 0.8575) | 5.0s/episode, ETA 0.54h
+[16:08:50 INFO]   [20/400] running 77.00 ± 3.87% | last loss 0.4653 (ce 0.4653) | 5.0s/episode, ETA 0.53h
+[16:09:40 INFO]   [30/400] running 78.22 ± 3.35% | last loss 0.3691 (ce 0.3691) | 5.0s/episode, ETA 0.51h
+[16:10:30 INFO]   [40/400] running 77.53 ± 2.83% | last loss 0.5020 (ce 0.5020) | 5.0s/episode, ETA 0.50h
+[16:11:20 INFO]   [50/400] running 77.15 ± 2.51% | last loss 0.4384 (ce 0.4384) | 5.0s/episode, ETA 0.48h
+[16:12:10 INFO]   [60/400] running 77.67 ± 2.33% | last loss 0.5051 (ce 0.5051) | 5.0s/episode, ETA 0.47h
+[16:12:59 INFO]   [70/400] running 78.29 ± 2.08% | last loss 0.5057 (ce 0.5057) | 5.0s/episode, ETA 0.46h
+[16:13:49 INFO]   [80/400] running 78.53 ± 2.07% | last loss 0.4788 (ce 0.4788) | 5.0s/episode, ETA 0.44h
+[16:14:39 INFO]   [90/400] running 78.56 ± 1.93% | last loss 0.4098 (ce 0.4098) | 5.0s/episode, ETA 0.43h
+[16:15:29 INFO]   [100/400] running 78.53 ± 1.81% | last loss 1.0248 (ce 1.0248) | 5.0s/episode, ETA 0.42h
+[16:16:19 INFO]   [110/400] running 78.52 ± 1.88% | last loss 0.3920 (ce 0.3920) | 5.0s/episode, ETA 0.40h
+[16:17:09 INFO]   [120/400] running 79.22 ± 1.81% | last loss 0.7264 (ce 0.7264) | 5.0s/episode, ETA 0.39h
+[16:17:58 INFO]   [130/400] running 79.21 ± 1.75% | last loss 0.3296 (ce 0.3296) | 5.0s/episode, ETA 0.37h
+[16:18:48 INFO]   [140/400] running 78.93 ± 1.70% | last loss 1.0673 (ce 1.0673) | 5.0s/episode, ETA 0.36h
+[16:19:38 INFO]   [150/400] running 78.91 ± 1.68% | last loss 0.6820 (ce 0.6820) | 5.0s/episode, ETA 0.35h
+[16:20:27 INFO]   [160/400] running 79.19 ± 1.61% | last loss 0.2439 (ce 0.2439) | 5.0s/episode, ETA 0.33h
+[16:21:17 INFO]   [170/400] running 79.39 ± 1.53% | last loss 0.4252 (ce 0.4252) | 5.0s/episode, ETA 0.32h
+[16:22:07 INFO]   [180/400] running 79.49 ± 1.48% | last loss 0.5782 (ce 0.5782) | 5.0s/episode, ETA 0.30h
+[16:22:57 INFO]   [190/400] running 79.63 ± 1.44% | last loss 0.3033 (ce 0.3033) | 5.0s/episode, ETA 0.29h
+[16:23:46 INFO]   [200/400] running 79.74 ± 1.40% | last loss 0.6411 (ce 0.6411) | 5.0s/episode, ETA 0.28h
+[16:24:36 INFO]   [210/400] running 79.68 ± 1.37% | last loss 0.3894 (ce 0.3894) | 5.0s/episode, ETA 0.26h
+[16:25:26 INFO]   [220/400] running 79.77 ± 1.34% | last loss 0.2224 (ce 0.2224) | 5.0s/episode, ETA 0.25h
+[16:26:16 INFO]   [230/400] running 80.13 ± 1.32% | last loss 0.2645 (ce 0.2645) | 5.0s/episode, ETA 0.24h
+[16:27:05 INFO]   [240/400] running 80.03 ± 1.29% | last loss 0.7692 (ce 0.7692) | 5.0s/episode, ETA 0.22h
+[16:27:55 INFO]   [250/400] running 79.95 ± 1.29% | last loss 0.9799 (ce 0.9799) | 5.0s/episode, ETA 0.21h
+[16:28:45 INFO]   [260/400] running 79.95 ± 1.26% | last loss 0.8803 (ce 0.8803) | 5.0s/episode, ETA 0.19h
+[16:29:35 INFO]   [270/400] running 80.13 ± 1.24% | last loss 0.3232 (ce 0.3232) | 5.0s/episode, ETA 0.18h
+[16:30:25 INFO]   [280/400] running 80.15 ± 1.21% | last loss 0.6310 (ce 0.6310) | 5.0s/episode, ETA 0.17h
+[16:31:15 INFO]   [290/400] running 80.16 ± 1.19% | last loss 0.4819 (ce 0.4819) | 5.0s/episode, ETA 0.15h
+[16:32:05 INFO]   [300/400] running 80.14 ± 1.17% | last loss 0.3082 (ce 0.3082) | 5.0s/episode, ETA 0.14h
+[16:32:54 INFO]   [310/400] running 80.37 ± 1.15% | last loss 0.5537 (ce 0.5537) | 5.0s/episode, ETA 0.12h
+[16:33:44 INFO]   [320/400] running 80.40 ± 1.13% | last loss 0.5786 (ce 0.5786) | 5.0s/episode, ETA 0.11h
+[16:34:34 INFO]   [330/400] running 80.56 ± 1.11% | last loss 0.2346 (ce 0.2346) | 5.0s/episode, ETA 0.10h
+[16:35:24 INFO]   [340/400] running 80.73 ± 1.09% | last loss 0.6679 (ce 0.6679) | 5.0s/episode, ETA 0.08h
+[16:36:14 INFO]   [350/400] running 80.72 ± 1.09% | last loss 0.7591 (ce 0.7591) | 5.0s/episode, ETA 0.07h
+[16:37:03 INFO]   [360/400] running 80.64 ± 1.07% | last loss 0.6310 (ce 0.6310) | 5.0s/episode, ETA 0.06h
+[16:37:53 INFO]   [370/400] running 80.43 ± 1.06% | last loss 0.5930 (ce 0.5930) | 5.0s/episode, ETA 0.04h
+[16:38:43 INFO]   [380/400] running 80.39 ± 1.07% | last loss 0.2808 (ce 0.2808) | 5.0s/episode, ETA 0.03h
+[16:39:33 INFO]   [390/400] running 80.51 ± 1.05% | last loss 0.3247 (ce 0.3247) | 5.0s/episode, ETA 0.01h
+[16:40:23 INFO]   [400/400] running 80.61 ± 1.04% | last loss 0.1934 (ce 0.1934) | 5.0s/episode, ETA 0.00h
+[16:40:23 INFO] Final (episodic, nofsr_nocc_loraboth_r2): 80.61 ± 1.04% (n_episodes=400)
+[CropDiseases] 使用路徑：data/CropDiseases/New Plant Diseases Dataset(Augmented)/New Plant Diseases Dataset(Augmented)/train

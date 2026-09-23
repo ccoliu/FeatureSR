@@ -1,0 +1,284 @@
+nohup: ignoring input
+>>> [CLIP-LoRA baseline, episodic] eurosat 1-shot  2026-09-23 15:17:06
+[15:17:08 INFO] Episodic protocol | eurosat 5-way 1-shot | 100 episodes × 100 epochs | tag=nofsr_nocc_loraboth_r2
+[15:17:08 INFO] Args: {'dataset': 'eurosat', 'data_root': './data', 'n_way': 5, 'n_shot': 1, 'n_query': 15, 'n_episodes': None, 'backbone': 'ViT-B/16', 'lora_encoder': 'both', 'lora_qkv_mode': 'separate', 'lora_out_proj': False, 'lora_r': 2, 'lora_alpha': 1.0, 'lora_dropout': 0.25, 'epochs': 100, 'batch_size': 32, 'lr': 0.0002, 'weight_decay': 0.01, 'no_ce_aug': False, 'lambda1': 0.0, 'lambda2': 0.0, 'top_k': 10, 'n_aug': 4, 'use_feature_sr': False, 'sr_scale': 2, 'sr_refiner_layers': 0, 'sr_refiner_heads': 8, 'lambda3': 0.3, 'seed': 42, 'no_amp': False, 'save_dir': './results_episodic', 'tag': None, 'log_every': 10}
+[15:17:08 INFO] Episode pool (BSCD 全量): EuroSATDataset(split=train, n_classes=10, n_samples=27000)
+[15:17:09 INFO] LoRA trainable parameters: 184,320 (encoder=both, qkv=separate, out_proj=False)
+/home/ccoliu/FeatureSR/train_episodic.py:144: FutureWarning: `torch.cuda.amp.GradScaler(args...)` is deprecated. Please use `torch.amp.GradScaler('cuda', args...)` instead.
+  scaler = torch.cuda.amp.GradScaler(enabled=use_amp)
+/home/ccoliu/FeatureSR/.venv/lib/python3.12/site-packages/torch/optim/lr_scheduler.py:224: UserWarning: Detected call of `lr_scheduler.step()` before `optimizer.step()`. In PyTorch 1.1.0 and later, you should call them in the opposite order: `optimizer.step()` before `lr_scheduler.step()`.  Failure to do this will result in PyTorch skipping the first value of the learning rate schedule. See more details at https://pytorch.org/docs/stable/optim.html#how-to-adjust-learning-rate
+  warnings.warn(
+[15:17:32 INFO]   [10/100] running 78.67 ± 6.25% | last loss 0.4755 (ce 0.4755) | 2.3s/episode, ETA 0.06h
+[15:17:54 INFO]   [20/100] running 80.20 ± 3.65% | last loss 0.0953 (ce 0.0953) | 2.2s/episode, ETA 0.05h
+[15:18:16 INFO]   [30/100] running 80.22 ± 3.30% | last loss 0.2665 (ce 0.2665) | 2.2s/episode, ETA 0.04h
+[15:18:38 INFO]   [40/100] running 80.33 ± 2.97% | last loss 0.2746 (ce 0.2746) | 2.2s/episode, ETA 0.04h
+[15:19:01 INFO]   [50/100] running 79.01 ± 2.73% | last loss 0.1408 (ce 0.1408) | 2.2s/episode, ETA 0.03h
+[15:19:23 INFO]   [60/100] running 78.53 ± 2.38% | last loss 0.1531 (ce 0.1531) | 2.2s/episode, ETA 0.02h
+[15:19:45 INFO]   [70/100] running 78.29 ± 2.25% | last loss 0.2798 (ce 0.2798) | 2.2s/episode, ETA 0.02h
+[15:20:07 INFO]   [80/100] running 78.08 ± 2.05% | last loss 0.2539 (ce 0.2539) | 2.2s/episode, ETA 0.01h
+[15:20:29 INFO]   [90/100] running 78.09 ± 1.89% | last loss 0.4558 (ce 0.4558) | 2.2s/episode, ETA 0.01h
+[15:20:52 INFO]   [100/100] running 78.33 ± 1.81% | last loss 0.3547 (ce 0.3547) | 2.2s/episode, ETA 0.00h
+[15:20:52 INFO] Final (episodic, nofsr_nocc_loraboth_r2): 78.33 ± 1.81% (n_episodes=100)
+>>> [CLIP-LoRA baseline, episodic] crop_disease 1-shot  2026-09-23 15:20:52
+[15:20:53 INFO] Episodic protocol | crop_disease 5-way 1-shot | 100 episodes × 100 epochs | tag=nofsr_nocc_loraboth_r2
+[15:20:53 INFO] Args: {'dataset': 'crop_disease', 'data_root': './data', 'n_way': 5, 'n_shot': 1, 'n_query': 15, 'n_episodes': None, 'backbone': 'ViT-B/16', 'lora_encoder': 'both', 'lora_qkv_mode': 'separate', 'lora_out_proj': False, 'lora_r': 2, 'lora_alpha': 1.0, 'lora_dropout': 0.25, 'epochs': 100, 'batch_size': 32, 'lr': 0.0002, 'weight_decay': 0.01, 'no_ce_aug': False, 'lambda1': 0.0, 'lambda2': 0.0, 'top_k': 10, 'n_aug': 4, 'use_feature_sr': False, 'sr_scale': 2, 'sr_refiner_layers': 0, 'sr_refiner_heads': 8, 'lambda3': 0.3, 'seed': 42, 'no_amp': False, 'save_dir': './results_episodic', 'tag': None, 'log_every': 10}
+[15:20:53 INFO] Episode pool (BSCD 全量): CropDiseaseDataset(split=train, n_classes=38, n_samples=70295)
+[15:20:55 INFO] LoRA trainable parameters: 184,320 (encoder=both, qkv=separate, out_proj=False)
+/home/ccoliu/FeatureSR/train_episodic.py:144: FutureWarning: `torch.cuda.amp.GradScaler(args...)` is deprecated. Please use `torch.amp.GradScaler('cuda', args...)` instead.
+  scaler = torch.cuda.amp.GradScaler(enabled=use_amp)
+/home/ccoliu/FeatureSR/.venv/lib/python3.12/site-packages/torch/optim/lr_scheduler.py:224: UserWarning: Detected call of `lr_scheduler.step()` before `optimizer.step()`. In PyTorch 1.1.0 and later, you should call them in the opposite order: `optimizer.step()` before `lr_scheduler.step()`.  Failure to do this will result in PyTorch skipping the first value of the learning rate schedule. See more details at https://pytorch.org/docs/stable/optim.html#how-to-adjust-learning-rate
+  warnings.warn(
+[15:21:18 INFO]   [10/100] running 67.87 ± 7.92% | last loss 0.6123 (ce 0.6123) | 2.3s/episode, ETA 0.06h
+[15:21:41 INFO]   [20/100] running 70.80 ± 5.44% | last loss 0.2308 (ce 0.2308) | 2.3s/episode, ETA 0.05h
+[15:22:04 INFO]   [30/100] running 72.58 ± 4.19% | last loss 0.5946 (ce 0.5946) | 2.3s/episode, ETA 0.04h
+[15:22:27 INFO]   [40/100] running 71.47 ± 3.46% | last loss 0.1881 (ce 0.1881) | 2.3s/episode, ETA 0.04h
+[15:22:49 INFO]   [50/100] running 70.51 ± 2.98% | last loss 0.3874 (ce 0.3874) | 2.3s/episode, ETA 0.03h
+[15:23:12 INFO]   [60/100] running 71.00 ± 2.84% | last loss 0.2075 (ce 0.2075) | 2.3s/episode, ETA 0.03h
+[15:23:35 INFO]   [70/100] running 71.01 ± 2.78% | last loss 0.2563 (ce 0.2563) | 2.3s/episode, ETA 0.02h
+[15:23:58 INFO]   [80/100] running 71.57 ± 2.57% | last loss 0.4163 (ce 0.4163) | 2.3s/episode, ETA 0.01h
+[15:24:20 INFO]   [90/100] running 72.07 ± 2.35% | last loss 0.6004 (ce 0.6004) | 2.3s/episode, ETA 0.01h
+[15:24:43 INFO]   [100/100] running 71.68 ± 2.28% | last loss 0.5093 (ce 0.5093) | 2.3s/episode, ETA 0.00h
+[15:24:43 INFO] Final (episodic, nofsr_nocc_loraboth_r2): 71.68 ± 2.28% (n_episodes=100)
+[CropDiseases] 使用路徑：data/CropDiseases/New Plant Diseases Dataset(Augmented)/New Plant Diseases Dataset(Augmented)/train
+>>> [CLIP-LoRA baseline, episodic] isic 1-shot  2026-09-23 15:24:44
+[15:24:45 INFO] Episodic protocol | isic 5-way 1-shot | 100 episodes × 100 epochs | tag=nofsr_nocc_loraboth_r2
+[15:24:45 INFO] Args: {'dataset': 'isic', 'data_root': './data', 'n_way': 5, 'n_shot': 1, 'n_query': 15, 'n_episodes': None, 'backbone': 'ViT-B/16', 'lora_encoder': 'both', 'lora_qkv_mode': 'separate', 'lora_out_proj': False, 'lora_r': 2, 'lora_alpha': 1.0, 'lora_dropout': 0.25, 'epochs': 100, 'batch_size': 32, 'lr': 0.0002, 'weight_decay': 0.01, 'no_ce_aug': False, 'lambda1': 0.0, 'lambda2': 0.0, 'top_k': 10, 'n_aug': 4, 'use_feature_sr': False, 'sr_scale': 2, 'sr_refiner_layers': 0, 'sr_refiner_heads': 8, 'lambda3': 0.3, 'seed': 42, 'no_amp': False, 'save_dir': './results_episodic', 'tag': None, 'log_every': 10}
+[15:24:45 INFO] Episode pool (BSCD 全量): ISICDataset(split=train, n_classes=7, n_samples=10015)
+[15:24:46 INFO] LoRA trainable parameters: 184,320 (encoder=both, qkv=separate, out_proj=False)
+/home/ccoliu/FeatureSR/train_episodic.py:144: FutureWarning: `torch.cuda.amp.GradScaler(args...)` is deprecated. Please use `torch.amp.GradScaler('cuda', args...)` instead.
+  scaler = torch.cuda.amp.GradScaler(enabled=use_amp)
+/home/ccoliu/FeatureSR/.venv/lib/python3.12/site-packages/torch/optim/lr_scheduler.py:224: UserWarning: Detected call of `lr_scheduler.step()` before `optimizer.step()`. In PyTorch 1.1.0 and later, you should call them in the opposite order: `optimizer.step()` before `lr_scheduler.step()`.  Failure to do this will result in PyTorch skipping the first value of the learning rate schedule. See more details at https://pytorch.org/docs/stable/optim.html#how-to-adjust-learning-rate
+  warnings.warn(
+[15:25:13 INFO]   [10/100] running 29.73 ± 3.07% | last loss 1.0580 (ce 1.0580) | 2.7s/episode, ETA 0.07h
+[15:25:40 INFO]   [20/100] running 28.40 ± 2.37% | last loss 0.6611 (ce 0.6611) | 2.7s/episode, ETA 0.06h
+[15:26:06 INFO]   [30/100] running 28.22 ± 1.82% | last loss 0.8095 (ce 0.8095) | 2.7s/episode, ETA 0.05h
+[15:26:33 INFO]   [40/100] running 28.03 ± 1.47% | last loss 0.8246 (ce 0.8246) | 2.7s/episode, ETA 0.04h
+[15:26:58 INFO]   [50/100] running 28.51 ± 1.37% | last loss 0.7682 (ce 0.7682) | 2.6s/episode, ETA 0.04h
+[15:27:24 INFO]   [60/100] running 28.31 ± 1.30% | last loss 0.5744 (ce 0.5744) | 2.6s/episode, ETA 0.03h
+[15:27:50 INFO]   [70/100] running 28.27 ± 1.16% | last loss 0.8855 (ce 0.8855) | 2.6s/episode, ETA 0.02h
+[15:28:16 INFO]   [80/100] running 27.97 ± 1.09% | last loss 0.5536 (ce 0.5536) | 2.6s/episode, ETA 0.01h
+[15:28:42 INFO]   [90/100] running 27.73 ± 1.07% | last loss 1.0666 (ce 1.0666) | 2.6s/episode, ETA 0.01h
+[15:29:07 INFO]   [100/100] running 27.55 ± 1.02% | last loss 0.6179 (ce 0.6179) | 2.6s/episode, ETA 0.00h
+[15:29:07 INFO] Final (episodic, nofsr_nocc_loraboth_r2): 27.55 ± 1.02% (n_episodes=100)
+>>> [CLIP-LoRA baseline, episodic] chestx 1-shot  2026-09-23 15:29:08
+[15:29:09 INFO] Episodic protocol | chestx 5-way 1-shot | 100 episodes × 100 epochs | tag=nofsr_nocc_loraboth_r2
+[15:29:09 INFO] Args: {'dataset': 'chestx', 'data_root': './data', 'n_way': 5, 'n_shot': 1, 'n_query': 15, 'n_episodes': None, 'backbone': 'ViT-B/16', 'lora_encoder': 'both', 'lora_qkv_mode': 'separate', 'lora_out_proj': False, 'lora_r': 2, 'lora_alpha': 1.0, 'lora_dropout': 0.25, 'epochs': 100, 'batch_size': 32, 'lr': 0.0002, 'weight_decay': 0.01, 'no_ce_aug': False, 'lambda1': 0.0, 'lambda2': 0.0, 'top_k': 10, 'n_aug': 4, 'use_feature_sr': False, 'sr_scale': 2, 'sr_refiner_layers': 0, 'sr_refiner_heads': 8, 'lambda3': 0.3, 'seed': 42, 'no_amp': False, 'save_dir': './results_episodic', 'tag': None, 'log_every': 10}
+[15:29:09 INFO] Episode pool (BSCD 全量): ChestXDataset(split=train, n_classes=7, n_samples=31338)
+[15:29:11 INFO] LoRA trainable parameters: 184,320 (encoder=both, qkv=separate, out_proj=False)
+/home/ccoliu/FeatureSR/train_episodic.py:144: FutureWarning: `torch.cuda.amp.GradScaler(args...)` is deprecated. Please use `torch.amp.GradScaler('cuda', args...)` instead.
+  scaler = torch.cuda.amp.GradScaler(enabled=use_amp)
+/home/ccoliu/FeatureSR/.venv/lib/python3.12/site-packages/torch/optim/lr_scheduler.py:224: UserWarning: Detected call of `lr_scheduler.step()` before `optimizer.step()`. In PyTorch 1.1.0 and later, you should call them in the opposite order: `optimizer.step()` before `lr_scheduler.step()`.  Failure to do this will result in PyTorch skipping the first value of the learning rate schedule. See more details at https://pytorch.org/docs/stable/optim.html#how-to-adjust-learning-rate
+  warnings.warn(
+[15:29:42 INFO]   [10/100] running 24.13 ± 2.15% | last loss 1.0639 (ce 1.0639) | 3.1s/episode, ETA 0.08h
+[15:30:13 INFO]   [20/100] running 23.07 ± 1.80% | last loss 0.9906 (ce 0.9906) | 3.1s/episode, ETA 0.07h
+[15:30:44 INFO]   [30/100] running 22.89 ± 1.34% | last loss 1.1134 (ce 1.1134) | 3.1s/episode, ETA 0.06h
+[15:31:15 INFO]   [40/100] running 22.60 ± 1.25% | last loss 1.5279 (ce 1.5279) | 3.1s/episode, ETA 0.05h
+[15:31:45 INFO]   [50/100] running 22.16 ± 1.12% | last loss 1.2085 (ce 1.2085) | 3.1s/episode, ETA 0.04h
+[15:32:16 INFO]   [60/100] running 22.18 ± 1.01% | last loss 1.3715 (ce 1.3715) | 3.1s/episode, ETA 0.03h
+[15:32:47 INFO]   [70/100] running 22.11 ± 0.90% | last loss 0.9663 (ce 0.9663) | 3.1s/episode, ETA 0.03h
+[15:33:18 INFO]   [80/100] running 22.02 ± 0.86% | last loss 1.0797 (ce 1.0797) | 3.1s/episode, ETA 0.02h
+[15:33:48 INFO]   [90/100] running 21.82 ± 0.79% | last loss 1.1215 (ce 1.1215) | 3.1s/episode, ETA 0.01h
+[15:34:19 INFO]   [100/100] running 21.75 ± 0.76% | last loss 1.5133 (ce 1.5133) | 3.1s/episode, ETA 0.00h
+[15:34:19 INFO] Final (episodic, nofsr_nocc_loraboth_r2): 21.75 ± 0.76% (n_episodes=100)
+>>> [CLIP-LoRA baseline, episodic] eurosat 5-shot  2026-09-23 15:34:20
+[15:34:21 INFO] Episodic protocol | eurosat 5-way 5-shot | 400 episodes × 100 epochs | tag=nofsr_nocc_loraboth_r2
+[15:34:21 INFO] Args: {'dataset': 'eurosat', 'data_root': './data', 'n_way': 5, 'n_shot': 5, 'n_query': 15, 'n_episodes': None, 'backbone': 'ViT-B/16', 'lora_encoder': 'both', 'lora_qkv_mode': 'separate', 'lora_out_proj': False, 'lora_r': 2, 'lora_alpha': 1.0, 'lora_dropout': 0.25, 'epochs': 100, 'batch_size': 32, 'lr': 0.0002, 'weight_decay': 0.01, 'no_ce_aug': False, 'lambda1': 0.0, 'lambda2': 0.0, 'top_k': 10, 'n_aug': 4, 'use_feature_sr': False, 'sr_scale': 2, 'sr_refiner_layers': 0, 'sr_refiner_heads': 8, 'lambda3': 0.3, 'seed': 42, 'no_amp': False, 'save_dir': './results_episodic', 'tag': None, 'log_every': 10}
+[15:34:21 INFO] Episode pool (BSCD 全量): EuroSATDataset(split=train, n_classes=10, n_samples=27000)
+[15:34:23 INFO] LoRA trainable parameters: 184,320 (encoder=both, qkv=separate, out_proj=False)
+/home/ccoliu/FeatureSR/train_episodic.py:144: FutureWarning: `torch.cuda.amp.GradScaler(args...)` is deprecated. Please use `torch.amp.GradScaler('cuda', args...)` instead.
+  scaler = torch.cuda.amp.GradScaler(enabled=use_amp)
+/home/ccoliu/FeatureSR/.venv/lib/python3.12/site-packages/torch/optim/lr_scheduler.py:224: UserWarning: Detected call of `lr_scheduler.step()` before `optimizer.step()`. In PyTorch 1.1.0 and later, you should call them in the opposite order: `optimizer.step()` before `lr_scheduler.step()`.  Failure to do this will result in PyTorch skipping the first value of the learning rate schedule. See more details at https://pytorch.org/docs/stable/optim.html#how-to-adjust-learning-rate
+  warnings.warn(
+[15:35:12 INFO]   [10/400] running 86.40 ± 5.14% | last loss 0.4776 (ce 0.4776) | 4.9s/episode, ETA 0.53h
+[15:36:01 INFO]   [20/400] running 88.60 ± 3.11% | last loss 0.3756 (ce 0.3756) | 4.9s/episode, ETA 0.52h
+[15:36:50 INFO]   [30/400] running 87.73 ± 2.74% | last loss 0.4143 (ce 0.4143) | 4.9s/episode, ETA 0.51h
+[15:37:39 INFO]   [40/400] running 87.43 ± 2.29% | last loss 0.6108 (ce 0.6108) | 4.9s/episode, ETA 0.49h
+[15:38:28 INFO]   [50/400] running 86.11 ± 2.18% | last loss 0.3463 (ce 0.3463) | 4.9s/episode, ETA 0.48h
+[15:39:17 INFO]   [60/400] running 86.24 ± 1.92% | last loss 0.3282 (ce 0.3282) | 4.9s/episode, ETA 0.46h
+[15:40:06 INFO]   [70/400] running 86.42 ± 1.72% | last loss 0.2831 (ce 0.2831) | 4.9s/episode, ETA 0.45h
+[15:40:55 INFO]   [80/400] running 86.23 ± 1.58% | last loss 0.6509 (ce 0.6509) | 4.9s/episode, ETA 0.44h
+[15:41:45 INFO]   [90/400] running 86.33 ± 1.48% | last loss 0.2917 (ce 0.2917) | 4.9s/episode, ETA 0.42h
+[15:42:34 INFO]   [100/400] running 86.19 ± 1.40% | last loss 0.5369 (ce 0.5369) | 4.9s/episode, ETA 0.41h
+[15:43:23 INFO]   [110/400] running 86.38 ± 1.29% | last loss 0.1818 (ce 0.1818) | 4.9s/episode, ETA 0.40h
+[15:44:12 INFO]   [120/400] running 86.51 ± 1.22% | last loss 0.5837 (ce 0.5837) | 4.9s/episode, ETA 0.38h
+[15:45:01 INFO]   [130/400] running 86.24 ± 1.19% | last loss 0.3083 (ce 0.3083) | 4.9s/episode, ETA 0.37h
+[15:45:50 INFO]   [140/400] running 86.29 ± 1.16% | last loss 0.3510 (ce 0.3510) | 4.9s/episode, ETA 0.35h
+[15:46:40 INFO]   [150/400] running 86.20 ± 1.15% | last loss 0.6171 (ce 0.6171) | 4.9s/episode, ETA 0.34h
+[15:47:29 INFO]   [160/400] running 86.15 ± 1.09% | last loss 0.3289 (ce 0.3289) | 4.9s/episode, ETA 0.33h
+[15:48:18 INFO]   [170/400] running 86.33 ± 1.06% | last loss 0.1388 (ce 0.1388) | 4.9s/episode, ETA 0.31h
+[15:49:07 INFO]   [180/400] running 86.37 ± 1.03% | last loss 0.1259 (ce 0.1259) | 4.9s/episode, ETA 0.30h
+[15:49:56 INFO]   [190/400] running 86.36 ± 1.00% | last loss 0.1249 (ce 0.1249) | 4.9s/episode, ETA 0.29h
+[15:50:45 INFO]   [200/400] running 86.34 ± 0.98% | last loss 0.3560 (ce 0.3560) | 4.9s/episode, ETA 0.27h
+[15:51:34 INFO]   [210/400] running 86.45 ± 0.96% | last loss 0.0400 (ce 0.0400) | 4.9s/episode, ETA 0.26h
+[15:52:24 INFO]   [220/400] running 86.55 ± 0.94% | last loss 0.2536 (ce 0.2536) | 4.9s/episode, ETA 0.25h
+[15:53:13 INFO]   [230/400] running 86.60 ± 0.93% | last loss 0.1570 (ce 0.1570) | 4.9s/episode, ETA 0.23h
+[15:54:02 INFO]   [240/400] running 86.65 ± 0.91% | last loss 0.1225 (ce 0.1225) | 4.9s/episode, ETA 0.22h
+[15:54:51 INFO]   [250/400] running 86.60 ± 0.90% | last loss 0.3665 (ce 0.3665) | 4.9s/episode, ETA 0.20h
+[15:55:40 INFO]   [260/400] running 86.78 ± 0.87% | last loss 0.2732 (ce 0.2732) | 4.9s/episode, ETA 0.19h
+[15:56:29 INFO]   [270/400] running 86.80 ± 0.86% | last loss 0.2263 (ce 0.2263) | 4.9s/episode, ETA 0.18h
+[15:57:18 INFO]   [280/400] running 86.78 ± 0.83% | last loss 0.1260 (ce 0.1260) | 4.9s/episode, ETA 0.16h
+[15:58:07 INFO]   [290/400] running 86.77 ± 0.81% | last loss 0.3301 (ce 0.3301) | 4.9s/episode, ETA 0.15h
+[15:58:56 INFO]   [300/400] running 86.63 ± 0.81% | last loss 0.4723 (ce 0.4723) | 4.9s/episode, ETA 0.14h
+[15:59:46 INFO]   [310/400] running 86.77 ± 0.80% | last loss 0.2672 (ce 0.2672) | 4.9s/episode, ETA 0.12h
+[16:00:35 INFO]   [320/400] running 86.69 ± 0.80% | last loss 0.3906 (ce 0.3906) | 4.9s/episode, ETA 0.11h
+[16:01:24 INFO]   [330/400] running 86.75 ± 0.79% | last loss 0.2708 (ce 0.2708) | 4.9s/episode, ETA 0.10h
+[16:02:13 INFO]   [340/400] running 86.81 ± 0.77% | last loss 0.1677 (ce 0.1677) | 4.9s/episode, ETA 0.08h
+[16:03:02 INFO]   [350/400] running 86.94 ± 0.76% | last loss 0.2392 (ce 0.2392) | 4.9s/episode, ETA 0.07h
+[16:03:51 INFO]   [360/400] running 86.79 ± 0.77% | last loss 0.1801 (ce 0.1801) | 4.9s/episode, ETA 0.05h
+[16:04:40 INFO]   [370/400] running 86.84 ± 0.75% | last loss 0.2386 (ce 0.2386) | 4.9s/episode, ETA 0.04h
+[16:05:29 INFO]   [380/400] running 86.79 ± 0.74% | last loss 0.2516 (ce 0.2516) | 4.9s/episode, ETA 0.03h
+[16:06:18 INFO]   [390/400] running 86.80 ± 0.73% | last loss 0.2580 (ce 0.2580) | 4.9s/episode, ETA 0.01h
+[16:07:07 INFO]   [400/400] running 86.87 ± 0.72% | last loss 0.2259 (ce 0.2259) | 4.9s/episode, ETA 0.00h
+[16:07:07 INFO] Final (episodic, nofsr_nocc_loraboth_r2): 86.87 ± 0.72% (n_episodes=400)
+>>> [CLIP-LoRA baseline, episodic] crop_disease 5-shot  2026-09-23 16:07:08
+[16:07:09 INFO] Episodic protocol | crop_disease 5-way 5-shot | 400 episodes × 100 epochs | tag=nofsr_nocc_loraboth_r2
+[16:07:09 INFO] Args: {'dataset': 'crop_disease', 'data_root': './data', 'n_way': 5, 'n_shot': 5, 'n_query': 15, 'n_episodes': None, 'backbone': 'ViT-B/16', 'lora_encoder': 'both', 'lora_qkv_mode': 'separate', 'lora_out_proj': False, 'lora_r': 2, 'lora_alpha': 1.0, 'lora_dropout': 0.25, 'epochs': 100, 'batch_size': 32, 'lr': 0.0002, 'weight_decay': 0.01, 'no_ce_aug': False, 'lambda1': 0.0, 'lambda2': 0.0, 'top_k': 10, 'n_aug': 4, 'use_feature_sr': False, 'sr_scale': 2, 'sr_refiner_layers': 0, 'sr_refiner_heads': 8, 'lambda3': 0.3, 'seed': 42, 'no_amp': False, 'save_dir': './results_episodic', 'tag': None, 'log_every': 10}
+[16:07:09 INFO] Episode pool (BSCD 全量): CropDiseaseDataset(split=train, n_classes=38, n_samples=70295)
+[16:07:11 INFO] LoRA trainable parameters: 184,320 (encoder=both, qkv=separate, out_proj=False)
+/home/ccoliu/FeatureSR/train_episodic.py:144: FutureWarning: `torch.cuda.amp.GradScaler(args...)` is deprecated. Please use `torch.amp.GradScaler('cuda', args...)` instead.
+  scaler = torch.cuda.amp.GradScaler(enabled=use_amp)
+/home/ccoliu/FeatureSR/.venv/lib/python3.12/site-packages/torch/optim/lr_scheduler.py:224: UserWarning: Detected call of `lr_scheduler.step()` before `optimizer.step()`. In PyTorch 1.1.0 and later, you should call them in the opposite order: `optimizer.step()` before `lr_scheduler.step()`.  Failure to do this will result in PyTorch skipping the first value of the learning rate schedule. See more details at https://pytorch.org/docs/stable/optim.html#how-to-adjust-learning-rate
+  warnings.warn(
+[16:08:01 INFO]   [10/400] running 74.93 ± 6.32% | last loss 0.8575 (ce 0.8575) | 5.0s/episode, ETA 0.54h
+[16:08:50 INFO]   [20/400] running 77.00 ± 3.87% | last loss 0.4653 (ce 0.4653) | 5.0s/episode, ETA 0.53h
+[16:09:40 INFO]   [30/400] running 78.22 ± 3.35% | last loss 0.3691 (ce 0.3691) | 5.0s/episode, ETA 0.51h
+[16:10:30 INFO]   [40/400] running 77.53 ± 2.83% | last loss 0.5020 (ce 0.5020) | 5.0s/episode, ETA 0.50h
+[16:11:20 INFO]   [50/400] running 77.15 ± 2.51% | last loss 0.4384 (ce 0.4384) | 5.0s/episode, ETA 0.48h
+[16:12:10 INFO]   [60/400] running 77.67 ± 2.33% | last loss 0.5051 (ce 0.5051) | 5.0s/episode, ETA 0.47h
+[16:12:59 INFO]   [70/400] running 78.29 ± 2.08% | last loss 0.5057 (ce 0.5057) | 5.0s/episode, ETA 0.46h
+[16:13:49 INFO]   [80/400] running 78.53 ± 2.07% | last loss 0.4788 (ce 0.4788) | 5.0s/episode, ETA 0.44h
+[16:14:39 INFO]   [90/400] running 78.56 ± 1.93% | last loss 0.4098 (ce 0.4098) | 5.0s/episode, ETA 0.43h
+[16:15:29 INFO]   [100/400] running 78.53 ± 1.81% | last loss 1.0248 (ce 1.0248) | 5.0s/episode, ETA 0.42h
+[16:16:19 INFO]   [110/400] running 78.52 ± 1.88% | last loss 0.3920 (ce 0.3920) | 5.0s/episode, ETA 0.40h
+[16:17:09 INFO]   [120/400] running 79.22 ± 1.81% | last loss 0.7264 (ce 0.7264) | 5.0s/episode, ETA 0.39h
+[16:17:58 INFO]   [130/400] running 79.21 ± 1.75% | last loss 0.3296 (ce 0.3296) | 5.0s/episode, ETA 0.37h
+[16:18:48 INFO]   [140/400] running 78.93 ± 1.70% | last loss 1.0673 (ce 1.0673) | 5.0s/episode, ETA 0.36h
+[16:19:38 INFO]   [150/400] running 78.91 ± 1.68% | last loss 0.6820 (ce 0.6820) | 5.0s/episode, ETA 0.35h
+[16:20:27 INFO]   [160/400] running 79.19 ± 1.61% | last loss 0.2439 (ce 0.2439) | 5.0s/episode, ETA 0.33h
+[16:21:17 INFO]   [170/400] running 79.39 ± 1.53% | last loss 0.4252 (ce 0.4252) | 5.0s/episode, ETA 0.32h
+[16:22:07 INFO]   [180/400] running 79.49 ± 1.48% | last loss 0.5782 (ce 0.5782) | 5.0s/episode, ETA 0.30h
+[16:22:57 INFO]   [190/400] running 79.63 ± 1.44% | last loss 0.3033 (ce 0.3033) | 5.0s/episode, ETA 0.29h
+[16:23:46 INFO]   [200/400] running 79.74 ± 1.40% | last loss 0.6411 (ce 0.6411) | 5.0s/episode, ETA 0.28h
+[16:24:36 INFO]   [210/400] running 79.68 ± 1.37% | last loss 0.3894 (ce 0.3894) | 5.0s/episode, ETA 0.26h
+[16:25:26 INFO]   [220/400] running 79.77 ± 1.34% | last loss 0.2224 (ce 0.2224) | 5.0s/episode, ETA 0.25h
+[16:26:16 INFO]   [230/400] running 80.13 ± 1.32% | last loss 0.2645 (ce 0.2645) | 5.0s/episode, ETA 0.24h
+[16:27:05 INFO]   [240/400] running 80.03 ± 1.29% | last loss 0.7692 (ce 0.7692) | 5.0s/episode, ETA 0.22h
+[16:27:55 INFO]   [250/400] running 79.95 ± 1.29% | last loss 0.9799 (ce 0.9799) | 5.0s/episode, ETA 0.21h
+[16:28:45 INFO]   [260/400] running 79.95 ± 1.26% | last loss 0.8803 (ce 0.8803) | 5.0s/episode, ETA 0.19h
+[16:29:35 INFO]   [270/400] running 80.13 ± 1.24% | last loss 0.3232 (ce 0.3232) | 5.0s/episode, ETA 0.18h
+[16:30:25 INFO]   [280/400] running 80.15 ± 1.21% | last loss 0.6310 (ce 0.6310) | 5.0s/episode, ETA 0.17h
+[16:31:15 INFO]   [290/400] running 80.16 ± 1.19% | last loss 0.4819 (ce 0.4819) | 5.0s/episode, ETA 0.15h
+[16:32:05 INFO]   [300/400] running 80.14 ± 1.17% | last loss 0.3082 (ce 0.3082) | 5.0s/episode, ETA 0.14h
+[16:32:54 INFO]   [310/400] running 80.37 ± 1.15% | last loss 0.5537 (ce 0.5537) | 5.0s/episode, ETA 0.12h
+[16:33:44 INFO]   [320/400] running 80.40 ± 1.13% | last loss 0.5786 (ce 0.5786) | 5.0s/episode, ETA 0.11h
+[16:34:34 INFO]   [330/400] running 80.56 ± 1.11% | last loss 0.2346 (ce 0.2346) | 5.0s/episode, ETA 0.10h
+[16:35:24 INFO]   [340/400] running 80.73 ± 1.09% | last loss 0.6679 (ce 0.6679) | 5.0s/episode, ETA 0.08h
+[16:36:14 INFO]   [350/400] running 80.72 ± 1.09% | last loss 0.7591 (ce 0.7591) | 5.0s/episode, ETA 0.07h
+[16:37:03 INFO]   [360/400] running 80.64 ± 1.07% | last loss 0.6310 (ce 0.6310) | 5.0s/episode, ETA 0.06h
+[16:37:53 INFO]   [370/400] running 80.43 ± 1.06% | last loss 0.5930 (ce 0.5930) | 5.0s/episode, ETA 0.04h
+[16:38:43 INFO]   [380/400] running 80.39 ± 1.07% | last loss 0.2808 (ce 0.2808) | 5.0s/episode, ETA 0.03h
+[16:39:33 INFO]   [390/400] running 80.51 ± 1.05% | last loss 0.3247 (ce 0.3247) | 5.0s/episode, ETA 0.01h
+[16:40:23 INFO]   [400/400] running 80.61 ± 1.04% | last loss 0.1934 (ce 0.1934) | 5.0s/episode, ETA 0.00h
+[16:40:23 INFO] Final (episodic, nofsr_nocc_loraboth_r2): 80.61 ± 1.04% (n_episodes=400)
+[CropDiseases] 使用路徑：data/CropDiseases/New Plant Diseases Dataset(Augmented)/New Plant Diseases Dataset(Augmented)/train
+>>> [CLIP-LoRA baseline, episodic] isic 5-shot  2026-09-23 16:40:23
+[16:40:24 INFO] Episodic protocol | isic 5-way 5-shot | 400 episodes × 100 epochs | tag=nofsr_nocc_loraboth_r2
+[16:40:24 INFO] Args: {'dataset': 'isic', 'data_root': './data', 'n_way': 5, 'n_shot': 5, 'n_query': 15, 'n_episodes': None, 'backbone': 'ViT-B/16', 'lora_encoder': 'both', 'lora_qkv_mode': 'separate', 'lora_out_proj': False, 'lora_r': 2, 'lora_alpha': 1.0, 'lora_dropout': 0.25, 'epochs': 100, 'batch_size': 32, 'lr': 0.0002, 'weight_decay': 0.01, 'no_ce_aug': False, 'lambda1': 0.0, 'lambda2': 0.0, 'top_k': 10, 'n_aug': 4, 'use_feature_sr': False, 'sr_scale': 2, 'sr_refiner_layers': 0, 'sr_refiner_heads': 8, 'lambda3': 0.3, 'seed': 42, 'no_amp': False, 'save_dir': './results_episodic', 'tag': None, 'log_every': 10}
+[16:40:24 INFO] Episode pool (BSCD 全量): ISICDataset(split=train, n_classes=7, n_samples=10015)
+[16:40:26 INFO] LoRA trainable parameters: 184,320 (encoder=both, qkv=separate, out_proj=False)
+/home/ccoliu/FeatureSR/train_episodic.py:144: FutureWarning: `torch.cuda.amp.GradScaler(args...)` is deprecated. Please use `torch.amp.GradScaler('cuda', args...)` instead.
+  scaler = torch.cuda.amp.GradScaler(enabled=use_amp)
+/home/ccoliu/FeatureSR/.venv/lib/python3.12/site-packages/torch/optim/lr_scheduler.py:224: UserWarning: Detected call of `lr_scheduler.step()` before `optimizer.step()`. In PyTorch 1.1.0 and later, you should call them in the opposite order: `optimizer.step()` before `lr_scheduler.step()`.  Failure to do this will result in PyTorch skipping the first value of the learning rate schedule. See more details at https://pytorch.org/docs/stable/optim.html#how-to-adjust-learning-rate
+  warnings.warn(
+[16:41:20 INFO]   [10/400] running 31.73 ± 2.88% | last loss 1.4248 (ce 1.4248) | 5.4s/episode, ETA 0.58h
+[16:42:13 INFO]   [20/400] running 31.87 ± 2.01% | last loss 1.3032 (ce 1.3032) | 5.4s/episode, ETA 0.57h
+[16:43:07 INFO]   [30/400] running 31.60 ± 1.90% | last loss 1.0345 (ce 1.0345) | 5.4s/episode, ETA 0.55h
+[16:44:01 INFO]   [40/400] running 31.70 ± 1.60% | last loss 1.4150 (ce 1.4150) | 5.4s/episode, ETA 0.54h
+[16:44:54 INFO]   [50/400] running 31.28 ± 1.41% | last loss 1.1033 (ce 1.1033) | 5.4s/episode, ETA 0.52h
+[16:45:48 INFO]   [60/400] running 31.78 ± 1.36% | last loss 1.0209 (ce 1.0209) | 5.4s/episode, ETA 0.51h
+[16:46:42 INFO]   [70/400] running 32.30 ± 1.32% | last loss 1.1753 (ce 1.1753) | 5.4s/episode, ETA 0.49h
+[16:47:36 INFO]   [80/400] running 32.15 ± 1.20% | last loss 1.4204 (ce 1.4204) | 5.4s/episode, ETA 0.48h
+[16:48:29 INFO]   [90/400] running 32.12 ± 1.09% | last loss 1.2510 (ce 1.2510) | 5.4s/episode, ETA 0.46h
+[16:49:23 INFO]   [100/400] running 32.09 ± 1.01% | last loss 1.2572 (ce 1.2572) | 5.4s/episode, ETA 0.45h
+[16:50:16 INFO]   [110/400] running 32.23 ± 0.95% | last loss 1.4095 (ce 1.4095) | 5.4s/episode, ETA 0.43h
+[16:51:10 INFO]   [120/400] running 32.19 ± 0.93% | last loss 1.3278 (ce 1.3278) | 5.4s/episode, ETA 0.42h
+[16:52:04 INFO]   [130/400] running 32.17 ± 0.87% | last loss 1.1038 (ce 1.1038) | 5.4s/episode, ETA 0.40h
+[16:52:58 INFO]   [140/400] running 32.13 ± 0.87% | last loss 1.2761 (ce 1.2761) | 5.4s/episode, ETA 0.39h
+[16:53:50 INFO]   [150/400] running 32.29 ± 0.85% | last loss 1.1788 (ce 1.1788) | 5.4s/episode, ETA 0.37h
+[16:54:43 INFO]   [160/400] running 32.17 ± 0.82% | last loss 1.0863 (ce 1.0863) | 5.4s/episode, ETA 0.36h
+[16:55:37 INFO]   [170/400] running 32.16 ± 0.82% | last loss 1.4338 (ce 1.4338) | 5.4s/episode, ETA 0.34h
+[16:56:30 INFO]   [180/400] running 32.13 ± 0.79% | last loss 1.2574 (ce 1.2574) | 5.4s/episode, ETA 0.33h
+[16:57:23 INFO]   [190/400] running 31.99 ± 0.78% | last loss 1.4630 (ce 1.4630) | 5.4s/episode, ETA 0.31h
+[16:58:16 INFO]   [200/400] running 31.78 ± 0.78% | last loss 1.3586 (ce 1.3586) | 5.3s/episode, ETA 0.30h
+[16:59:09 INFO]   [210/400] running 31.89 ± 0.76% | last loss 1.2921 (ce 1.2921) | 5.3s/episode, ETA 0.28h
+[17:00:02 INFO]   [220/400] running 31.87 ± 0.76% | last loss 1.3138 (ce 1.3138) | 5.3s/episode, ETA 0.27h
+[17:00:56 INFO]   [230/400] running 31.98 ± 0.74% | last loss 1.4105 (ce 1.4105) | 5.3s/episode, ETA 0.25h
+[17:01:49 INFO]   [240/400] running 31.87 ± 0.73% | last loss 1.2741 (ce 1.2741) | 5.3s/episode, ETA 0.24h
+[17:02:43 INFO]   [250/400] running 31.95 ± 0.72% | last loss 1.2438 (ce 1.2438) | 5.3s/episode, ETA 0.22h
+[17:03:36 INFO]   [260/400] running 32.00 ± 0.71% | last loss 1.2050 (ce 1.2050) | 5.3s/episode, ETA 0.21h
+[17:04:30 INFO]   [270/400] running 31.96 ± 0.70% | last loss 1.1874 (ce 1.1874) | 5.3s/episode, ETA 0.19h
+[17:05:23 INFO]   [280/400] running 31.92 ± 0.68% | last loss 1.2898 (ce 1.2898) | 5.3s/episode, ETA 0.18h
+[17:06:16 INFO]   [290/400] running 31.90 ± 0.66% | last loss 1.3421 (ce 1.3421) | 5.3s/episode, ETA 0.16h
+[17:07:10 INFO]   [300/400] running 31.94 ± 0.65% | last loss 1.3733 (ce 1.3733) | 5.3s/episode, ETA 0.15h
+[17:08:02 INFO]   [310/400] running 31.91 ± 0.63% | last loss 1.3719 (ce 1.3719) | 5.3s/episode, ETA 0.13h
+[17:08:55 INFO]   [320/400] running 31.94 ± 0.62% | last loss 1.0610 (ce 1.0610) | 5.3s/episode, ETA 0.12h
+[17:09:49 INFO]   [330/400] running 31.92 ± 0.60% | last loss 1.3481 (ce 1.3481) | 5.3s/episode, ETA 0.10h
+[17:10:42 INFO]   [340/400] running 31.96 ± 0.60% | last loss 1.2685 (ce 1.2685) | 5.3s/episode, ETA 0.09h
+[17:11:35 INFO]   [350/400] running 31.95 ± 0.58% | last loss 1.2798 (ce 1.2798) | 5.3s/episode, ETA 0.07h
+[17:12:28 INFO]   [360/400] running 31.93 ± 0.58% | last loss 1.4346 (ce 1.4346) | 5.3s/episode, ETA 0.06h
+[17:13:21 INFO]   [370/400] running 31.91 ± 0.57% | last loss 1.1552 (ce 1.1552) | 5.3s/episode, ETA 0.04h
+[17:14:15 INFO]   [380/400] running 31.95 ± 0.57% | last loss 1.2599 (ce 1.2599) | 5.3s/episode, ETA 0.03h
+[17:15:08 INFO]   [390/400] running 31.99 ± 0.56% | last loss 1.1258 (ce 1.1258) | 5.3s/episode, ETA 0.01h
+[17:16:01 INFO]   [400/400] running 31.98 ± 0.55% | last loss 1.0702 (ce 1.0702) | 5.3s/episode, ETA 0.00h
+[17:16:01 INFO] Final (episodic, nofsr_nocc_loraboth_r2): 31.98 ± 0.55% (n_episodes=400)
+>>> [CLIP-LoRA baseline, episodic] chestx 5-shot  2026-09-23 17:16:01
+[17:16:03 INFO] Episodic protocol | chestx 5-way 5-shot | 400 episodes × 100 epochs | tag=nofsr_nocc_loraboth_r2
+[17:16:03 INFO] Args: {'dataset': 'chestx', 'data_root': './data', 'n_way': 5, 'n_shot': 5, 'n_query': 15, 'n_episodes': None, 'backbone': 'ViT-B/16', 'lora_encoder': 'both', 'lora_qkv_mode': 'separate', 'lora_out_proj': False, 'lora_r': 2, 'lora_alpha': 1.0, 'lora_dropout': 0.25, 'epochs': 100, 'batch_size': 32, 'lr': 0.0002, 'weight_decay': 0.01, 'no_ce_aug': False, 'lambda1': 0.0, 'lambda2': 0.0, 'top_k': 10, 'n_aug': 4, 'use_feature_sr': False, 'sr_scale': 2, 'sr_refiner_layers': 0, 'sr_refiner_heads': 8, 'lambda3': 0.3, 'seed': 42, 'no_amp': False, 'save_dir': './results_episodic', 'tag': None, 'log_every': 10}
+[17:16:03 INFO] Episode pool (BSCD 全量): ChestXDataset(split=train, n_classes=7, n_samples=31338)
+[17:16:05 INFO] LoRA trainable parameters: 184,320 (encoder=both, qkv=separate, out_proj=False)
+/home/ccoliu/FeatureSR/train_episodic.py:144: FutureWarning: `torch.cuda.amp.GradScaler(args...)` is deprecated. Please use `torch.amp.GradScaler('cuda', args...)` instead.
+  scaler = torch.cuda.amp.GradScaler(enabled=use_amp)
+/home/ccoliu/FeatureSR/.venv/lib/python3.12/site-packages/torch/optim/lr_scheduler.py:224: UserWarning: Detected call of `lr_scheduler.step()` before `optimizer.step()`. In PyTorch 1.1.0 and later, you should call them in the opposite order: `optimizer.step()` before `lr_scheduler.step()`.  Failure to do this will result in PyTorch skipping the first value of the learning rate schedule. See more details at https://pytorch.org/docs/stable/optim.html#how-to-adjust-learning-rate
+  warnings.warn(
+[17:17:05 INFO]   [10/400] running 23.20 ± 2.73% | last loss 1.5379 (ce 1.5379) | 6.0s/episode, ETA 0.65h
+[17:18:04 INFO]   [20/400] running 22.67 ± 1.75% | last loss 1.6163 (ce 1.6163) | 6.0s/episode, ETA 0.63h
+[17:19:04 INFO]   [30/400] running 22.58 ± 1.51% | last loss 1.4417 (ce 1.4417) | 6.0s/episode, ETA 0.62h
+[17:20:04 INFO]   [40/400] running 22.20 ± 1.34% | last loss 1.5189 (ce 1.5189) | 6.0s/episode, ETA 0.60h
+[17:21:03 INFO]   [50/400] running 21.92 ± 1.14% | last loss 1.4796 (ce 1.4796) | 6.0s/episode, ETA 0.58h
+[17:22:03 INFO]   [60/400] running 21.82 ± 1.02% | last loss 1.5496 (ce 1.5496) | 6.0s/episode, ETA 0.56h
+[17:23:03 INFO]   [70/400] running 22.11 ± 0.97% | last loss 1.6022 (ce 1.6022) | 6.0s/episode, ETA 0.55h
+[17:24:02 INFO]   [80/400] running 22.12 ± 0.94% | last loss 1.4391 (ce 1.4391) | 6.0s/episode, ETA 0.53h
+[17:25:02 INFO]   [90/400] running 22.01 ± 0.87% | last loss 1.4584 (ce 1.4584) | 6.0s/episode, ETA 0.51h
+[17:26:01 INFO]   [100/400] running 22.07 ± 0.80% | last loss 1.5289 (ce 1.5289) | 6.0s/episode, ETA 0.50h
+[17:27:01 INFO]   [110/400] running 22.27 ± 0.76% | last loss 1.6525 (ce 1.6525) | 6.0s/episode, ETA 0.48h
+[17:28:01 INFO]   [120/400] running 22.19 ± 0.74% | last loss 1.4097 (ce 1.4097) | 6.0s/episode, ETA 0.46h
+[17:29:00 INFO]   [130/400] running 22.28 ± 0.70% | last loss 1.5650 (ce 1.5650) | 6.0s/episode, ETA 0.45h
+[17:30:00 INFO]   [140/400] running 22.27 ± 0.67% | last loss 1.6273 (ce 1.6273) | 6.0s/episode, ETA 0.43h
+[17:30:59 INFO]   [150/400] running 22.33 ± 0.66% | last loss 1.6444 (ce 1.6444) | 6.0s/episode, ETA 0.41h
+[17:31:59 INFO]   [160/400] running 22.23 ± 0.63% | last loss 1.6139 (ce 1.6139) | 6.0s/episode, ETA 0.40h
+[17:32:58 INFO]   [170/400] running 22.12 ± 0.60% | last loss 1.5300 (ce 1.5300) | 6.0s/episode, ETA 0.38h
+[17:33:58 INFO]   [180/400] running 22.12 ± 0.58% | last loss 1.6733 (ce 1.6733) | 6.0s/episode, ETA 0.36h
+[17:34:58 INFO]   [190/400] running 22.14 ± 0.57% | last loss 1.4466 (ce 1.4466) | 6.0s/episode, ETA 0.35h
+[17:35:57 INFO]   [200/400] running 22.12 ± 0.56% | last loss 1.6000 (ce 1.6000) | 6.0s/episode, ETA 0.33h
+[17:36:57 INFO]   [210/400] running 22.11 ± 0.55% | last loss 1.5127 (ce 1.5127) | 6.0s/episode, ETA 0.31h
+[17:37:56 INFO]   [220/400] running 22.12 ± 0.54% | last loss 1.5284 (ce 1.5284) | 6.0s/episode, ETA 0.30h
+[17:38:56 INFO]   [230/400] running 22.09 ± 0.52% | last loss 1.6035 (ce 1.6035) | 6.0s/episode, ETA 0.28h
+[17:39:56 INFO]   [240/400] running 22.16 ± 0.51% | last loss 1.5053 (ce 1.5053) | 6.0s/episode, ETA 0.27h
+[17:40:55 INFO]   [250/400] running 22.17 ± 0.50% | last loss 1.6928 (ce 1.6928) | 6.0s/episode, ETA 0.25h
+[17:41:55 INFO]   [260/400] running 22.17 ± 0.49% | last loss 1.6050 (ce 1.6050) | 6.0s/episode, ETA 0.23h
+[17:42:55 INFO]   [270/400] running 22.27 ± 0.48% | last loss 1.5903 (ce 1.5903) | 6.0s/episode, ETA 0.22h
+[17:43:54 INFO]   [280/400] running 22.30 ± 0.47% | last loss 1.7199 (ce 1.7199) | 6.0s/episode, ETA 0.20h
+[17:44:54 INFO]   [290/400] running 22.33 ± 0.46% | last loss 1.5369 (ce 1.5369) | 6.0s/episode, ETA 0.18h
+[17:45:54 INFO]   [300/400] running 22.32 ± 0.45% | last loss 1.4996 (ce 1.4996) | 6.0s/episode, ETA 0.17h
+[17:46:53 INFO]   [310/400] running 22.25 ± 0.45% | last loss 1.4987 (ce 1.4987) | 6.0s/episode, ETA 0.15h
+[17:47:53 INFO]   [320/400] running 22.18 ± 0.44% | last loss 1.5241 (ce 1.5241) | 6.0s/episode, ETA 0.13h
+[17:48:52 INFO]   [330/400] running 22.25 ± 0.43% | last loss 1.6709 (ce 1.6709) | 6.0s/episode, ETA 0.12h
+[17:49:52 INFO]   [340/400] running 22.30 ± 0.43% | last loss 1.6423 (ce 1.6423) | 6.0s/episode, ETA 0.10h
+[17:50:51 INFO]   [350/400] running 22.35 ± 0.42% | last loss 1.5249 (ce 1.5249) | 6.0s/episode, ETA 0.08h
+[17:51:51 INFO]   [360/400] running 22.30 ± 0.42% | last loss 1.4853 (ce 1.4853) | 6.0s/episode, ETA 0.07h
+[17:52:50 INFO]   [370/400] running 22.26 ± 0.41% | last loss 1.6978 (ce 1.6978) | 6.0s/episode, ETA 0.05h
+[17:53:50 INFO]   [380/400] running 22.25 ± 0.40% | last loss 1.7148 (ce 1.7148) | 6.0s/episode, ETA 0.03h
+[17:54:49 INFO]   [390/400] running 22.21 ± 0.40% | last loss 1.4961 (ce 1.4961) | 6.0s/episode, ETA 0.02h
+[17:55:49 INFO]   [400/400] running 22.19 ± 0.40% | last loss 1.6173 (ce 1.6173) | 6.0s/episode, ETA 0.00h
+[17:55:49 INFO] Final (episodic, nofsr_nocc_loraboth_r2): 22.19 ± 0.40% (n_episodes=400)
+全部完成 2026-09-23 17:55:49
