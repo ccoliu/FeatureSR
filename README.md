@@ -11,10 +11,12 @@
 ## 🌟 Key Highlights & Innovations
 
 1. **Feature-Level Super-Resolution (Feature-SR)**:
-   - Direct spatial token upsampling via PixelShuffle-equivalent transposed convolution / bilinear projection + Multi-Head Self-Attention Refiner layers.
+   - Direct spatial token upsampling via bilinear interpolation + learnable residual Conv2D correction + learnable positional embedding.
    - Upsamples ViT-B/16 patch grid from **$14 \times 14$ ($N=196$) to $28 \times 28$ ($N=784$)**.
+   - ⚠️ 原始設計中的 Multi-Head Self-Attention Refiner 層**已從正式架構移除**（`sr_refiner_layers=0`）——內部消融證實它在所有測試資料集上都沒有可量測的貢獻，卻佔了新增參數的 41.6%。詳見 [`reports/0909_FeatureSR內部Ablation報告.md`](reports/0909_FeatureSR內部Ablation報告.md)、`docs/FeatureSR_Methodology.md` §6.3。
 2. **Cross-Resolution Consistency Loss ($\mathcal{L}_{\text{CR}}$)**:
-   - Enforces consistency between upsampled patch representations and base representations, preventing feature distortion while enhancing fine-grained local alignment.
+   - Enforces consistency between upsampled patch representations and base representations, anchoring the upsampled grid against semantic drift.
+   - 效果**依資料集而定**：EuroSAT / ISIC 移除後會顯著掉分（-1.75% / -3.02%），CropDiseases 則無差異；最佳權重 $\lambda_3$ 在兩個資料集間差了近 5 倍（EuroSAT ~1.5、ISIC ~0.3）。詳見 [`reports/0910_Lambda3敏感度分析報告.md`](reports/0910_Lambda3敏感度分析報告.md)。
 3. **Cycle-Consistent Vision-Language Alignment (CC-CDFSL)**:
    - **Text-to-Image-to-Text (T-I-T)**: Ground text semantics onto high-resolution patch tokens.
    - **Image-to-Text-to-Image (I-T-I)**: Reconstruct patch tokens via semantic anchor matching.
@@ -96,7 +98,9 @@ Evaluated across **4 diverse cross-domain datasets** under the **Strict Few-Shot
 | **ISIC 2018** | 44.10% / 45.48% | 44.03% / 44.63% | -0.07% / -0.85% | 皆非顯著效果（FSR+Ens 仍偏負，保守起見可關閉）|
 | **ChestX** | 22.77% / 23.34% | **23.60%** / 22.89% | +0.83% / -0.45% | 皆非顯著效果 |
 
-> **2026-09-13 更新**：改用 refiner=0 架構重測後，套用文件一致的顯著性判準（$|\Delta|$ 超過雙邊信賴區間之和），**上表沒有一格達到顯著**——包含原本被稱為「對 ChestX 最有效手段」的 Ensemble-only +0.83%（信賴區間和為 0.98%，未過門檻）。舊版（refiner=2）ISIC 的 -1.38% 曾是唯一過門檻的顯著效果，refiner=0 下降為 -0.85%，不再顯著。結論趨於保守：**TTA 的效果目前都在雜訊範圍內，per-dataset 開關應視為軟性經驗法則，不是已證實的效果**。詳見 `docs/FeatureSR_Methodology.md` §4.6、§6.2。
+> **2026-09-13 更新**：改用 refiner=0 架構重測後，套用文件一致的顯著性判準（$|\Delta|$ 超過雙邊信賴區間之和），**上表沒有一格達到顯著**——包含原本被稱為「對 ChestX 最有效手段」的 Ensemble-only +0.83%（信賴區間和為 0.98%，未過門檻）。舊版（refiner=2）ISIC 的 -1.38% 曾是唯一過門檻的顯著效果，refiner=0 下降為 -0.85%，不再顯著。結論趨於保守：**TTA 的效果目前都在雜訊範圍內，per-dataset 開關應視為軟性經驗法則，不是已證實的效果**。
+>
+> **後續驗證**：為了檢驗「ISIC 退步是否是 $\mathcal{L}_{CR}$ 造成」的假設，把 ISIC 的 lambda3 改成 0 重新測了一次——結果退步不減反增，變成 **-1.74%**（信賴區間和 1.30%，重新變成顯著），**推翻了 $\mathcal{L}_{CR}$ 假設**：真正原因跟 Cross-Resolution Consistency Loss 無關，仍未查明，但「ISIC + Feature-SR + Ensemble 情境下建議關閉 TTA」這個工程結論反而更站得住腳（3 組配置有 2 組退步達顯著）。詳見 `docs/FeatureSR_Methodology.md` §4.6、§6.2 與 [`reports/0913b_ISIC_TTA_Lambda3隔離驗證報告.md`](reports/0913b_ISIC_TTA_Lambda3隔離驗證報告.md)。
 
 ---
 
