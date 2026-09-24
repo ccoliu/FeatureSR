@@ -5,7 +5,7 @@ Episode-level fine-tuning protocol，對齊 CC-CDFSL (CVPR 2026) / StepSPT (TPAM
 
   每個測試 episode：
     1. LoRA 重置回預訓練 CLIP（B=0 ⇒ 模型完全等於原始 CLIP）
-    2. 只用該 episode 的 support set（N·K 張）微調 `--epochs` 個 epoch
+    2. 只用該 episode 的 support set（N·K 張）微調 `--steps` 步
     3. 用微調後的模型分類該 episode 的 query set
   重複 100（1-shot）/ 400（5-shot）個 episode，回報平均 ± 95% CI。
 
@@ -67,7 +67,9 @@ def parse_args():
     p.add_argument("--lora_alpha", type=float, default=1.0)
     p.add_argument("--lora_dropout", type=float, default=0.25)
 
-    p.add_argument("--epochs", type=int, default=100)
+    p.add_argument("--steps", type=int, default=500,
+                   help="每個 episode 的梯度更新步數。5-way 下 support ≤ batch_size，1 epoch = 1 步，"
+                        "因此論文的「100 epochs」若照字面只有 100 步，會嚴重訓練不足（見 reports/0924_Episodic協定對齊報告.md）")
     p.add_argument("--batch_size", type=int, default=32)
     p.add_argument("--lr", type=float, default=2e-4)
     p.add_argument("--weight_decay", type=float, default=1e-2)
@@ -115,7 +117,7 @@ def default_tag(args) -> str:
     else:
         mode = "nofsr"
     cc = f"cc_l1{args.lambda1:g}_l2{args.lambda2:g}" if (args.lambda1 > 0 or args.lambda2 > 0) else "nocc"
-    return f"{mode}_{cc}_lora{args.lora_encoder}_r{args.lora_r}"
+    return f"{mode}_{cc}_lora{args.lora_encoder}_r{args.lora_r}_steps{args.steps}"
 
 
 def run_episode(episode, clip_lora, args, device, cc_loss_fn, cr_loss_fn, use_amp):
@@ -139,7 +141,7 @@ def run_episode(episode, clip_lora, args, device, cc_loss_fn, cr_loss_fn, use_am
     optimizer = torch.optim.AdamW(params, lr=args.lr, weight_decay=args.weight_decay, betas=(0.9, 0.999))
     n_support = support_images.shape[0]
     iters_per_epoch = math.ceil(n_support / args.batch_size)
-    total_iters = args.epochs * iters_per_epoch
+    total_iters = args.steps
     scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer, total_iters, eta_min=1e-6)
     scaler = torch.cuda.amp.GradScaler(enabled=use_amp)
     use_cc = args.lambda1 > 0 or args.lambda2 > 0
@@ -148,48 +150,46 @@ def run_episode(episode, clip_lora, args, device, cc_loss_fn, cr_loss_fn, use_am
     clip_lora.train()
     if feature_sr is not None:
         feature_sr.train()
-    last = {}
-    for _ in range(args.epochs):
-        perm = torch.randperm(n_support, device=device)
-        for b in range(iters_per_epoch):
-            idx = perm[b * args.batch_size:(b + 1) * args.batch_size]
-            imgs, labels = support_images[idx], support_labels[idx]
-            if not args.no_ce_aug:
-                imgs = ce_augment(imgs)
+    for step in range(total_iters):
+        b = step % iters_per_epoch
+        if b == 0:
+            perm = torch.randperm(n_support, device=device)
+        idx = perm[b * args.batch_size:(b + 1) * args.batch_size]
+        imgs, labels = support_images[idx], support_labels[idx]
+        if not args.no_ce_aug:
+            imgs = ce_augment(imgs)
 
-            with torch.autocast("cuda", dtype=torch.float16, enabled=use_amp):
-                text_feat = clip_lora.encode_text(class_names)
-                cls, patches = clip_lora.encode_image_with_patches(imgs)
-                loss_ce = F.cross_entropy(logit_scale * cls @ text_feat.T, labels)
-                loss = loss_ce
-                loss_tit = loss_iti = loss_cr = torch.zeros((), device=device)
+        with torch.autocast("cuda", dtype=torch.float16, enabled=use_amp):
+            text_feat = clip_lora.encode_text(class_names)
+            cls, patches = clip_lora.encode_image_with_patches(imgs)
+            loss_ce = F.cross_entropy(logit_scale * cls @ text_feat.T, labels)
+            loss = loss_ce
+            loss_tit = loss_iti = loss_cr = torch.zeros((), device=device)
 
-                if use_cc or feature_sr is not None:
+            if feature_sr is not None:
+                patches, patches_orig = feature_sr(patches, return_both=True)
+                loss_cr = cr_loss_fn(patches, patches_orig)
+                loss = loss + args.lambda3 * loss_cr
+
+            if use_cc:
+                with torch.no_grad():
+                    aug_images = torch.cat([augment_tensor_batch(imgs) for _ in range(args.n_aug)], dim=0)
+                    _, aug_patches = clip_lora.encode_image_with_patches(aug_images)
                     if feature_sr is not None:
-                        patches_sr, patches_orig = feature_sr(patches, return_both=True)
-                        loss_cr = cr_loss_fn(patches_sr, patches_orig)
-                        loss = loss + args.lambda3 * loss_cr
-                    else:
-                        patches_sr = patches
+                        aug_patches, _ = feature_sr(aug_patches, return_both=False)
+                loss_tit, loss_iti = cc_loss_fn(
+                    text_feat=text_feat, patch_feat_orig=patches, patch_feat_aug=aug_patches,
+                )
+                loss = loss + args.lambda1 * loss_tit + args.lambda2 * loss_iti
 
-                if use_cc:
-                    with torch.no_grad():
-                        aug_images = torch.cat([augment_tensor_batch(imgs) for _ in range(args.n_aug)], dim=0)
-                        _, aug_patches = clip_lora.encode_image_with_patches(aug_images)
-                        if feature_sr is not None:
-                            aug_patches, _ = feature_sr(aug_patches, return_both=False)
-                    loss_tit, loss_iti = cc_loss_fn(
-                        text_feat=text_feat, patch_feat_orig=patches_sr, patch_feat_aug=aug_patches,
-                    )
-                    loss = loss + args.lambda1 * loss_tit + args.lambda2 * loss_iti
+        optimizer.zero_grad(set_to_none=True)
+        scaler.scale(loss).backward()
+        scaler.step(optimizer)
+        scaler.update()
+        scheduler.step()
 
-            optimizer.zero_grad(set_to_none=True)
-            scaler.scale(loss).backward()
-            scaler.step(optimizer)
-            scaler.update()
-            scheduler.step()
-            last = {"loss": loss.item(), "ce": loss_ce.item(), "tit": loss_tit.item(),
-                    "iti": loss_iti.item(), "cr": loss_cr.item()}
+    last = {"loss": loss.item(), "ce": loss_ce.item(), "tit": loss_tit.item(),
+            "iti": loss_iti.item(), "cr": loss_cr.item()}
 
     clip_lora.eval()
     with torch.no_grad(), torch.autocast("cuda", dtype=torch.float16, enabled=use_amp):
@@ -215,7 +215,7 @@ def main():
                 rec = json.loads(line)
                 done[rec["episode"]] = rec["acc"]
     logger.info(f"Episodic protocol | {args.dataset} {args.n_way}-way {args.n_shot}-shot | "
-                f"{n_episodes} episodes × {args.epochs} epochs | tag={tag}")
+                f"{n_episodes} episodes × {args.steps} steps | tag={tag}")
     logger.info(f"Args: {vars(args)}")
     if done:
         logger.info(f"Resuming: {len(done)} episodes already in {out_jsonl}")

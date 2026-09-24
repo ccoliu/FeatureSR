@@ -19,7 +19,7 @@ mkdir -p "$LOG_DIR"
 for DS in isic crop_disease; do
   for EP in 500 2500; do
     echo ">>> [iters diag] $DS 5-shot, ${EP} steps  $(date '+%F %T')"
-    $PYTHON train_episodic.py --dataset "$DS" --n_shot 5 --n_episodes 20 --epochs "$EP" \
+    $PYTHON train_episodic.py --dataset "$DS" --n_shot 5 --n_episodes 20 --steps "$EP" \
         --log_every 5 --save_dir ./results_episodic_diag --tag "cliplora_steps${EP}" \
         2>&1 | tee -a "$LOG_DIR/${DS}_5shot_steps${EP}.log"
   done
