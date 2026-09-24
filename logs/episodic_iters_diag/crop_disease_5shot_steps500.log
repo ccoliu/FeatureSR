@@ -1,0 +1,14 @@
+[00:25:30 INFO] Episodic protocol | crop_disease 5-way 5-shot | 20 episodes × 500 epochs | tag=cliplora_steps500
+[00:25:30 INFO] Args: {'dataset': 'crop_disease', 'data_root': './data', 'n_way': 5, 'n_shot': 5, 'n_query': 15, 'n_episodes': 20, 'backbone': 'ViT-B/16', 'lora_encoder': 'both', 'lora_qkv_mode': 'separate', 'lora_out_proj': False, 'lora_r': 2, 'lora_alpha': 1.0, 'lora_dropout': 0.25, 'epochs': 500, 'batch_size': 32, 'lr': 0.0002, 'weight_decay': 0.01, 'no_ce_aug': False, 'lambda1': 0.0, 'lambda2': 0.0, 'top_k': 10, 'n_aug': 4, 'use_feature_sr': False, 'sr_scale': 2, 'sr_refiner_layers': 0, 'sr_refiner_heads': 8, 'lambda3': 0.3, 'seed': 42, 'no_amp': False, 'save_dir': './results_episodic_diag', 'tag': 'cliplora_steps500', 'log_every': 5}
+[00:25:30 INFO] Episode pool (BSCD 全量): CropDiseaseDataset(split=train, n_classes=38, n_samples=70295)
+[00:25:32 INFO] LoRA trainable parameters: 184,320 (encoder=both, qkv=separate, out_proj=False)
+/home/ccoliu/FeatureSR/train_episodic.py:144: FutureWarning: `torch.cuda.amp.GradScaler(args...)` is deprecated. Please use `torch.amp.GradScaler('cuda', args...)` instead.
+  scaler = torch.cuda.amp.GradScaler(enabled=use_amp)
+/home/ccoliu/FeatureSR/.venv/lib/python3.12/site-packages/torch/optim/lr_scheduler.py:224: UserWarning: Detected call of `lr_scheduler.step()` before `optimizer.step()`. In PyTorch 1.1.0 and later, you should call them in the opposite order: `optimizer.step()` before `lr_scheduler.step()`.  Failure to do this will result in PyTorch skipping the first value of the learning rate schedule. See more details at https://pytorch.org/docs/stable/optim.html#how-to-adjust-learning-rate
+  warnings.warn(
+[00:27:31 INFO]   [5/20] running 90.93 ± 4.92% | last loss 0.0041 (ce 0.0041) | 23.9s/episode, ETA 0.10h
+[00:29:31 INFO]   [10/20] running 94.27 ± 3.26% | last loss 0.0830 (ce 0.0830) | 23.9s/episode, ETA 0.07h
+[00:31:30 INFO]   [15/20] running 94.93 ± 2.49% | last loss 0.0049 (ce 0.0049) | 23.9s/episode, ETA 0.03h
+[00:33:29 INFO]   [20/20] running 95.27 ± 1.97% | last loss 0.0030 (ce 0.0030) | 23.9s/episode, ETA 0.00h
+[00:33:29 INFO] Final (episodic, cliplora_steps500): 95.27 ± 1.97% (n_episodes=20)
+[CropDiseases] 使用路徑：data/CropDiseases/New Plant Diseases Dataset(Augmented)/New Plant Diseases Dataset(Augmented)/train
