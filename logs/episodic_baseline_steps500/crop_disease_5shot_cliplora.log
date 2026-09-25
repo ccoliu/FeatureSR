@@ -1,0 +1,50 @@
+[14:40:23 INFO] Episodic protocol | crop_disease 5-way 5-shot | 400 episodes × 500 steps | tag=nofsr_nocc_loraboth_r2_steps500
+[14:40:23 INFO] Args: {'dataset': 'crop_disease', 'data_root': './data', 'n_way': 5, 'n_shot': 5, 'n_query': 15, 'n_episodes': None, 'backbone': 'ViT-B/16', 'lora_encoder': 'both', 'lora_qkv_mode': 'separate', 'lora_out_proj': False, 'lora_r': 2, 'lora_alpha': 1.0, 'lora_dropout': 0.25, 'steps': 500, 'batch_size': 32, 'lr': 0.0002, 'weight_decay': 0.01, 'no_ce_aug': False, 'lambda1': 0.0, 'lambda2': 0.0, 'top_k': 10, 'n_aug': 4, 'use_feature_sr': False, 'sr_scale': 2, 'sr_refiner_layers': 0, 'sr_refiner_heads': 8, 'lambda3': 0.3, 'seed': 42, 'no_amp': False, 'save_dir': './results_episodic', 'tag': None, 'log_every': 10}
+[14:40:23 INFO] Episode pool (BSCD 全量): CropDiseaseDataset(split=train, n_classes=38, n_samples=70295)
+[14:40:25 INFO] LoRA trainable parameters: 184,320 (encoder=both, qkv=separate, out_proj=False)
+/home/ccoliu/FeatureSR/train_episodic.py:146: FutureWarning: `torch.cuda.amp.GradScaler(args...)` is deprecated. Please use `torch.amp.GradScaler('cuda', args...)` instead.
+  scaler = torch.cuda.amp.GradScaler(enabled=use_amp)
+/home/ccoliu/FeatureSR/.venv/lib/python3.12/site-packages/torch/optim/lr_scheduler.py:224: UserWarning: Detected call of `lr_scheduler.step()` before `optimizer.step()`. In PyTorch 1.1.0 and later, you should call them in the opposite order: `optimizer.step()` before `lr_scheduler.step()`.  Failure to do this will result in PyTorch skipping the first value of the learning rate schedule. See more details at https://pytorch.org/docs/stable/optim.html#how-to-adjust-learning-rate
+  warnings.warn(
+[14:44:23 INFO]   [10/400] running 94.27 ± 3.26% | last loss 0.0830 (ce 0.0830) | 23.8s/episode, ETA 2.58h
+[14:48:21 INFO]   [20/400] running 95.27 ± 1.97% | last loss 0.0030 (ce 0.0030) | 23.8s/episode, ETA 2.51h
+[14:52:20 INFO]   [30/400] running 95.33 ± 1.41% | last loss 0.0009 (ce 0.0009) | 23.8s/episode, ETA 2.45h
+[14:56:19 INFO]   [40/400] running 95.10 ± 1.47% | last loss 0.0019 (ce 0.0019) | 23.8s/episode, ETA 2.38h
+[15:00:17 INFO]   [50/400] running 95.04 ± 1.24% | last loss 0.0055 (ce 0.0055) | 23.8s/episode, ETA 2.32h
+[15:04:16 INFO]   [60/400] running 95.42 ± 1.07% | last loss 0.0018 (ce 0.0018) | 23.8s/episode, ETA 2.25h
+[15:08:14 INFO]   [70/400] running 95.49 ± 0.96% | last loss 0.0021 (ce 0.0021) | 23.8s/episode, ETA 2.19h
+[15:12:13 INFO]   [80/400] running 95.50 ± 0.89% | last loss 0.0033 (ce 0.0033) | 23.8s/episode, ETA 2.12h
+[15:16:11 INFO]   [90/400] running 95.53 ± 0.83% | last loss 0.0044 (ce 0.0044) | 23.8s/episode, ETA 2.05h
+[15:20:10 INFO]   [100/400] running 95.37 ± 0.81% | last loss 0.0260 (ce 0.0260) | 23.8s/episode, ETA 1.99h
+[15:24:08 INFO]   [110/400] running 95.27 ± 0.79% | last loss 0.0550 (ce 0.0550) | 23.8s/episode, ETA 1.92h
+[15:28:07 INFO]   [120/400] running 95.40 ± 0.74% | last loss 0.0150 (ce 0.0150) | 23.8s/episode, ETA 1.85h
+[15:32:05 INFO]   [130/400] running 95.33 ± 0.72% | last loss 0.0019 (ce 0.0019) | 23.8s/episode, ETA 1.79h
+[15:36:04 INFO]   [140/400] running 95.14 ± 0.70% | last loss 0.0937 (ce 0.0937) | 23.8s/episode, ETA 1.72h
+[15:40:02 INFO]   [150/400] running 95.19 ± 0.69% | last loss 0.0068 (ce 0.0068) | 23.8s/episode, ETA 1.66h
+[15:44:01 INFO]   [160/400] running 95.19 ± 0.66% | last loss 0.0199 (ce 0.0199) | 23.8s/episode, ETA 1.59h
+[15:47:59 INFO]   [170/400] running 95.21 ± 0.64% | last loss 0.0111 (ce 0.0111) | 23.8s/episode, ETA 1.52h
+[15:51:58 INFO]   [180/400] running 95.25 ± 0.61% | last loss 0.0503 (ce 0.0503) | 23.8s/episode, ETA 1.46h
+[15:55:56 INFO]   [190/400] running 95.31 ± 0.58% | last loss 0.1984 (ce 0.1984) | 23.8s/episode, ETA 1.39h
+[15:59:55 INFO]   [200/400] running 95.32 ± 0.56% | last loss 0.0876 (ce 0.0876) | 23.8s/episode, ETA 1.32h
+[16:03:53 INFO]   [210/400] running 95.34 ± 0.56% | last loss 0.0040 (ce 0.0040) | 23.8s/episode, ETA 1.26h
+[16:07:52 INFO]   [220/400] running 95.30 ± 0.55% | last loss 0.0016 (ce 0.0016) | 23.8s/episode, ETA 1.19h
+[16:11:50 INFO]   [230/400] running 95.37 ± 0.53% | last loss 0.0008 (ce 0.0008) | 23.8s/episode, ETA 1.13h
+[16:15:49 INFO]   [240/400] running 95.32 ± 0.54% | last loss 0.0034 (ce 0.0034) | 23.8s/episode, ETA 1.06h
+[16:19:47 INFO]   [250/400] running 95.32 ± 0.52% | last loss 0.0120 (ce 0.0120) | 23.8s/episode, ETA 0.99h
+[16:23:46 INFO]   [260/400] running 95.38 ± 0.51% | last loss 0.0656 (ce 0.0656) | 23.8s/episode, ETA 0.93h
+[16:27:44 INFO]   [270/400] running 95.46 ± 0.49% | last loss 0.0028 (ce 0.0028) | 23.8s/episode, ETA 0.86h
+[16:31:43 INFO]   [280/400] running 95.48 ± 0.48% | last loss 0.1430 (ce 0.1430) | 23.8s/episode, ETA 0.79h
+[16:35:41 INFO]   [290/400] running 95.50 ± 0.47% | last loss 0.0049 (ce 0.0049) | 23.8s/episode, ETA 0.73h
+[16:39:40 INFO]   [300/400] running 95.51 ± 0.45% | last loss 0.0043 (ce 0.0043) | 23.8s/episode, ETA 0.66h
+[16:43:38 INFO]   [310/400] running 95.51 ± 0.45% | last loss 0.0091 (ce 0.0091) | 23.8s/episode, ETA 0.60h
+[16:47:37 INFO]   [320/400] running 95.52 ± 0.44% | last loss 0.0082 (ce 0.0082) | 23.8s/episode, ETA 0.53h
+[16:51:35 INFO]   [330/400] running 95.58 ± 0.43% | last loss 0.0241 (ce 0.0241) | 23.8s/episode, ETA 0.46h
+[16:55:34 INFO]   [340/400] running 95.62 ± 0.42% | last loss 0.1132 (ce 0.1132) | 23.8s/episode, ETA 0.40h
+[16:59:32 INFO]   [350/400] running 95.61 ± 0.43% | last loss 0.1468 (ce 0.1468) | 23.8s/episode, ETA 0.33h
+[17:03:30 INFO]   [360/400] running 95.57 ± 0.43% | last loss 0.0747 (ce 0.0747) | 23.8s/episode, ETA 0.26h
+[17:07:29 INFO]   [370/400] running 95.48 ± 0.43% | last loss 0.0179 (ce 0.0179) | 23.8s/episode, ETA 0.20h
+[17:11:28 INFO]   [380/400] running 95.46 ± 0.42% | last loss 0.0026 (ce 0.0026) | 23.8s/episode, ETA 0.13h
+[17:15:26 INFO]   [390/400] running 95.49 ± 0.42% | last loss 0.0083 (ce 0.0083) | 23.8s/episode, ETA 0.07h
+[17:19:25 INFO]   [400/400] running 95.54 ± 0.41% | last loss 0.0020 (ce 0.0020) | 23.8s/episode, ETA 0.00h
+[17:19:25 INFO] Final (episodic, nofsr_nocc_loraboth_r2_steps500): 95.54 ± 0.41% (n_episodes=400)
+[CropDiseases] 使用路徑：data/CropDiseases/New Plant Diseases Dataset(Augmented)/New Plant Diseases Dataset(Augmented)/train

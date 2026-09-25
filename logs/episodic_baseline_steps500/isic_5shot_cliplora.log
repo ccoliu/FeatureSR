@@ -1,0 +1,49 @@
+[17:19:27 INFO] Episodic protocol | isic 5-way 5-shot | 400 episodes × 500 steps | tag=nofsr_nocc_loraboth_r2_steps500
+[17:19:27 INFO] Args: {'dataset': 'isic', 'data_root': './data', 'n_way': 5, 'n_shot': 5, 'n_query': 15, 'n_episodes': None, 'backbone': 'ViT-B/16', 'lora_encoder': 'both', 'lora_qkv_mode': 'separate', 'lora_out_proj': False, 'lora_r': 2, 'lora_alpha': 1.0, 'lora_dropout': 0.25, 'steps': 500, 'batch_size': 32, 'lr': 0.0002, 'weight_decay': 0.01, 'no_ce_aug': False, 'lambda1': 0.0, 'lambda2': 0.0, 'top_k': 10, 'n_aug': 4, 'use_feature_sr': False, 'sr_scale': 2, 'sr_refiner_layers': 0, 'sr_refiner_heads': 8, 'lambda3': 0.3, 'seed': 42, 'no_amp': False, 'save_dir': './results_episodic', 'tag': None, 'log_every': 10}
+[17:19:27 INFO] Episode pool (BSCD 全量): ISICDataset(split=train, n_classes=7, n_samples=10015)
+[17:19:28 INFO] LoRA trainable parameters: 184,320 (encoder=both, qkv=separate, out_proj=False)
+/home/ccoliu/FeatureSR/train_episodic.py:146: FutureWarning: `torch.cuda.amp.GradScaler(args...)` is deprecated. Please use `torch.amp.GradScaler('cuda', args...)` instead.
+  scaler = torch.cuda.amp.GradScaler(enabled=use_amp)
+/home/ccoliu/FeatureSR/.venv/lib/python3.12/site-packages/torch/optim/lr_scheduler.py:224: UserWarning: Detected call of `lr_scheduler.step()` before `optimizer.step()`. In PyTorch 1.1.0 and later, you should call them in the opposite order: `optimizer.step()` before `lr_scheduler.step()`.  Failure to do this will result in PyTorch skipping the first value of the learning rate schedule. See more details at https://pytorch.org/docs/stable/optim.html#how-to-adjust-learning-rate
+  warnings.warn(
+[17:23:31 INFO]   [10/400] running 48.27 ± 3.73% | last loss 0.0074 (ce 0.0074) | 24.2s/episode, ETA 2.63h
+[17:27:34 INFO]   [20/400] running 49.27 ± 3.65% | last loss 0.0051 (ce 0.0051) | 24.3s/episode, ETA 2.56h
+[17:31:36 INFO]   [30/400] running 47.47 ± 3.17% | last loss 0.0013 (ce 0.0013) | 24.2s/episode, ETA 2.49h
+[17:35:38 INFO]   [40/400] running 47.77 ± 2.51% | last loss 0.0169 (ce 0.0169) | 24.3s/episode, ETA 2.43h
+[17:39:41 INFO]   [50/400] running 48.13 ± 2.19% | last loss 0.0174 (ce 0.0174) | 24.3s/episode, ETA 2.36h
+[17:43:44 INFO]   [60/400] running 47.67 ± 2.02% | last loss 0.0135 (ce 0.0135) | 24.3s/episode, ETA 2.29h
+[17:47:46 INFO]   [70/400] running 47.75 ± 1.90% | last loss 0.0462 (ce 0.0462) | 24.3s/episode, ETA 2.22h
+[17:51:49 INFO]   [80/400] running 47.88 ± 1.72% | last loss 0.0082 (ce 0.0082) | 24.3s/episode, ETA 2.16h
+[17:55:51 INFO]   [90/400] running 48.09 ± 1.59% | last loss 0.0065 (ce 0.0065) | 24.3s/episode, ETA 2.09h
+[17:59:54 INFO]   [100/400] running 48.36 ± 1.48% | last loss 0.0975 (ce 0.0975) | 24.3s/episode, ETA 2.02h
+[18:03:56 INFO]   [110/400] running 48.61 ± 1.45% | last loss 0.0060 (ce 0.0060) | 24.3s/episode, ETA 1.95h
+[18:07:59 INFO]   [120/400] running 48.58 ± 1.39% | last loss 0.0230 (ce 0.0230) | 24.3s/episode, ETA 1.89h
+[18:12:01 INFO]   [130/400] running 48.59 ± 1.31% | last loss 0.0976 (ce 0.0976) | 24.3s/episode, ETA 1.82h
+[18:16:04 INFO]   [140/400] running 48.44 ± 1.25% | last loss 0.0036 (ce 0.0036) | 24.3s/episode, ETA 1.75h
+[18:20:06 INFO]   [150/400] running 48.44 ± 1.24% | last loss 0.0018 (ce 0.0018) | 24.3s/episode, ETA 1.68h
+[18:24:08 INFO]   [160/400] running 48.27 ± 1.21% | last loss 0.0421 (ce 0.0421) | 24.2s/episode, ETA 1.62h
+[18:28:11 INFO]   [170/400] running 48.38 ± 1.19% | last loss 0.0076 (ce 0.0076) | 24.3s/episode, ETA 1.55h
+[18:32:13 INFO]   [180/400] running 48.40 ± 1.14% | last loss 0.0066 (ce 0.0066) | 24.2s/episode, ETA 1.48h
+[18:36:16 INFO]   [190/400] running 48.39 ± 1.12% | last loss 0.0457 (ce 0.0457) | 24.3s/episode, ETA 1.41h
+[18:40:19 INFO]   [200/400] running 48.37 ± 1.07% | last loss 0.0069 (ce 0.0069) | 24.3s/episode, ETA 1.35h
+[18:44:20 INFO]   [210/400] running 48.32 ± 1.04% | last loss 0.0157 (ce 0.0157) | 24.2s/episode, ETA 1.28h
+[18:48:22 INFO]   [220/400] running 48.21 ± 1.04% | last loss 0.0056 (ce 0.0056) | 24.2s/episode, ETA 1.21h
+[18:52:24 INFO]   [230/400] running 48.38 ± 1.01% | last loss 0.0141 (ce 0.0141) | 24.2s/episode, ETA 1.14h
+[18:56:26 INFO]   [240/400] running 48.28 ± 0.98% | last loss 0.0124 (ce 0.0124) | 24.2s/episode, ETA 1.08h
+[19:00:28 INFO]   [250/400] running 48.20 ± 0.96% | last loss 0.0109 (ce 0.0109) | 24.2s/episode, ETA 1.01h
+[19:04:30 INFO]   [260/400] running 48.26 ± 0.93% | last loss 0.0170 (ce 0.0170) | 24.2s/episode, ETA 0.94h
+[19:08:31 INFO]   [270/400] running 48.21 ± 0.91% | last loss 0.0068 (ce 0.0068) | 24.2s/episode, ETA 0.88h
+[19:12:34 INFO]   [280/400] running 48.03 ± 0.89% | last loss 0.0022 (ce 0.0022) | 24.2s/episode, ETA 0.81h
+[19:16:36 INFO]   [290/400] running 48.03 ± 0.87% | last loss 0.0036 (ce 0.0036) | 24.2s/episode, ETA 0.74h
+[19:20:38 INFO]   [300/400] running 48.00 ± 0.85% | last loss 0.0185 (ce 0.0185) | 24.2s/episode, ETA 0.67h
+[19:24:40 INFO]   [310/400] running 47.90 ± 0.83% | last loss 0.0074 (ce 0.0074) | 24.2s/episode, ETA 0.61h
+[19:28:42 INFO]   [320/400] running 48.00 ± 0.81% | last loss 0.0037 (ce 0.0037) | 24.2s/episode, ETA 0.54h
+[19:32:44 INFO]   [330/400] running 47.86 ± 0.80% | last loss 0.0037 (ce 0.0037) | 24.2s/episode, ETA 0.47h
+[19:36:47 INFO]   [340/400] running 47.89 ± 0.79% | last loss 0.0201 (ce 0.0201) | 24.2s/episode, ETA 0.40h
+[19:40:49 INFO]   [350/400] running 47.86 ± 0.78% | last loss 0.0088 (ce 0.0088) | 24.2s/episode, ETA 0.34h
+[19:44:51 INFO]   [360/400] running 47.83 ± 0.77% | last loss 0.0445 (ce 0.0445) | 24.2s/episode, ETA 0.27h
+[19:48:52 INFO]   [370/400] running 47.82 ± 0.76% | last loss 0.1081 (ce 0.1081) | 24.2s/episode, ETA 0.20h
+[19:52:55 INFO]   [380/400] running 47.74 ± 0.76% | last loss 0.0056 (ce 0.0056) | 24.2s/episode, ETA 0.13h
+[19:56:57 INFO]   [390/400] running 47.75 ± 0.75% | last loss 0.0148 (ce 0.0148) | 24.2s/episode, ETA 0.07h
+[20:00:59 INFO]   [400/400] running 47.71 ± 0.74% | last loss 0.2541 (ce 0.2541) | 24.2s/episode, ETA 0.00h
+[20:00:59 INFO] Final (episodic, nofsr_nocc_loraboth_r2_steps500): 47.71 ± 0.74% (n_episodes=400)
