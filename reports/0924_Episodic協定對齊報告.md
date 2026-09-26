@@ -87,6 +87,46 @@ ISIC、CropDiseases（差距最大的兩個）5-shot，各 20 個 episode。每�
 
 **決定**：不為了追 ISIC 的 3 分去調 baseline。在測試 episode 上反覆調設定直到對上論文數字，本身就是對 benchmark 的過擬合。論文中如實揭露此差距。更有意義的對齊檢驗是第二階段：我們實作的 CC-CDFSL 能否重現論文報告的**相對增益**。
 
+## 第二階段：CC-CDFSL 增益無法重現（2026-09-26）
+
+在 500 步協定下，以 Table 13 的 λ1/λ2 加上我們的 CC-CDFSL 實作（`--cc_impl legacy`）。與 baseline 逐 episode 配對的結果（使用者於 server127 計算，原始 jsonl 待 push 後核對）：
+
+| | CC-CDFSL − baseline | 論文報告 | +FSR − CC-CDFSL | +FSR − baseline |
+|:---|:---:|:---:|:---:|:---:|
+| ISIC 1-shot | +0.04 ± 0.80 | +2.90 | +0.68 ± 0.85 | +0.72 ± 0.93 |
+| EuroSAT 1-shot | +0.52 ± 0.60 | +4.58 | -0.28 ± 0.71 | +0.24 ± 0.74 |
+| CropDiseases 1-shot | +0.17 ± 0.55 | +3.80 | +0.27 ± 0.73 | +0.44 ± 0.74 |
+| ChestX 1-shot | -0.19 ± 0.58 | +0.48 | +0.41 ± 0.80 | +0.23 ± 0.76 |
+| ISIC 5-shot | +0.27 ± 0.43 | +4.04 | +0.24 ± 0.40 | +0.51 ± 0.45 |
+
+CC-CDFSL 的增益全部接近 0，遠低於論文。剩下的 5-shot（EuroSAT/CropDiseases/ChestX）已停止，不在已知有偏差的實作上繼續花算力。
+
+### 原因：我們的實作與論文公式有三處不同
+
+逐條比對論文 Eq. 3–15：
+
+1. **缺少 Eq. 5 的可訓練 MLP**：論文把 patch 特徵先經 `ReLU(L'W1)W2` 轉到文字空間；舊版 `CyclicConsistencyLoss` 沒有任何參數。
+2. **I-T-I 檢索範圍（Eq. 14）**：論文只在 anchor 所屬影像的增強空間內檢索；舊版在所有影像的增強 patch 中檢索。
+3. **T-I-T 沒有影像端梯度**：Eq. 7–9 兩次檢索都是 argmax，最後 loss 只由文字特徵組成（`1 − sim(T_j, T[argmax])`）。以合成資料驗證梯度：T-I-T 對視覺端與 MLP 的梯度皆為 0，只有文字端有梯度。
+
+**對過去所有舊協定實驗的影響**：舊 `train.py` 的文字塔凍結、文字特徵在 `no_grad` 下計算，因此 `L_TIT.requires_grad = False`，**λ1 在所有舊協定實驗中完全沒有作用**，log 中的 TIT 值（~0.10–0.14）只是被加進總 loss 的常數。我們一直稱為「CC-CDFSL」的東西，實際上只有 CE + λ2·I-T-I。先前 FeatureSR/$\mathcal{L}_{CR}$ 的量測數字本身不受影響，但凡是寫「以 CC-CDFSL 為基礎」的地方都需要修正。
+
+### 照論文公式字面重寫：MLP 坍縮
+
+新增 `PaperCyclicConsistencyLoss`（`--cc_impl paper`），照 Eq. 3–15 實作：可訓練 MLP、同圖視角內 I-T-I（排除 anchor 自己的視角，否則會檢索到自己）、字面 T-I-T。梯度驗證符合預期：T-I-T 只更新文字端，I-T-I 更新視覺端與 MLP。
+
+但 MLP 只從 I-T-I 拿到梯度，而 I-T-I 的目標是讓 `MLP(原 patch)` 與 `MLP(增強 patch)` 相似，輸出常數就能平凡滿足。本機 ISIC 1-shot、500 步、3 個 episode 實測：MLP 輸出兩兩平均餘弦從初始 0.31 升到 **0.992–0.997**，I-T-I loss 降到 **0.000–0.002**，確認坍縮。
+
+### 結論
+
+| 照論文公式字面實作 | 結果 |
+|:---|:---|
+| T-I-T（Eq. 7–9） | 影像端與 MLP 無梯度 |
+| I-T-I + MLP（Eq. 5, 13–15） | MLP 坍縮成常數輸出，loss 被平凡降到 0 |
+| 官方程式碼（github.com/z-yaz/CC-CDFSL） | 只有 README 與海報，未釋出 |
+
+**CC-CDFSL 無法從論文描述重現。** 論文的實際實作必然包含公式未寫的機制（例如 stop-gradient、soft retrieval 或其他訓練 MLP 的方式），我們只能猜測。`--cc_impl` 預設值維持 `legacy`，`paper` 僅用於重現坍縮現象。
+
 ## 對既有結論的影響
 
 在對齊協定下，**連純 CLIP-LoRA baseline 都高於我們之前所有 Feature-SR 的結果**（ISIC 約 49% vs 先前 FSR 的 43–45%；CropDiseases 約 95–97% vs 約 90%）。§4 所有 Feature-SR / Ensemble / TTA 的增益，全部是在較弱的舊協定下量到的，在新協定下是否仍然成立**完全未知**，必須重新驗證。舊協定數字仍可作為內部消融參考，但不能放進與 SOTA 並列的主表。

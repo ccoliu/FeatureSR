@@ -1,0 +1,13 @@
+diff --git a/clip/model.py b/clip/model.py
+index b882d0d..315e6d0 100644
+--- a/clip/model.py
++++ b/clip/model.py
+@@ -399,7 +399,7 @@ class Transformer(nn.Module):
+  
+             else:
+                 params.aux_container['text_block_id'] = i
+-            x = block(x, is_visual, params,  return_similarity=return_attention)
++            x = block(x, is_visual, params)
+ 
+ 
+         return x

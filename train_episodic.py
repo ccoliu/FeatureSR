@@ -40,7 +40,7 @@ from datasets import get_dataset
 from models.clip_wrapper import CLIPWrapper
 from models.clip_lora import CLIPLoRA
 from models.feature_sr import FeatureSRModule, CrossResolutionConsistencyLoss
-from losses.cycle_consistency import CyclicConsistencyLoss
+from losses.cycle_consistency import CyclicConsistencyLoss, PaperCyclicConsistencyLoss
 from utils.augmentation import get_clip_transform
 from utils.few_shot_sampler import FewShotEpisodeSampler
 from utils.metrics import compute_confidence_interval, compute_few_shot_accuracy
@@ -79,6 +79,9 @@ def parse_args():
     p.add_argument("--lambda2", type=float, default=0.0, help="I-T-I 權重（0 ⇒ 不算）")
     p.add_argument("--top_k", type=int, default=10)
     p.add_argument("--n_aug", type=int, default=4)
+    p.add_argument("--cc_impl", default="legacy", choices=["legacy", "paper"],
+                   help="legacy：舊版 0 參數實作；paper：照論文 Eq.3–15 字面（含可訓練 MLP、同圖視角內 I-T-I），"
+                        "實測 MLP 會坍縮成常數輸出（mlp_cos≈0.99），僅供重現此現象，見 reports/0924")
 
     p.add_argument("--use_feature_sr", action="store_true")
     p.add_argument("--sr_scale", type=int, default=2)
@@ -116,7 +119,8 @@ def default_tag(args) -> str:
         mode = f"fsr_s{args.sr_scale}_ref{args.sr_refiner_layers}_l3{args.lambda3:g}"
     else:
         mode = "nofsr"
-    cc = f"cc_l1{args.lambda1:g}_l2{args.lambda2:g}" if (args.lambda1 > 0 or args.lambda2 > 0) else "nocc"
+    cc_name = "ccpaper" if args.cc_impl == "paper" else "cc"
+    cc = f"{cc_name}_l1{args.lambda1:g}_l2{args.lambda2:g}" if (args.lambda1 > 0 or args.lambda2 > 0) else "nocc"
     return f"{mode}_{cc}_lora{args.lora_encoder}_r{args.lora_r}_steps{args.steps}"
 
 
@@ -138,6 +142,11 @@ def run_episode(episode, clip_lora, args, device, cc_loss_fn, cr_loss_fn, use_am
     params = list(clip_lora.trainable_parameters())
     if feature_sr is not None:
         params += list(feature_sr.parameters())
+    paper_cc = isinstance(cc_loss_fn, PaperCyclicConsistencyLoss)
+    if paper_cc:
+        cc_loss_fn.reset_parameters()
+        cc_loss_fn.train()
+        params += list(cc_loss_fn.parameters())
     optimizer = torch.optim.AdamW(params, lr=args.lr, weight_decay=args.weight_decay, betas=(0.9, 0.999))
     n_support = support_images.shape[0]
     iters_per_epoch = math.ceil(n_support / args.batch_size)
@@ -164,7 +173,7 @@ def run_episode(episode, clip_lora, args, device, cc_loss_fn, cr_loss_fn, use_am
             cls, patches = clip_lora.encode_image_with_patches(imgs)
             loss_ce = F.cross_entropy(logit_scale * cls @ text_feat.T, labels)
             loss = loss_ce
-            loss_tit = loss_iti = loss_cr = torch.zeros((), device=device)
+            loss_tit = loss_iti = loss_cr = mlp_cos = torch.zeros((), device=device)
 
             if feature_sr is not None:
                 patches, patches_orig = feature_sr(patches, return_both=True)
@@ -177,9 +186,11 @@ def run_episode(episode, clip_lora, args, device, cc_loss_fn, cr_loss_fn, use_am
                     _, aug_patches = clip_lora.encode_image_with_patches(aug_images)
                     if feature_sr is not None:
                         aug_patches, _ = feature_sr(aug_patches, return_both=False)
-                loss_tit, loss_iti = cc_loss_fn(
-                    text_feat=text_feat, patch_feat_orig=patches, patch_feat_aug=aug_patches,
-                )
+                cc_out = cc_loss_fn(text_feat, patches, aug_patches)
+                if paper_cc:
+                    loss_tit, loss_iti, mlp_cos = cc_out
+                else:
+                    loss_tit, loss_iti = cc_out
                 loss = loss + args.lambda1 * loss_tit + args.lambda2 * loss_iti
 
         optimizer.zero_grad(set_to_none=True)
@@ -189,7 +200,7 @@ def run_episode(episode, clip_lora, args, device, cc_loss_fn, cr_loss_fn, use_am
         scheduler.step()
 
     last = {"loss": loss.item(), "ce": loss_ce.item(), "tit": loss_tit.item(),
-            "iti": loss_iti.item(), "cr": loss_cr.item()}
+            "iti": loss_iti.item(), "cr": loss_cr.item(), "mlp_cos": mlp_cos.item()}
 
     clip_lora.eval()
     with torch.no_grad(), torch.autocast("cuda", dtype=torch.float16, enabled=use_amp):
@@ -233,7 +244,10 @@ def main():
     n_lora = sum(p.numel() for p in clip_lora.trainable_parameters())
     logger.info(f"LoRA trainable parameters: {n_lora:,} "
                 f"(encoder={args.lora_encoder}, qkv={args.lora_qkv_mode}, out_proj={args.lora_out_proj})")
-    cc_loss_fn = CyclicConsistencyLoss(top_k=args.top_k)
+    if args.cc_impl == "paper":
+        cc_loss_fn = PaperCyclicConsistencyLoss(dim=clip_wrapper.output_dim, top_k=args.top_k).to(device)
+    else:
+        cc_loss_fn = CyclicConsistencyLoss(top_k=args.top_k)
     cr_loss_fn = CrossResolutionConsistencyLoss(input_size=14, scale=args.sr_scale).to(device)
     use_amp = not args.no_amp
 
@@ -256,7 +270,8 @@ def main():
                 per_ep = (time.time() - t0) / n_new
                 eta_h = per_ep * (n_episodes - len(accs)) / 3600
                 logger.info(f"  [{len(accs)}/{n_episodes}] running {mean:.2f} ± {ci:.2f}% | "
-                            f"last loss {last['loss']:.4f} (ce {last['ce']:.4f}) | "
+                            f"last loss {last['loss']:.4f} (ce {last['ce']:.4f}, tit {last['tit']:.3f}, "
+                            f"iti {last['iti']:.3f}, mlp_cos {last['mlp_cos']:.3f}) | "
                             f"{per_ep:.1f}s/episode, ETA {eta_h:.2f}h")
 
     mean, ci = compute_confidence_interval(accs)

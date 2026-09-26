@@ -237,3 +237,84 @@ class CyclicConsistencyLoss(nn.Module):
             L_cyc_img = torch.tensor(0.0, device=text_feat.device)
 
         return L_cyc_txt, L_cyc_img
+
+
+class PaperCyclicConsistencyLoss(nn.Module):
+    """
+    照 CC-CDFSL 論文 Eq. 3–15 字面實作（官方 repo github.com/z-yaz/CC-CDFSL 只有 README，未釋出程式碼）。
+
+    與舊版 CyclicConsistencyLoss 的差異：
+      1. Eq. 5：patch 特徵先經可訓練 2 層 MLP（ReLU(L'W1)W2，無 bias）再 L2 normalize，
+         T-I-T、Shrinking、I-T-I 全部在 MLP 空間進行。
+      2. Eq. 14：I-T-I 只在 anchor 所屬影像的其他視角中檢索。論文寫「x_n 的增強空間」，但 anchor 本身
+         也在該空間內，照字面常會檢索到自己使 loss 恆為 0，因此排除 anchor 自己所在的視角。
+      3. T-I-T 照 Eq. 7–9：兩次 argmax 後 loss 只由文字特徵組成，影像端（含 MLP）拿不到梯度，
+         只有文字塔 LoRA 會被更新。
+
+    MLP 只從 I-T-I 拿到梯度，而 I-T-I 可被常數輸出滿足 ⇒ 有坍縮風險。
+    forward 額外回傳 mlp_cos（MLP 輸出隨機 patch 兩兩平均餘弦），逼近 1 代表坍縮。
+    """
+
+    def __init__(self, dim: int, top_k: int = 10):
+        super().__init__()
+        self.top_k = top_k
+        self.mlp = nn.Sequential(
+            nn.Linear(dim, dim, bias=False),
+            nn.ReLU(),
+            nn.Linear(dim, dim, bias=False),
+        )
+
+    def reset_parameters(self):
+        for m in self.mlp:
+            if isinstance(m, nn.Linear):
+                m.reset_parameters()
+
+    def forward(
+        self,
+        text_feat: torch.Tensor,        # [C, d]
+        patch_feat_orig: torch.Tensor,  # [B, P, d]
+        patch_feat_aug: torch.Tensor,   # [A*B, P, d]，排列為 a*B + b
+    ) -> Tuple[torch.Tensor, torch.Tensor, torch.Tensor]:
+        B, P, d = patch_feat_orig.shape
+        A = patch_feat_aug.shape[0] // B
+        n_views = A + 1
+        T = text_feat
+
+        views = torch.cat([
+            patch_feat_orig.unsqueeze(1),
+            patch_feat_aug.view(A, B, P, d).transpose(0, 1),
+        ], dim=1)                                           # [B, A+1, P, d]，視角 0 為原圖
+        L = F.normalize(self.mlp(views), dim=-1)            # Eq. 5
+        flat = L.reshape(-1, d)                             # [H, d]，H = B(A+1)P
+
+        # T-I-T（Eq. 6–9）
+        L_star = flat[(T @ flat.T).argmax(dim=1)]          # [C, d]
+        T_rec = T[(L_star @ T.T).argmax(dim=1)]            # [C, d]
+        loss_tit = 1.0 - (T * T_rec).sum(dim=-1).mean()
+
+        # Shrinking（Eq. 10–12）：每張影像、每個視角、每個類別取 top-k
+        k = min(self.top_k, P)
+        topk = torch.einsum("bvpd,cd->bvcp", L, T).topk(k, dim=-1).indices          # [B, V, C, k]
+        view_offset = torch.arange(n_views, device=L.device).view(1, n_views, 1, 1) * P
+        local_idx = (topk + view_offset).reshape(B, -1)                               # 影像內索引 v*P + p
+        per_image = L.reshape(B, n_views * P, d)
+        cand_view = torch.arange(n_views * P, device=L.device) // P
+
+        # I-T-I（Eq. 13–15）
+        sims = []
+        for b in range(B):
+            idx = torch.unique(local_idx[b])
+            x = per_image[b, idx]                                        # anchors [n, d]
+            t = T[(x @ T.T).argmax(dim=-1)]                              # Eq. 13
+            s = t @ per_image[b].T                                       # [n, V*P]
+            s = s.masked_fill((idx // P)[:, None] == cand_view[None, :], float("-inf"))
+            x_hat = per_image[b, s.argmax(dim=-1)]                       # Eq. 14
+            sims.append((x * x_hat).sum(dim=-1))
+        loss_iti = 1.0 - torch.cat(sims).mean()                          # Eq. 15
+
+        with torch.no_grad():
+            sample = flat[torch.randint(0, flat.shape[0], (256,), device=flat.device)].float()
+            gram = sample @ sample.T
+            mlp_cos = (gram.sum() - gram.diagonal().sum()) / (256 * 255)
+
+        return loss_tit, loss_iti, mlp_cos
