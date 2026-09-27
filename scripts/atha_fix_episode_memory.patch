@@ -1,0 +1,23 @@
+diff --git a/coop_lora_trainer.py b/coop_lora_trainer.py
+index 1f19b51..4cbef8a 100644
+--- a/coop_lora_trainer.py
++++ b/coop_lora_trainer.py
+@@ -656,7 +656,8 @@ def finetune(args, dataset):
+ 
+ 
+         
+-        output = coop_lora_model(x_b_i.cuda(), params=params)#, sp_img=x_a_i.cuda())
++        with torch.no_grad():
++            output = coop_lora_model(x_b_i.cuda(), params=params)#, sp_img=x_a_i.cuda())
+ 
+       
+       
+@@ -686,6 +687,8 @@ def finetune(args, dataset):
+             print_str = str(dataset) + ' | ' + str(total_num) +  ' / ' + str(iter_num) + ' Acc = %4.2f%% +- %4.2f%%'%(acc_mean, 1.96 * acc_std/np.sqrt(total_num+1)); log(out, print_str)
+ 
+         total_num = total_num + 1
++        del coop_lora_model, clip_model, list_lora_layers, lora_optimizer, coop_optimizer, other_optimizer, output, logits, loss
++        torch.cuda.empty_cache()
+         ####################
+         
+     acc_all = np.asarray(acc_all)
