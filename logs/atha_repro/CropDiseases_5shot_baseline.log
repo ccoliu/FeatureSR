@@ -1,0 +1,2 @@
+set seed = 1
+FineTune! 5 shots on CropDiseases dataset

@@ -1,0 +1,20 @@
+[20:42:40 INFO] Episodic protocol | eurosat 5-way 1-shot | 100 episodes × 500 steps | tag=nofsr_nocc_loraboth_r2_steps500_cnfull_loc0.1g1_sep1_pmvalue
+[20:42:40 INFO] Args: {'dataset': 'eurosat', 'data_root': './data', 'n_way': 5, 'n_shot': 1, 'n_query': 15, 'n_episodes': None, 'backbone': 'ViT-B/16', 'lora_encoder': 'both', 'lora_qkv_mode': 'separate', 'lora_out_proj': False, 'lora_r': 2, 'lora_alpha': 1.0, 'lora_dropout': 0.25, 'steps': 500, 'batch_size': 32, 'lr': 0.0002, 'weight_decay': 0.01, 'no_ce_aug': False, 'class_names': 'full', 'lambda1': 0.0, 'lambda2': 0.0, 'top_k': 10, 'n_aug': 4, 'cc_impl': 'legacy', 'local_score': True, 'local_k_frac': 0.1, 'local_gamma': 1.0, 'learn_gamma': False, 'local_loss': 'separate', 'local_lambda': 1.0, 'patch_mode': 'value', 'use_feature_sr': False, 'sr_scale': 2, 'sr_refiner_layers': 0, 'sr_refiner_heads': 8, 'lambda3': 0.3, 'seed': 42, 'no_amp': False, 'save_dir': './results_episodic', 'tag': None, 'log_every': 10}
+[20:42:40 INFO] Episode pool (BSCD 全量): EuroSATDataset(split=train, n_classes=10, n_samples=27000)
+[20:42:42 INFO] LoRA trainable parameters: 184,320 (encoder=both, qkv=separate, out_proj=False)
+/home/ccoliu/FeatureSR/train_episodic.py:192: FutureWarning: `torch.cuda.amp.GradScaler(args...)` is deprecated. Please use `torch.amp.GradScaler('cuda', args...)` instead.
+  scaler = torch.cuda.amp.GradScaler(enabled=use_amp)
+/home/ccoliu/FeatureSR/.venv/lib/python3.12/site-packages/torch/optim/lr_scheduler.py:224: UserWarning: Detected call of `lr_scheduler.step()` before `optimizer.step()`. In PyTorch 1.1.0 and later, you should call them in the opposite order: `optimizer.step()` before `lr_scheduler.step()`.  Failure to do this will result in PyTorch skipping the first value of the learning rate schedule. See more details at https://pytorch.org/docs/stable/optim.html#how-to-adjust-learning-rate
+  warnings.warn(
+[20:44:30 INFO]   [10/100] running 82.27 ± 8.11% | last loss 0.0095 (ce 0.0095, tit 0.000, iti 0.000, mlp_cos 0.000) | 10.9s/episode, ETA 0.27h
+[20:46:19 INFO]   [20/100] running 84.20 ± 4.42% | last loss 0.0094 (ce 0.0094, tit 0.000, iti 0.000, mlp_cos 0.000) | 10.8s/episode, ETA 0.24h
+[20:48:07 INFO]   [30/100] running 82.93 ± 3.54% | last loss 0.0054 (ce 0.0054, tit 0.000, iti 0.000, mlp_cos 0.000) | 10.8s/episode, ETA 0.21h
+[20:49:55 INFO]   [40/100] running 82.90 ± 2.91% | last loss 0.0031 (ce 0.0031, tit 0.000, iti 0.000, mlp_cos 0.000) | 10.8s/episode, ETA 0.18h
+[20:51:43 INFO]   [50/100] running 82.83 ± 2.49% | last loss 0.0032 (ce 0.0032, tit 0.000, iti 0.000, mlp_cos 0.000) | 10.8s/episode, ETA 0.15h
+[20:53:32 INFO]   [60/100] running 82.18 ± 2.35% | last loss 0.0089 (ce 0.0089, tit 0.000, iti 0.000, mlp_cos 0.000) | 10.8s/episode, ETA 0.12h
+[20:55:20 INFO]   [70/100] running 81.62 ± 2.20% | last loss 0.0202 (ce 0.0202, tit 0.000, iti 0.000, mlp_cos 0.000) | 10.8s/episode, ETA 0.09h
+[20:57:08 INFO]   [80/100] running 81.67 ± 2.04% | last loss 0.0019 (ce 0.0019, tit 0.000, iti 0.000, mlp_cos 0.000) | 10.8s/episode, ETA 0.06h
+[20:58:57 INFO]   [90/100] running 81.94 ± 1.90% | last loss 0.0022 (ce 0.0022, tit 0.000, iti 0.000, mlp_cos 0.000) | 10.8s/episode, ETA 0.03h
+[21:00:45 INFO]   [100/100] running 82.12 ± 1.75% | last loss 0.0350 (ce 0.0350, tit 0.000, iti 0.000, mlp_cos 0.000) | 10.8s/episode, ETA 0.00h
+[21:00:45 INFO] Final (episodic, nofsr_nocc_loraboth_r2_steps500_cnfull_loc0.1g1_sep1_pmvalue): 82.12 ± 1.75% (n_episodes=100)
+[21:00:45 INFO]   診斷：只用 CLS 81.93、只用 local 80.25、γ 1.000；融合 γ=0.1/0.3/0.5：82.16/82.51/82.45

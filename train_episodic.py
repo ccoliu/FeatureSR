@@ -74,6 +74,9 @@ def parse_args():
     p.add_argument("--lr", type=float, default=2e-4)
     p.add_argument("--weight_decay", type=float, default=1e-2)
     p.add_argument("--no_ce_aug", action="store_true", help="關閉 CE 訓練的 RandomResizedCrop+flip")
+    p.add_argument("--class_names", default="full", choices=["full", "raw"],
+                   help="full：prompt 用完整類別名稱（ISIC「Melanoma」、EuroSAT「Sea or Lake」，同 ATHA）；"
+                        "raw：資料夾名稱（「MEL」、「SeaLake」），即 0928 之前所有 episodic 結果的設定")
 
     p.add_argument("--lambda1", type=float, default=0.0, help="T-I-T 權重（0 ⇒ 不算）")
     p.add_argument("--lambda2", type=float, default=0.0, help="I-T-I 權重（0 ⇒ 不算）")
@@ -82,6 +85,19 @@ def parse_args():
     p.add_argument("--cc_impl", default="legacy", choices=["legacy", "paper"],
                    help="legacy：舊版 0 參數實作；paper：照論文 Eq.3–15 字面（含可訓練 MLP、同圖視角內 I-T-I），"
                         "實測 MLP 會坍縮成常數輸出（mlp_cos≈0.99），僅供重現此現象，見 reports/0924")
+
+    p.add_argument("--local_score", action="store_true",
+                   help="patch 層級分數進入分類：logits = s·(CLS·T + γ·local)，"
+                        "local_c = 每個類別 top-k patch 相似度的平均（開 FSR 時用上採樣後的 patch）")
+    p.add_argument("--local_k_frac", type=float, default=0.1, help="top-k 的 k = round(比例 × patch 數)")
+    p.add_argument("--local_gamma", type=float, default=1.0, help="γ 初始值")
+    p.add_argument("--learn_gamma", action="store_true", help="γ 為可學習純量（每個 episode 重置）")
+    p.add_argument("--local_loss", default="fused", choices=["fused", "separate"],
+                   help="fused：CE(s·(CLS·T + γ·local))；separate：CE(s·CLS·T) + λ·CE(s·local)，"
+                        "推論時仍用 CLS + γ·local 融合。fused 會讓 CLS 退化（見 reports/0929_步驟1）")
+    p.add_argument("--local_lambda", type=float, default=1.0, help="separate 模式下 local CE 的權重 λ")
+    p.add_argument("--patch_mode", default="plain", choices=["plain", "value"],
+                   help="plain：最後一層完整輸出；value：MaskCLIP 式 value→out_proj（見 CLIPWrapper）")
 
     p.add_argument("--use_feature_sr", action="store_true")
     p.add_argument("--sr_scale", type=int, default=2)
@@ -121,7 +137,23 @@ def default_tag(args) -> str:
         mode = "nofsr"
     cc_name = "ccpaper" if args.cc_impl == "paper" else "cc"
     cc = f"{cc_name}_l1{args.lambda1:g}_l2{args.lambda2:g}" if (args.lambda1 > 0 or args.lambda2 > 0) else "nocc"
-    return f"{mode}_{cc}_lora{args.lora_encoder}_r{args.lora_r}_steps{args.steps}"
+    # raw 不加後綴，與 0928 之前的結果檔名相同（續跑相容）；full 加 _cnfull，避免被當成舊結果
+    cn = "_cnfull" if args.class_names == "full" else ""
+    loc = ""
+    if args.local_score:
+        loc = f"_loc{args.local_k_frac:g}g{args.local_gamma:g}{'L' if args.learn_gamma else ''}"
+        if args.local_loss == "separate":
+            loc += f"_sep{args.local_lambda:g}"
+    if args.patch_mode != "plain":
+        loc += f"_pm{args.patch_mode}"
+    return f"{mode}_{cc}_lora{args.lora_encoder}_r{args.lora_r}_steps{args.steps}{cn}{loc}"
+
+
+def local_scores(patches: torch.Tensor, text_feat: torch.Tensor, k_frac: float) -> torch.Tensor:
+    """patches [B, P, d]、text_feat [C, d]（皆已 L2 normalize）→ [B, C]，每個類別 top-k patch 相似度的平均"""
+    sim = torch.einsum("bpd,cd->bcp", patches, text_feat)
+    k = max(1, round(k_frac * patches.shape[1]))
+    return sim.topk(k, dim=-1).values.mean(dim=-1)
 
 
 def run_episode(episode, clip_lora, args, device, cc_loss_fn, cr_loss_fn, use_amp):
@@ -147,7 +179,12 @@ def run_episode(episode, clip_lora, args, device, cc_loss_fn, cr_loss_fn, use_am
         cc_loss_fn.reset_parameters()
         cc_loss_fn.train()
         params += list(cc_loss_fn.parameters())
-    optimizer = torch.optim.AdamW(params, lr=args.lr, weight_decay=args.weight_decay, betas=(0.9, 0.999))
+    param_groups = [{"params": params}]
+    gamma = torch.tensor(args.local_gamma, device=device)
+    if args.local_score and args.learn_gamma:
+        gamma = torch.nn.Parameter(gamma)
+        param_groups.append({"params": [gamma], "weight_decay": 0.0})
+    optimizer = torch.optim.AdamW(param_groups, lr=args.lr, weight_decay=args.weight_decay, betas=(0.9, 0.999))
     n_support = support_images.shape[0]
     iters_per_epoch = math.ceil(n_support / args.batch_size)
     total_iters = args.steps
@@ -169,21 +206,28 @@ def run_episode(episode, clip_lora, args, device, cc_loss_fn, cr_loss_fn, use_am
             imgs = ce_augment(imgs)
 
         with torch.autocast("cuda", dtype=torch.float16, enabled=use_amp):
-            text_feat = clip_lora.encode_text(class_names)
-            cls, patches = clip_lora.encode_image_with_patches(imgs)
-            loss_ce = F.cross_entropy(logit_scale * cls @ text_feat.T, labels)
-            loss = loss_ce
+            text_feat = clip_lora.encode_text(class_names, dataset_name=args.dataset, display_names=args.class_names == "full")
+            cls, patches = clip_lora.encode_image_with_patches(imgs, patch_mode=args.patch_mode)
             loss_tit = loss_iti = loss_cr = mlp_cos = torch.zeros((), device=device)
-
             if feature_sr is not None:
                 patches, patches_orig = feature_sr(patches, return_both=True)
                 loss_cr = cr_loss_fn(patches, patches_orig)
-                loss = loss + args.lambda3 * loss_cr
+
+            sims = cls @ text_feat.T
+            if args.local_score and args.local_loss == "separate":
+                loc = local_scores(patches, text_feat, args.local_k_frac)
+                loss_ce = (F.cross_entropy(logit_scale * sims, labels)
+                           + args.local_lambda * F.cross_entropy(logit_scale * loc, labels))
+            else:
+                if args.local_score:
+                    sims = sims + gamma * local_scores(patches, text_feat, args.local_k_frac)
+                loss_ce = F.cross_entropy(logit_scale * sims, labels)
+            loss = loss_ce + args.lambda3 * loss_cr if feature_sr is not None else loss_ce
 
             if use_cc:
                 with torch.no_grad():
                     aug_images = torch.cat([augment_tensor_batch(imgs) for _ in range(args.n_aug)], dim=0)
-                    _, aug_patches = clip_lora.encode_image_with_patches(aug_images)
+                    _, aug_patches = clip_lora.encode_image_with_patches(aug_images, patch_mode=args.patch_mode)
                     if feature_sr is not None:
                         aug_patches, _ = feature_sr(aug_patches, return_both=False)
                 cc_out = cc_loss_fn(text_feat, patches, aug_patches)
@@ -200,13 +244,29 @@ def run_episode(episode, clip_lora, args, device, cc_loss_fn, cr_loss_fn, use_am
         scheduler.step()
 
     last = {"loss": loss.item(), "ce": loss_ce.item(), "tit": loss_tit.item(),
-            "iti": loss_iti.item(), "cr": loss_cr.item(), "mlp_cos": mlp_cos.item()}
+            "iti": loss_iti.item(), "cr": loss_cr.item(), "mlp_cos": mlp_cos.item(),
+            "gamma": float(gamma)}
 
     clip_lora.eval()
+    if feature_sr is not None:
+        feature_sr.eval()
     with torch.no_grad(), torch.autocast("cuda", dtype=torch.float16, enabled=use_amp):
-        text_feat = clip_lora.encode_text(class_names)
-        q_cls, _ = clip_lora.encode_image_with_patches(query_images)
-        acc = compute_few_shot_accuracy(q_cls.float() @ text_feat.float().T, query_labels)
+        text_feat = clip_lora.encode_text(class_names, dataset_name=args.dataset, display_names=args.class_names == "full")
+        q_cls, q_patches = clip_lora.encode_image_with_patches(query_images, patch_mode=args.patch_mode)
+        text_feat = text_feat.float()
+        sim_cls = q_cls.float() @ text_feat.T
+        acc = compute_few_shot_accuracy(sim_cls, query_labels)
+        if args.local_score:
+            if feature_sr is not None:
+                q_patches, _ = feature_sr(q_patches, return_both=False)
+            sim_loc = local_scores(q_patches.float(), text_feat, args.local_k_frac)
+            # acc 是融合後的準確率（主指標）；另外記錄只用 CLS / 只用 local 的準確率供診斷
+            last["acc_cls"] = acc
+            last["acc_local"] = compute_few_shot_accuracy(sim_loc, query_labels)
+            acc = compute_few_shot_accuracy(sim_cls + float(gamma) * sim_loc, query_labels)
+            # 其他 γ 的融合準確率只供診斷，不可拿來在測試 episode 上挑 γ
+            for g in (0.1, 0.3, 0.5):
+                last[f"acc_g{g}"] = compute_few_shot_accuracy(sim_cls + g * sim_loc, query_labels)
     return acc, last
 
 
@@ -278,6 +338,17 @@ def main():
     logger.info(f"Final (episodic, {tag}): {mean:.2f} ± {ci:.2f}% (n_episodes={len(accs)})")
     summary = {"dataset": args.dataset, "n_shot": args.n_shot, "tag": tag, "mean_acc": mean,
                "ci": ci, "n_episodes": len(accs), "args": vars(args)}
+    if args.local_score:
+        recs = [json.loads(l) for l in out_jsonl.read_text().splitlines() if l.strip()]
+        for key in ("acc_cls", "acc_local", "gamma", "acc_g0.1", "acc_g0.3", "acc_g0.5"):
+            vals = [r[key] for r in recs if key in r]
+            if vals:
+                summary[f"mean_{key}"] = float(np.mean(vals))
+        logger.info(f"  診斷：只用 CLS {summary.get('mean_acc_cls', float('nan')):.2f}、"
+                    f"只用 local {summary.get('mean_acc_local', float('nan')):.2f}、"
+                    f"γ {summary.get('mean_gamma', float('nan')):.3f}；融合 γ=0.1/0.3/0.5："
+                    f"{summary.get('mean_acc_g0.1', float('nan')):.2f}/{summary.get('mean_acc_g0.3', float('nan')):.2f}/"
+                    f"{summary.get('mean_acc_g0.5', float('nan')):.2f}")
     (save_dir / f"{args.dataset}_{args.n_shot}shot_{tag}.summary.json").write_text(json.dumps(summary, indent=2))
 
 

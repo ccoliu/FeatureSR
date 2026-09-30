@@ -257,21 +257,22 @@ class CLIPLoRA(nn.Module):
         return [p for p in self.lora_layers.parameters() if p.requires_grad]
 
     def encode_image_with_patches(
-        self, images: torch.Tensor
+        self, images: torch.Tensor, patch_mode: str = "plain"
     ) -> Tuple[torch.Tensor, torch.Tensor]:
         """代理到 clip_wrapper"""
-        return self.clip.encode_image_with_patches(images)
+        return self.clip.encode_image_with_patches(images, patch_mode=patch_mode)
 
     def encode_text(
         self,
         class_names: List[str],
         dataset_name: Optional[str] = None,
         use_ensemble: bool = False,
+        display_names: bool = False,
     ) -> torch.Tensor:
         """代理到 clip_wrapper；文字塔有 LoRA 時保留梯度"""
         return self.clip.encode_text(
             class_names, dataset_name=dataset_name, use_ensemble=use_ensemble,
-            with_grad=self.text_lora,
+            with_grad=self.text_lora, display_names=display_names,
         )
 
     def forward(self, images: torch.Tensor) -> Tuple[torch.Tensor, torch.Tensor]:

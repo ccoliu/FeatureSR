@@ -1,0 +1,20 @@
+[08:11:52 INFO] Episodic protocol | isic 5-way 1-shot | 100 episodes × 500 steps | tag=nofsr_nocc_loraboth_r2_steps500_cnfull_loc0.1g1_pmvalue
+[08:11:52 INFO] Args: {'dataset': 'isic', 'data_root': './data', 'n_way': 5, 'n_shot': 1, 'n_query': 15, 'n_episodes': None, 'backbone': 'ViT-B/16', 'lora_encoder': 'both', 'lora_qkv_mode': 'separate', 'lora_out_proj': False, 'lora_r': 2, 'lora_alpha': 1.0, 'lora_dropout': 0.25, 'steps': 500, 'batch_size': 32, 'lr': 0.0002, 'weight_decay': 0.01, 'no_ce_aug': False, 'class_names': 'full', 'lambda1': 0.0, 'lambda2': 0.0, 'top_k': 10, 'n_aug': 4, 'cc_impl': 'legacy', 'local_score': True, 'local_k_frac': 0.1, 'local_gamma': 1.0, 'learn_gamma': False, 'patch_mode': 'value', 'use_feature_sr': False, 'sr_scale': 2, 'sr_refiner_layers': 0, 'sr_refiner_heads': 8, 'lambda3': 0.3, 'seed': 42, 'no_amp': False, 'save_dir': './results_episodic', 'tag': None, 'log_every': 10}
+[08:11:52 INFO] Episode pool (BSCD 全量): ISICDataset(split=train, n_classes=7, n_samples=10015)
+[08:11:54 INFO] LoRA trainable parameters: 184,320 (encoder=both, qkv=separate, out_proj=False)
+/home/ccoliu/FeatureSR/train_episodic.py:186: FutureWarning: `torch.cuda.amp.GradScaler(args...)` is deprecated. Please use `torch.amp.GradScaler('cuda', args...)` instead.
+  scaler = torch.cuda.amp.GradScaler(enabled=use_amp)
+/home/ccoliu/FeatureSR/.venv/lib/python3.12/site-packages/torch/optim/lr_scheduler.py:224: UserWarning: Detected call of `lr_scheduler.step()` before `optimizer.step()`. In PyTorch 1.1.0 and later, you should call them in the opposite order: `optimizer.step()` before `lr_scheduler.step()`.  Failure to do this will result in PyTorch skipping the first value of the learning rate schedule. See more details at https://pytorch.org/docs/stable/optim.html#how-to-adjust-learning-rate
+  warnings.warn(
+[08:13:45 INFO]   [10/100] running 35.07 ± 4.48% | last loss 0.0009 (ce 0.0009, tit 0.000, iti 0.000, mlp_cos 0.000) | 11.1s/episode, ETA 0.28h
+[08:15:36 INFO]   [20/100] running 32.07 ± 3.25% | last loss 0.0152 (ce 0.0152, tit 0.000, iti 0.000, mlp_cos 0.000) | 11.1s/episode, ETA 0.25h
+[08:17:27 INFO]   [30/100] running 32.40 ± 3.02% | last loss 0.0007 (ce 0.0007, tit 0.000, iti 0.000, mlp_cos 0.000) | 11.1s/episode, ETA 0.22h
+[08:19:18 INFO]   [40/100] running 32.73 ± 2.41% | last loss 0.0004 (ce 0.0004, tit 0.000, iti 0.000, mlp_cos 0.000) | 11.1s/episode, ETA 0.19h
+[08:21:09 INFO]   [50/100] running 32.59 ± 2.21% | last loss 0.0011 (ce 0.0011, tit 0.000, iti 0.000, mlp_cos 0.000) | 11.1s/episode, ETA 0.15h
+[08:23:00 INFO]   [60/100] running 33.07 ± 2.05% | last loss 0.0104 (ce 0.0104, tit 0.000, iti 0.000, mlp_cos 0.000) | 11.1s/episode, ETA 0.12h
+[08:24:51 INFO]   [70/100] running 33.39 ± 1.84% | last loss 0.0037 (ce 0.0037, tit 0.000, iti 0.000, mlp_cos 0.000) | 11.1s/episode, ETA 0.09h
+[08:26:42 INFO]   [80/100] running 33.12 ± 1.74% | last loss 0.0004 (ce 0.0004, tit 0.000, iti 0.000, mlp_cos 0.000) | 11.1s/episode, ETA 0.06h
+[08:28:33 INFO]   [90/100] running 33.32 ± 1.68% | last loss 0.0013 (ce 0.0013, tit 0.000, iti 0.000, mlp_cos 0.000) | 11.1s/episode, ETA 0.03h
+[08:30:25 INFO]   [100/100] running 33.47 ± 1.57% | last loss 0.0063 (ce 0.0063, tit 0.000, iti 0.000, mlp_cos 0.000) | 11.1s/episode, ETA 0.00h
+[08:30:25 INFO] Final (episodic, nofsr_nocc_loraboth_r2_steps500_cnfull_loc0.1g1_pmvalue): 33.47 ± 1.57% (n_episodes=100)
+[08:30:25 INFO]   診斷：只用 CLS 32.37、只用 local 29.88、γ 1.000

@@ -1,0 +1,19 @@
+[15:12:02 INFO] Episodic protocol | isic 5-way 1-shot | 100 episodes × 500 steps | tag=nofsr_cc_l13_l22_loraboth_r2_steps500
+[15:12:02 INFO] Args: {'dataset': 'isic', 'data_root': './data', 'n_way': 5, 'n_shot': 1, 'n_query': 15, 'n_episodes': None, 'backbone': 'ViT-B/16', 'lora_encoder': 'both', 'lora_qkv_mode': 'separate', 'lora_out_proj': False, 'lora_r': 2, 'lora_alpha': 1.0, 'lora_dropout': 0.25, 'steps': 500, 'batch_size': 32, 'lr': 0.0002, 'weight_decay': 0.01, 'no_ce_aug': False, 'lambda1': 3.0, 'lambda2': 2.0, 'top_k': 10, 'n_aug': 4, 'use_feature_sr': False, 'sr_scale': 2, 'sr_refiner_layers': 0, 'sr_refiner_heads': 8, 'lambda3': 0.3, 'seed': 42, 'no_amp': False, 'save_dir': './results_episodic', 'tag': None, 'log_every': 10}
+[15:12:02 INFO] Episode pool (BSCD 全量): ISICDataset(split=train, n_classes=7, n_samples=10015)
+[15:12:03 INFO] LoRA trainable parameters: 184,320 (encoder=both, qkv=separate, out_proj=False)
+/home/ccoliu/FeatureSR/train_episodic.py:146: FutureWarning: `torch.cuda.amp.GradScaler(args...)` is deprecated. Please use `torch.amp.GradScaler('cuda', args...)` instead.
+  scaler = torch.cuda.amp.GradScaler(enabled=use_amp)
+/home/ccoliu/FeatureSR/.venv/lib/python3.12/site-packages/torch/optim/lr_scheduler.py:224: UserWarning: Detected call of `lr_scheduler.step()` before `optimizer.step()`. In PyTorch 1.1.0 and later, you should call them in the opposite order: `optimizer.step()` before `lr_scheduler.step()`.  Failure to do this will result in PyTorch skipping the first value of the learning rate schedule. See more details at https://pytorch.org/docs/stable/optim.html#how-to-adjust-learning-rate
+  warnings.warn(
+[15:15:04 INFO]   [10/100] running 33.87 ± 2.84% | last loss 0.5120 (ce 0.0099) | 18.1s/episode, ETA 0.45h
+[15:18:05 INFO]   [20/100] running 31.87 ± 2.40% | last loss 0.3344 (ce 0.0195) | 18.1s/episode, ETA 0.40h
+[15:21:05 INFO]   [30/100] running 32.04 ± 2.13% | last loss 0.6086 (ce 0.0067) | 18.1s/episode, ETA 0.35h
+[15:24:05 INFO]   [40/100] running 32.00 ± 1.86% | last loss 0.3097 (ce 0.0061) | 18.1s/episode, ETA 0.30h
+[15:27:06 INFO]   [50/100] running 32.45 ± 1.84% | last loss 0.4514 (ce 0.0066) | 18.1s/episode, ETA 0.25h
+[15:30:06 INFO]   [60/100] running 32.40 ± 1.77% | last loss 0.3375 (ce 0.0058) | 18.0s/episode, ETA 0.20h
+[15:33:06 INFO]   [70/100] running 32.57 ± 1.58% | last loss 0.3080 (ce 0.0076) | 18.0s/episode, ETA 0.15h
+[15:36:06 INFO]   [80/100] running 32.42 ± 1.50% | last loss 0.5354 (ce 0.0023) | 18.0s/episode, ETA 0.10h
+[15:39:05 INFO]   [90/100] running 32.52 ± 1.46% | last loss 0.4224 (ce 0.0056) | 18.0s/episode, ETA 0.05h
+[15:42:05 INFO]   [100/100] running 32.21 ± 1.36% | last loss 0.6218 (ce 0.0470) | 18.0s/episode, ETA 0.00h
+[15:42:05 INFO] Final (episodic, nofsr_cc_l13_l22_loraboth_r2_steps500): 32.21 ± 1.36% (n_episodes=100)

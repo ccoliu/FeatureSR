@@ -1,0 +1,50 @@
+[17:24:38 INFO] Episodic protocol | eurosat 5-way 5-shot | 400 episodes × 500 steps | tag=nofsr_nocc_loraboth_r2_steps500_cnfull_loc0.1g1_sep1
+[17:24:38 INFO] Args: {'dataset': 'eurosat', 'data_root': './data', 'n_way': 5, 'n_shot': 5, 'n_query': 15, 'n_episodes': None, 'backbone': 'ViT-B/16', 'lora_encoder': 'both', 'lora_qkv_mode': 'separate', 'lora_out_proj': False, 'lora_r': 2, 'lora_alpha': 1.0, 'lora_dropout': 0.25, 'steps': 500, 'batch_size': 32, 'lr': 0.0002, 'weight_decay': 0.01, 'no_ce_aug': False, 'class_names': 'full', 'lambda1': 0.0, 'lambda2': 0.0, 'top_k': 10, 'n_aug': 4, 'cc_impl': 'legacy', 'local_score': True, 'local_k_frac': 0.1, 'local_gamma': 1.0, 'learn_gamma': False, 'local_loss': 'separate', 'local_lambda': 1.0, 'patch_mode': 'plain', 'use_feature_sr': False, 'sr_scale': 2, 'sr_refiner_layers': 0, 'sr_refiner_heads': 8, 'lambda3': 0.3, 'seed': 42, 'no_amp': False, 'save_dir': './results_episodic', 'tag': None, 'log_every': 10}
+[17:24:38 INFO] Episode pool (BSCD 全量): EuroSATDataset(split=train, n_classes=10, n_samples=27000)
+[17:24:40 INFO] LoRA trainable parameters: 184,320 (encoder=both, qkv=separate, out_proj=False)
+/home/ccoliu/FeatureSR/train_episodic.py:192: FutureWarning: `torch.cuda.amp.GradScaler(args...)` is deprecated. Please use `torch.amp.GradScaler('cuda', args...)` instead.
+  scaler = torch.cuda.amp.GradScaler(enabled=use_amp)
+/home/ccoliu/FeatureSR/.venv/lib/python3.12/site-packages/torch/optim/lr_scheduler.py:224: UserWarning: Detected call of `lr_scheduler.step()` before `optimizer.step()`. In PyTorch 1.1.0 and later, you should call them in the opposite order: `optimizer.step()` before `lr_scheduler.step()`.  Failure to do this will result in PyTorch skipping the first value of the learning rate schedule. See more details at https://pytorch.org/docs/stable/optim.html#how-to-adjust-learning-rate
+  warnings.warn(
+[17:28:39 INFO]   [10/400] running 92.93 ± 2.64% | last loss 0.0157 (ce 0.0157, tit 0.000, iti 0.000, mlp_cos 0.000) | 23.9s/episode, ETA 2.59h
+[17:32:38 INFO]   [20/400] running 93.33 ± 1.46% | last loss 0.0034 (ce 0.0034, tit 0.000, iti 0.000, mlp_cos 0.000) | 23.9s/episode, ETA 2.53h
+[17:36:37 INFO]   [30/400] running 93.33 ± 1.40% | last loss 0.0099 (ce 0.0099, tit 0.000, iti 0.000, mlp_cos 0.000) | 23.9s/episode, ETA 2.46h
+[17:40:37 INFO]   [40/400] running 93.17 ± 1.14% | last loss 0.0098 (ce 0.0098, tit 0.000, iti 0.000, mlp_cos 0.000) | 23.9s/episode, ETA 2.39h
+[17:44:36 INFO]   [50/400] running 92.75 ± 1.15% | last loss 0.0083 (ce 0.0083, tit 0.000, iti 0.000, mlp_cos 0.000) | 23.9s/episode, ETA 2.33h
+[17:48:35 INFO]   [60/400] running 92.71 ± 1.03% | last loss 0.0231 (ce 0.0231, tit 0.000, iti 0.000, mlp_cos 0.000) | 23.9s/episode, ETA 2.26h
+[17:52:34 INFO]   [70/400] running 92.86 ± 0.93% | last loss 0.0021 (ce 0.0021, tit 0.000, iti 0.000, mlp_cos 0.000) | 23.9s/episode, ETA 2.19h
+[17:56:33 INFO]   [80/400] running 92.62 ± 0.87% | last loss 0.0116 (ce 0.0116, tit 0.000, iti 0.000, mlp_cos 0.000) | 23.9s/episode, ETA 2.13h
+[18:00:32 INFO]   [90/400] running 92.43 ± 0.83% | last loss 0.0025 (ce 0.0025, tit 0.000, iti 0.000, mlp_cos 0.000) | 23.9s/episode, ETA 2.06h
+[18:04:31 INFO]   [100/400] running 92.32 ± 0.78% | last loss 0.0052 (ce 0.0052, tit 0.000, iti 0.000, mlp_cos 0.000) | 23.9s/episode, ETA 1.99h
+[18:08:30 INFO]   [110/400] running 92.48 ± 0.74% | last loss 0.0042 (ce 0.0042, tit 0.000, iti 0.000, mlp_cos 0.000) | 23.9s/episode, ETA 1.93h
+[18:12:30 INFO]   [120/400] running 92.42 ± 0.72% | last loss 0.0025 (ce 0.0025, tit 0.000, iti 0.000, mlp_cos 0.000) | 23.9s/episode, ETA 1.86h
+[18:16:29 INFO]   [130/400] running 92.35 ± 0.70% | last loss 0.0103 (ce 0.0103, tit 0.000, iti 0.000, mlp_cos 0.000) | 23.9s/episode, ETA 1.79h
+[18:20:28 INFO]   [140/400] running 92.26 ± 0.70% | last loss 0.1427 (ce 0.1427, tit 0.000, iti 0.000, mlp_cos 0.000) | 23.9s/episode, ETA 1.73h
+[18:24:27 INFO]   [150/400] running 92.20 ± 0.67% | last loss 0.0041 (ce 0.0041, tit 0.000, iti 0.000, mlp_cos 0.000) | 23.9s/episode, ETA 1.66h
+[18:28:26 INFO]   [160/400] running 92.24 ± 0.65% | last loss 0.0191 (ce 0.0191, tit 0.000, iti 0.000, mlp_cos 0.000) | 23.9s/episode, ETA 1.59h
+[18:32:25 INFO]   [170/400] running 92.37 ± 0.63% | last loss 0.0833 (ce 0.0833, tit 0.000, iti 0.000, mlp_cos 0.000) | 23.9s/episode, ETA 1.53h
+[18:36:24 INFO]   [180/400] running 92.42 ± 0.62% | last loss 0.0007 (ce 0.0007, tit 0.000, iti 0.000, mlp_cos 0.000) | 23.9s/episode, ETA 1.46h
+[18:40:23 INFO]   [190/400] running 92.37 ± 0.60% | last loss 0.0009 (ce 0.0009, tit 0.000, iti 0.000, mlp_cos 0.000) | 23.9s/episode, ETA 1.39h
+[18:44:23 INFO]   [200/400] running 92.41 ± 0.58% | last loss 0.0289 (ce 0.0289, tit 0.000, iti 0.000, mlp_cos 0.000) | 23.9s/episode, ETA 1.33h
+[18:48:22 INFO]   [210/400] running 92.49 ± 0.56% | last loss 0.0035 (ce 0.0035, tit 0.000, iti 0.000, mlp_cos 0.000) | 23.9s/episode, ETA 1.26h
+[18:52:21 INFO]   [220/400] running 92.48 ± 0.55% | last loss 0.0059 (ce 0.0059, tit 0.000, iti 0.000, mlp_cos 0.000) | 23.9s/episode, ETA 1.20h
+[18:56:20 INFO]   [230/400] running 92.51 ± 0.54% | last loss 0.0062 (ce 0.0062, tit 0.000, iti 0.000, mlp_cos 0.000) | 23.9s/episode, ETA 1.13h
+[19:00:19 INFO]   [240/400] running 92.59 ± 0.54% | last loss 0.0097 (ce 0.0097, tit 0.000, iti 0.000, mlp_cos 0.000) | 23.9s/episode, ETA 1.06h
+[19:04:18 INFO]   [250/400] running 92.51 ± 0.53% | last loss 0.0207 (ce 0.0207, tit 0.000, iti 0.000, mlp_cos 0.000) | 23.9s/episode, ETA 1.00h
+[19:08:17 INFO]   [260/400] running 92.60 ± 0.52% | last loss 0.0492 (ce 0.0492, tit 0.000, iti 0.000, mlp_cos 0.000) | 23.9s/episode, ETA 0.93h
+[19:12:16 INFO]   [270/400] running 92.61 ± 0.51% | last loss 0.0039 (ce 0.0039, tit 0.000, iti 0.000, mlp_cos 0.000) | 23.9s/episode, ETA 0.86h
+[19:16:15 INFO]   [280/400] running 92.61 ± 0.50% | last loss 0.1676 (ce 0.1676, tit 0.000, iti 0.000, mlp_cos 0.000) | 23.9s/episode, ETA 0.80h
+[19:20:14 INFO]   [290/400] running 92.59 ± 0.49% | last loss 0.0012 (ce 0.0012, tit 0.000, iti 0.000, mlp_cos 0.000) | 23.9s/episode, ETA 0.73h
+[19:24:13 INFO]   [300/400] running 92.52 ± 0.48% | last loss 0.0045 (ce 0.0045, tit 0.000, iti 0.000, mlp_cos 0.000) | 23.9s/episode, ETA 0.66h
+[19:28:12 INFO]   [310/400] running 92.61 ± 0.47% | last loss 0.0955 (ce 0.0955, tit 0.000, iti 0.000, mlp_cos 0.000) | 23.9s/episode, ETA 0.60h
+[19:32:11 INFO]   [320/400] running 92.52 ± 0.49% | last loss 0.2200 (ce 0.2200, tit 0.000, iti 0.000, mlp_cos 0.000) | 23.9s/episode, ETA 0.53h
+[19:36:11 INFO]   [330/400] running 92.60 ± 0.48% | last loss 0.0113 (ce 0.0113, tit 0.000, iti 0.000, mlp_cos 0.000) | 23.9s/episode, ETA 0.46h
+[19:40:10 INFO]   [340/400] running 92.62 ± 0.47% | last loss 0.0065 (ce 0.0065, tit 0.000, iti 0.000, mlp_cos 0.000) | 23.9s/episode, ETA 0.40h
+[19:44:09 INFO]   [350/400] running 92.69 ± 0.46% | last loss 0.0265 (ce 0.0265, tit 0.000, iti 0.000, mlp_cos 0.000) | 23.9s/episode, ETA 0.33h
+[19:48:08 INFO]   [360/400] running 92.61 ± 0.47% | last loss 0.0020 (ce 0.0020, tit 0.000, iti 0.000, mlp_cos 0.000) | 23.9s/episode, ETA 0.27h
+[19:52:07 INFO]   [370/400] running 92.58 ± 0.46% | last loss 0.1340 (ce 0.1340, tit 0.000, iti 0.000, mlp_cos 0.000) | 23.9s/episode, ETA 0.20h
+[19:56:06 INFO]   [380/400] running 92.62 ± 0.45% | last loss 0.0144 (ce 0.0144, tit 0.000, iti 0.000, mlp_cos 0.000) | 23.9s/episode, ETA 0.13h
+[20:00:06 INFO]   [390/400] running 92.61 ± 0.45% | last loss 0.0023 (ce 0.0023, tit 0.000, iti 0.000, mlp_cos 0.000) | 23.9s/episode, ETA 0.07h
+[20:04:05 INFO]   [400/400] running 92.64 ± 0.44% | last loss 0.0012 (ce 0.0012, tit 0.000, iti 0.000, mlp_cos 0.000) | 23.9s/episode, ETA 0.00h
+[20:04:05 INFO] Final (episodic, nofsr_nocc_loraboth_r2_steps500_cnfull_loc0.1g1_sep1): 92.64 ± 0.44% (n_episodes=400)
+[20:04:05 INFO]   診斷：只用 CLS 92.38、只用 local 91.97、γ 1.000；融合 γ=0.1/0.3/0.5：92.47/92.59/92.63
