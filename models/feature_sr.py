@@ -52,6 +52,7 @@ class FeatureUpsampler(nn.Module):
         input_size: int = 14,
         scale: int = 2,
         use_residual: bool = True,
+        use_pos_embed: bool = True,
     ):
         super().__init__()
         self.feat_dim = feat_dim
@@ -59,6 +60,7 @@ class FeatureUpsampler(nn.Module):
         self.scale = scale
         self.output_size = input_size * scale
         self.use_residual = use_residual
+        self.use_pos_embed = use_pos_embed
 
         if use_residual:
             # Learnable residual: 1×1 conv → GELU → 1×1 conv
@@ -73,10 +75,12 @@ class FeatureUpsampler(nn.Module):
             self._init_residual_near_zero()
 
         # Learnable positional embedding for upsampled positions
-        self.pos_embed = nn.Parameter(
-            torch.zeros(1, self.output_size * self.output_size, feat_dim)
-        )
-        nn.init.trunc_normal_(self.pos_embed, std=0.02)
+        # 注意：std=0.02 × √512 ≈ 0.45，相對於 L2 normalize 後長度 1 的 patch 特徵是很大的隨機擾動
+        if use_pos_embed:
+            self.pos_embed = nn.Parameter(
+                torch.zeros(1, self.output_size * self.output_size, feat_dim)
+            )
+            nn.init.trunc_normal_(self.pos_embed, std=0.02)
 
     def _init_residual_near_zero(self):
         """初始化 residual network 的權重接近零，確保訓練初期不破壞原始特徵"""
@@ -123,7 +127,8 @@ class FeatureUpsampler(nn.Module):
         feat_up = feat_up.reshape(B, -1, d)     # [B, sH*sW, d]
 
         # Step 5: Add positional embedding
-        feat_up = feat_up + self.pos_embed
+        if self.use_pos_embed:
+            feat_up = feat_up + self.pos_embed
 
         return feat_up
 
@@ -279,22 +284,26 @@ class FeatureSRModule(nn.Module):
         refiner_mlp_ratio: float = 2.0,
         dropout: float = 0.0,
         use_residual: bool = True,
+        bilinear_only: bool = False,
     ):
+        """bilinear_only：純 bilinear 插值 + L2 normalize，無任何參數（不加 residual、位置編碼，也不經 refiner 的 ln_post）"""
         super().__init__()
 
         self.feat_dim = feat_dim
         self.input_size = input_size
         self.scale = scale
         self.output_size = input_size * scale
+        self.bilinear_only = bilinear_only
 
         self.upsampler = FeatureUpsampler(
             feat_dim=feat_dim,
             input_size=input_size,
             scale=scale,
-            use_residual=use_residual,
+            use_residual=use_residual and not bilinear_only,
+            use_pos_embed=not bilinear_only,
         )
 
-        self.refiner = FeatureRefiner(
+        self.refiner = nn.Identity() if bilinear_only else FeatureRefiner(
             feat_dim=feat_dim,
             n_layers=refiner_layers,
             n_heads=refiner_heads,

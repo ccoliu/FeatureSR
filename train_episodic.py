@@ -104,6 +104,15 @@ def parse_args():
     p.add_argument("--sr_refiner_layers", type=int, default=0)
     p.add_argument("--sr_refiner_heads", type=int, default=8)
     p.add_argument("--lambda3", type=float, default=0.3)
+    p.add_argument("--patch_smooth", type=int, default=1,
+                   help=">1 時先對 patch 網格做 n×n 平均池化（stride 1）再取 top-k；"
+                        "用來檢驗 28×28 bilinear 的增益是否只是「較平滑的池化」（見 reports/0930 步驟 2）")
+    p.add_argument("--eval_anyup", action="store_true",
+                   help="診斷：推論時另外用凍結的 AnyUp（arXiv 2510.12764）與 bilinear 把 14×14 patch 上採樣，"
+                        "在同一個模型上記錄 acc_any28 / acc_any56 / acc_bil28 等欄位；不影響訓練與主指標")
+    p.add_argument("--sr_upsampler", default="learned", choices=["learned", "bilinear"],
+                   help="learned：bilinear + 卷積 residual + 位置編碼（+ refiner）；"
+                        "bilinear：純插值、無任何參數（診斷用，見 reports/0930 步驟 2）")
 
     p.add_argument("--seed", type=int, default=42)
     p.add_argument("--no_amp", action="store_true")
@@ -132,7 +141,8 @@ def ce_augment(images: torch.Tensor) -> torch.Tensor:
 
 def default_tag(args) -> str:
     if args.use_feature_sr:
-        mode = f"fsr_s{args.sr_scale}_ref{args.sr_refiner_layers}_l3{args.lambda3:g}"
+        mode = (f"fsr_s{args.sr_scale}_bil" if args.sr_upsampler == "bilinear"
+                else f"fsr_s{args.sr_scale}_ref{args.sr_refiner_layers}_l3{args.lambda3:g}")
     else:
         mode = "nofsr"
     cc_name = "ccpaper" if args.cc_impl == "paper" else "cc"
@@ -144,19 +154,54 @@ def default_tag(args) -> str:
         loc = f"_loc{args.local_k_frac:g}g{args.local_gamma:g}{'L' if args.learn_gamma else ''}"
         if args.local_loss == "separate":
             loc += f"_sep{args.local_lambda:g}"
+    if args.patch_smooth > 1:
+        loc += f"_sm{args.patch_smooth}"
+    if args.eval_anyup:
+        loc += "_evany"
     if args.patch_mode != "plain":
         loc += f"_pm{args.patch_mode}"
     return f"{mode}_{cc}_lora{args.lora_encoder}_r{args.lora_r}_steps{args.steps}{cn}{loc}"
 
 
-def local_scores(patches: torch.Tensor, text_feat: torch.Tensor, k_frac: float) -> torch.Tensor:
+def local_scores(patches: torch.Tensor, text_feat: torch.Tensor, k_frac: float, smooth: int = 1) -> torch.Tensor:
     """patches [B, P, d]、text_feat [C, d]（皆已 L2 normalize）→ [B, C]，每個類別 top-k patch 相似度的平均"""
+    if smooth > 1:
+        B, P, d = patches.shape
+        H = math.isqrt(P)
+        grid = patches.transpose(1, 2).reshape(B, d, H, H)
+        grid = F.avg_pool2d(grid, smooth, stride=1, padding=smooth // 2, count_include_pad=False)
+        patches = F.normalize(grid.reshape(B, d, P).transpose(1, 2), dim=-1)
     sim = torch.einsum("bpd,cd->bcp", patches, text_feat)
     k = max(1, round(k_frac * patches.shape[1]))
     return sim.topk(k, dim=-1).values.mean(dim=-1)
 
 
-def run_episode(episode, clip_lora, args, device, cc_loss_fn, cr_loss_fn, use_amp):
+CLIP_MEAN = (0.48145466, 0.4578275, 0.40821073)
+CLIP_STD = (0.26862954, 0.26130258, 0.27577711)
+IMAGENET_MEAN = (0.485, 0.456, 0.406)
+IMAGENET_STD = (0.229, 0.224, 0.225)
+
+
+def clip_to_imagenet_norm(images: torch.Tensor) -> torch.Tensor:
+    """CLIP 正規化的影像 → ImageNet 正規化（AnyUp 的輸入要求）"""
+    c = lambda v: torch.tensor(v, device=images.device).view(1, 3, 1, 1)
+    return (images * c(CLIP_STD) + c(CLIP_MEAN) - c(IMAGENET_MEAN)) / c(IMAGENET_STD)
+
+
+def upsampled_variants(images, patches, anyup):
+    """patches [B, P, d]（14×14、已 L2 normalize）→ {名稱: [B, P', d]}，各種上採樣後再 L2 normalize"""
+    B, P, d = patches.shape
+    H = math.isqrt(P)
+    grid = patches.float().transpose(1, 2).reshape(B, d, H, H)
+    out = {"bil28": F.interpolate(grid, size=(2 * H, 2 * H), mode="bilinear", align_corners=False)}
+    with torch.autocast("cuda", enabled=False):
+        img = clip_to_imagenet_norm(images.float())
+        for s in (2, 4):
+            out[f"any{s * H}"] = anyup(img, grid, output_size=(s * H, s * H))
+    return {k: F.normalize(v.flatten(2).transpose(1, 2), dim=-1) for k, v in out.items()}
+
+
+def run_episode(episode, clip_lora, args, device, cc_loss_fn, cr_loss_fn, use_amp, anyup=None):
     support_images = episode["support_images"].to(device)
     support_labels = episode["support_labels"].to(device)
     query_images = episode["query_images"].to(device)
@@ -169,6 +214,7 @@ def run_episode(episode, clip_lora, args, device, cc_loss_fn, cr_loss_fn, use_am
         feature_sr = FeatureSRModule(
             feat_dim=clip_lora.clip.output_dim, input_size=14, scale=args.sr_scale,
             refiner_layers=args.sr_refiner_layers, refiner_heads=args.sr_refiner_heads,
+            bilinear_only=args.sr_upsampler == "bilinear",
         ).to(device)
 
     params = list(clip_lora.trainable_parameters())
@@ -215,12 +261,12 @@ def run_episode(episode, clip_lora, args, device, cc_loss_fn, cr_loss_fn, use_am
 
             sims = cls @ text_feat.T
             if args.local_score and args.local_loss == "separate":
-                loc = local_scores(patches, text_feat, args.local_k_frac)
+                loc = local_scores(patches, text_feat, args.local_k_frac, args.patch_smooth)
                 loss_ce = (F.cross_entropy(logit_scale * sims, labels)
                            + args.local_lambda * F.cross_entropy(logit_scale * loc, labels))
             else:
                 if args.local_score:
-                    sims = sims + gamma * local_scores(patches, text_feat, args.local_k_frac)
+                    sims = sims + gamma * local_scores(patches, text_feat, args.local_k_frac, args.patch_smooth)
                 loss_ce = F.cross_entropy(logit_scale * sims, labels)
             loss = loss_ce + args.lambda3 * loss_cr if feature_sr is not None else loss_ce
 
@@ -257,9 +303,10 @@ def run_episode(episode, clip_lora, args, device, cc_loss_fn, cr_loss_fn, use_am
         sim_cls = q_cls.float() @ text_feat.T
         acc = compute_few_shot_accuracy(sim_cls, query_labels)
         if args.local_score:
+            q_patches_raw = q_patches
             if feature_sr is not None:
                 q_patches, _ = feature_sr(q_patches, return_both=False)
-            sim_loc = local_scores(q_patches.float(), text_feat, args.local_k_frac)
+            sim_loc = local_scores(q_patches.float(), text_feat, args.local_k_frac, args.patch_smooth)
             # acc 是融合後的準確率（主指標）；另外記錄只用 CLS / 只用 local 的準確率供診斷
             last["acc_cls"] = acc
             last["acc_local"] = compute_few_shot_accuracy(sim_loc, query_labels)
@@ -267,6 +314,12 @@ def run_episode(episode, clip_lora, args, device, cc_loss_fn, cr_loss_fn, use_am
             # 其他 γ 的融合準確率只供診斷，不可拿來在測試 episode 上挑 γ
             for g in (0.1, 0.3, 0.5):
                 last[f"acc_g{g}"] = compute_few_shot_accuracy(sim_cls + g * sim_loc, query_labels)
+            if anyup is not None:
+                # 推論時上採樣的診斷（同一個模型、同一批 query）；上採樣後不再平滑
+                for name, up in upsampled_variants(query_images, q_patches_raw, anyup).items():
+                    sl = local_scores(up, text_feat, args.local_k_frac)
+                    last[f"acc_local_{name}"] = compute_few_shot_accuracy(sl, query_labels)
+                    last[f"acc_{name}"] = compute_few_shot_accuracy(sim_cls + float(gamma) * sl, query_labels)
     return acc, last
 
 
@@ -310,6 +363,12 @@ def main():
         cc_loss_fn = CyclicConsistencyLoss(top_k=args.top_k)
     cr_loss_fn = CrossResolutionConsistencyLoss(input_size=14, scale=args.sr_scale).to(device)
     use_amp = not args.no_amp
+    anyup = None
+    if args.eval_anyup:
+        anyup = torch.hub.load("wimmerth/anyup", "anyup_multi_backbone", use_natten=False,
+                               trust_repo=True, verbose=False).to(device).eval()
+        for prm in anyup.parameters():
+            prm.requires_grad_(False)
 
     accs = [done[e] for e in sorted(done)]
     t0 = time.time()
@@ -320,7 +379,7 @@ def main():
                 continue
             seed_everything(args.seed * 100003 + ep)
             episode = sampler.sample()
-            acc, last = run_episode(episode, clip_lora, args, device, cc_loss_fn, cr_loss_fn, use_amp)
+            acc, last = run_episode(episode, clip_lora, args, device, cc_loss_fn, cr_loss_fn, use_amp, anyup)
             f.write(json.dumps({"episode": ep, "acc": acc, "classes": episode["class_names"], **last}) + "\n")
             f.flush()
             accs.append(acc)
@@ -340,7 +399,7 @@ def main():
                "ci": ci, "n_episodes": len(accs), "args": vars(args)}
     if args.local_score:
         recs = [json.loads(l) for l in out_jsonl.read_text().splitlines() if l.strip()]
-        for key in ("acc_cls", "acc_local", "gamma", "acc_g0.1", "acc_g0.3", "acc_g0.5"):
+        for key in [k for k in recs[0] if k.startswith("acc_") or k == "gamma"]:
             vals = [r[key] for r in recs if key in r]
             if vals:
                 summary[f"mean_{key}"] = float(np.mean(vals))
