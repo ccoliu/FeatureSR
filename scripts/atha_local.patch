@@ -1,17 +1,21 @@
 --- coop_lora_trainer_aug.py	2026-09-27 14:54:20.789957909 +0800
-+++ coop_lora_trainer_local.py	2026-10-01 22:14:18.865241221 +0800
-@@ -1,3 +1,10 @@
++++ coop_lora_trainer_local.py	2026-10-02 18:35:19.463349872 +0800
+@@ -1,3 +1,14 @@
 +# coop_lora_trainer_local.py
 +# 由 coop_lora_trainer_aug.py 複製而來（FeatureSR 專案，2026-10-01），新增：
 +#   --local      patch 層級局部分數（value patch、分開監督：CE(CLS) + λ·CE(local)，推論 CLS + γ·local）
++#   --local_scale local 分支訓練時的 logit scale（預設同 CLS：5-shot 4）；推論融合一律在相似度空間做
 +#   --paired     episode 類別抽樣改用獨立 generator，且每個 episode 依 (seed, 編號) 重設全域種子，
 +#                讓 baseline 與 --local 跑的是同一批 episode、同樣的初始化，可逐 episode 配對比較
 +#   --out_jsonl  逐 episode 結果（格式同 FeatureSR 的 train_episodic.py，可直接用 scripts/paired_diff.py）
++#   --dump_dir   推論後把 query / support（不增強的視角）的 CLS、value patch、plain patch，以及 CoOp 與固定 prompt
++#                的文字特徵存成 ep####.npz，供 FeatureSR 的 scripts/analyze_dump.py 離線比較各種推論時的訊號。
++#                全部在 eval + no_grad 下計算（不啟用 dropout、不消耗亂數），不影響訓練與主指標。
 +# 兩個旗標都不加時，行為與 coop_lora_trainer_aug.py 相同。
  import numpy as np
  import torch
  import torch.nn as nn
-@@ -5,6 +12,7 @@
+@@ -5,11 +16,14 @@
  import torch.optim
  import random
  import os
@@ -19,7 +23,15 @@
  
  import torch.optim
  from itertools import combinations
-@@ -226,6 +234,22 @@
+ import h5py
+-from data.datamgr_aug import SetDataManager # use this line if aug is not used
++from data.datamgr_aug import SetDataManager as SetDataManagerAug
++from data.datamgr import SetDataManager as SetDataManagerPlain   # 不加 -aug 時用原本的 datamgr（datamgr_aug 在 aug=False 時無法運作）
++SetDataManager = SetDataManagerAug   # 模組層級維持原本的名稱（miniImageNet 那段函式會用到）
+ #from data.datamgr_aug import SetDataManager # use this line if aug
+ from options.options_coop_lora import parse_args
+ from find_name_novel import return_novel_label_names
+@@ -226,6 +240,22 @@
          self.text_encoder = TextEncoder(clip_model, params)
          self.logit_scale = clip_model.logit_scale
          self.dtype = clip_model.dtype
@@ -42,7 +54,7 @@
  
  
      def forward(self, image, label=None, params=None, sp_img=None):
-@@ -258,6 +282,13 @@
+@@ -258,6 +288,13 @@
  
          logits = logit_scale * image_features @ text_features.t()
  
@@ -51,12 +63,63 @@
 +            sim = torch.einsum("bpd,cd->bcp", patches, text_features.float())
 +            k = max(1, round(params.local_k_frac * patches.shape[1]))
 +            local = sim.topk(k, dim=-1).values.mean(dim=-1)
-+            return logits, logit_scale * local
++            return logits, local          # 原始相似度；訓練與推論時再各自乘上 scale
 +
          if sp_img is not None:
              logits = logits + params.aux_param * image_features @ sp_img_feats.t() * logit_scale
  
-@@ -417,6 +448,8 @@
+@@ -390,6 +427,50 @@
+         print("miniImagenet loader exhausted, resetting...")
+         return
+ 
++def extract_feats(model, images, params):
++    """eval + no_grad 下取 CLS、value patch（MaskCLIP 式）、plain patch，皆 L2 normalize：[B, d]、[B, P, d]、[B, P, d]"""
++    enc = model.image_encoder
++    blk = enc.transformer.resblocks[-1]
++    cache = {}
++    h_in = blk.register_forward_pre_hook(lambda m, a: cache.__setitem__("in", a[0]))
++    h_out = blk.register_forward_hook(lambda m, a, o: cache.__setitem__("out", o))
++    try:
++        with torch.amp.autocast(device_type="cuda", dtype=torch.float16):
++            cls = enc(images, params)
++            val = blk.attn.proj(blk.attn.v_proj(blk.ln_1(cache["in"][1:])))
++            val = enc.ln_post(val) @ enc.proj
++            plain = enc.ln_post(cache["out"][1:]) @ enc.proj
++    finally:
++        h_in.remove(); h_out.remove()
++    norm = lambda t: F.normalize(t.float(), dim=-1)
++    return norm(cls), norm(val.permute(1, 0, 2)), norm(plain.permute(1, 0, 2))
++
++
++def text_feats(model, clip_model, classnames, params):
++    """CoOp 學到的 prompt 與固定 prompt「a photo of a {name}.」經訓練後文字編碼器的特徵，皆 L2 normalize"""
++    with torch.amp.autocast(device_type="cuda", dtype=torch.float16):
++        t_coop = model.text_encoder(model.prompt_learner(), model.tokenized_prompts, params=params)
++        tok = torch.cat([clip.tokenize("a photo of a %s." % n.replace("_", " ")) for n in classnames])
++        emb_layer = clip_model.token_embedding           # 不屬於 CustomCLIP，仍在 CPU
++        emb = emb_layer(tok.to(emb_layer.weight.device)).type(torch.float16).cuda()
++        t_hand = model.text_encoder(emb, tok, params=params)
++    return F.normalize(t_coop.float(), dim=-1), F.normalize(t_hand.float(), dim=-1)
++
++
++def dump_episode(path, model, clip_model, params, x_query, x_support, classnames, idxs, output, n_way, n_query, n_support):
++    with torch.no_grad():
++        q_cls, q_val, q_plain = extract_feats(model, x_query.cuda(), params)
++        s_cls, s_val, s_plain = extract_feats(model, x_support.cuda(), params)
++        t_coop, t_hand = text_feats(model, clip_model, classnames, params)   # 最後才算：會覆寫 aux_container 的文字欄位
++    h = lambda t: t.half().cpu().numpy()
++    np.savez(path, q_cls=h(q_cls), q_val=h(q_val), q_plain=h(q_plain),
++             s_cls=h(s_cls), s_val=h(s_val), s_plain=h(s_plain),
++             t_coop=t_coop.cpu().numpy(), t_hand=t_hand.cpu().numpy(),
++             q_logits=output.float().cpu().numpy(),
++             q_y=np.repeat(range(n_way), n_query), s_y=np.repeat(range(n_way), n_support),
++             classes=np.array([int(c) for c in idxs]))
++
++
+ def log(out, log_str):
+     out.write(log_str + '\n')
+     out.flush()
+@@ -417,11 +498,14 @@
  
      total_num = 0
      iter_num = 800 if args.n_shot == 1 else 400
@@ -65,7 +128,13 @@
      acc_all = []
  
      image_size = 224
-@@ -512,6 +545,9 @@
+     split = args.split
+     loadfile = os.path.join(args.data_path, dataset, split + '.json')
++    SetDataManager = SetDataManagerAug if args.aug else SetDataManagerPlain
+     datamgr = SetDataManager(image_size, n_way, n_support, n_query, n_eposide = iter_num)
+     data_loader = datamgr.get_data_loader(loadfile, aug = args.aug)
+ 
+@@ -512,6 +596,9 @@
          else:
              idxs = [row[0].item() for row in y]
          batch_classnames = [label_names[idx] for idx in idxs]
@@ -75,20 +144,22 @@
          
          clip_model = load_clip_to_cpu(args)
          list_lora_layers = apply_lora(args, clip_model)
-@@ -638,7 +674,11 @@
+@@ -638,7 +725,13 @@
          
  
                  logits = coop_lora_model(z_batch, params=params)#, sp_img=x_a_i)
 -                loss = F.cross_entropy(logits, y_batch)#+ params.loss_rate*F.cross_entropy(pre_logits, y_batch)
 +                if params.local:
-+                    logits, logits_local = logits
-+                    loss = F.cross_entropy(logits, y_batch) + params.local_lambda * F.cross_entropy(logits_local, y_batch)
++                    logits, local_sim = logits
++                    # local 分支的 logit scale 預設與 CLS 相同（5-shot 4、1-shot 2）；--local_scale 可另外指定（如 100，讓 CE 能飽和）
++                    s_loc = params.local_scale if params.local_scale else (4 if params.n_shot == 5 else 2)
++                    loss = F.cross_entropy(logits, y_batch) + params.local_lambda * F.cross_entropy(s_loc * local_sim, y_batch)
 +                else:
 +                    loss = F.cross_entropy(logits, y_batch)#+ params.loss_rate*F.cross_entropy(pre_logits, y_batch)
         
  
                  loss.backward()
-@@ -658,6 +698,12 @@
+@@ -658,6 +751,18 @@
          
          with torch.no_grad():
              output = coop_lora_model(x_b_i.cuda(), params=params)#, sp_img=x_a_i.cuda())
@@ -97,11 +168,17 @@
 +            out_cls, out_local = output
 +            acc_of = lambda o: float((o.argmax(dim=1).cpu().numpy() == np.repeat(range(n_way), n_query)).mean() * 100)
 +            extra = {"acc_cls": acc_of(out_cls), "acc_local": acc_of(out_local)}
-+            output = out_cls.float() + params.local_gamma * out_local.float()
++            # 在相似度空間融合：CLS·T + γ·local，再乘 CLS 的 scale（與 --local_scale 無關）
++            output = out_cls.float() + params.local_gamma * (4 if params.n_shot == 5 else 2) * out_local.float()
++        if params.dump_dir:
++            os.makedirs(params.dump_dir, exist_ok=True)
++            dump_episode(os.path.join(params.dump_dir, "ep%04d.npz" % i), coop_lora_model, clip_model, params,
++                         x_b_i, sup_x[0] if params.aug else x_a_i, batch_classnames, idxs, output,
++                         n_way, n_query, n_support)
  
        
        
-@@ -672,6 +718,10 @@
+@@ -672,6 +777,10 @@
          top1_correct = np.sum(topk_ind[:,0] == y_query)
          correct_this, count_this = float(top1_correct), len(y_query)
          acc_all.append((correct_this/ count_this *100))
@@ -112,7 +189,7 @@
          
          acc_all_np = np.asarray(acc_all); acc_mean = np.mean(acc_all_np); acc_std = np.std(acc_all_np)
          log_str = log_str + ' Query Acc = %4.2f, Avg Acc = %4.2f%% +- %4.2f%%'%(correct_this/ count_this *100, acc_mean, 1.96 * acc_std/np.sqrt(total_num+1))
-@@ -702,7 +752,29 @@
+@@ -702,7 +811,32 @@
  if __name__ == '__main__':
  
      # parse argument
@@ -125,6 +202,8 @@
 +    extra_parser.add_argument("--paired", action="store_true")
 +    extra_parser.add_argument("--out_jsonl", default=None)
 +    extra_parser.add_argument("--n_episodes", type=int, default=None)
++    extra_parser.add_argument("--dump_dir", default=None)
++    extra_parser.add_argument("--local_scale", type=float, default=None)
 +    extra, rest = extra_parser.parse_known_args()
 +    sys.argv = [sys.argv[0]] + rest
      params = parse_args('test')
@@ -133,12 +212,13 @@
 +
 +    if params.paired:
 +        # episode 的類別改用獨立 generator 抽樣，不受訓練過程消耗的全域亂數影響
-+        import data.dataset_aug as _dsa
++        import data.dataset_aug as _dsa, data.dataset as _ds
 +        _gen = torch.Generator().manual_seed(params.seed)
 +        def _fixed_iter(self):
 +            for _ in range(self.n_episodes):
 +                yield torch.randperm(self.n_classes, generator=_gen)[:self.n_way]
 +        _dsa.EpisodicBatchSampler.__iter__ = _fixed_iter
++        _ds.EpisodicBatchSampler.__iter__ = _fixed_iter
      
      seed = params.seed
      print("set seed = %d" % seed)

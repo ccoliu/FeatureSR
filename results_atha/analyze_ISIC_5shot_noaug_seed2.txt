@@ -1,0 +1,81 @@
+100 個 episode  /home/ccoliu/atha_dumps/ISIC_5shot_noaug_seed2
+cls 重算預測與模型輸出一致的比例：1.0000（應為 1）
+baseline（cls）：51.89
+
+訊號                     融合        權重     準確率         − baseline（配對）
+txt_coop_val           alone          49.39     -2.51 ± 0.95 *
+txt_coop_val           raw     0.25   51.93     +0.04 ± 0.18
+txt_coop_val           raw      0.5   51.77     -0.12 ± 0.26
+txt_coop_val           raw        1   51.65     -0.24 ± 0.37
+txt_coop_val           raw        2   51.48     -0.41 ± 0.47
+txt_coop_val           z       0.25   51.73     -0.16 ± 0.31
+txt_coop_val           z        0.5   51.73     -0.16 ± 0.41
+txt_coop_val           z          1   51.45     -0.44 ± 0.54
+txt_hand_val           alone          49.37     -2.52 ± 0.93 *
+txt_hand_val           raw     0.25   51.96     +0.07 ± 0.19
+txt_hand_val           raw      0.5   51.84     -0.05 ± 0.27
+txt_hand_val           raw        1   51.65     -0.24 ± 0.36
+txt_hand_val           raw        2   51.55     -0.35 ± 0.47
+txt_hand_val           z       0.25   51.76     -0.13 ± 0.30
+txt_hand_val           z        0.5   51.68     -0.21 ± 0.42
+txt_hand_val           z          1   51.48     -0.41 ± 0.54
+dn4_val_all            alone          49.55     -2.35 ± 0.80 *
+dn4_val_all            raw     0.25   51.77     -0.12 ± 0.15
+dn4_val_all            raw      0.5   51.68     -0.21 ± 0.21 *
+dn4_val_all            raw        1   51.71     -0.19 ± 0.25
+dn4_val_all            raw        2   51.65     -0.24 ± 0.35
+dn4_val_all            z       0.25   51.76     -0.13 ± 0.29
+dn4_val_all            z        0.5   51.39     -0.51 ± 0.39 *
+dn4_val_all            z          1   51.12     -0.77 ± 0.54 *
+dn4_val_top            alone          48.55     -3.35 ± 1.00 *
+dn4_val_top            raw     0.25   51.91     +0.01 ± 0.10
+dn4_val_top            raw      0.5   51.87     -0.03 ± 0.15
+dn4_val_top            raw        1   51.83     -0.07 ± 0.22
+dn4_val_top            raw        2   51.69     -0.20 ± 0.28
+dn4_val_top            z       0.25   51.80     -0.09 ± 0.32
+dn4_val_top            z        0.5   51.48     -0.41 ± 0.43
+dn4_val_top            z          1   51.28     -0.61 ± 0.58 *
+txt_coop_plain         alone          48.71     -3.19 ± 0.85 *
+txt_coop_plain         raw     0.25   51.83     -0.07 ± 0.20
+txt_coop_plain         raw      0.5   51.79     -0.11 ± 0.29
+txt_coop_plain         raw        1   51.48     -0.41 ± 0.38 *
+txt_coop_plain         raw        2   51.23     -0.67 ± 0.48 *
+txt_coop_plain         z       0.25   51.73     -0.16 ± 0.33
+txt_coop_plain         z        0.5   51.40     -0.49 ± 0.43 *
+txt_coop_plain         z          1   50.99     -0.91 ± 0.56 *
+txt_hand_plain         alone          48.69     -3.20 ± 0.83 *
+txt_hand_plain         raw     0.25   51.84     -0.05 ± 0.20
+txt_hand_plain         raw      0.5   51.81     -0.08 ± 0.28
+txt_hand_plain         raw        1   51.49     -0.40 ± 0.36 *
+txt_hand_plain         raw        2   51.21     -0.68 ± 0.49 *
+txt_hand_plain         z       0.25   51.72     -0.17 ± 0.33
+txt_hand_plain         z        0.5   51.29     -0.60 ± 0.42 *
+txt_hand_plain         z          1   51.00     -0.89 ± 0.58 *
+dn4_plain_all          alone          49.48     -2.41 ± 0.73 *
+dn4_plain_all          raw     0.25   51.77     -0.12 ± 0.23
+dn4_plain_all          raw      0.5   51.80     -0.09 ± 0.26
+dn4_plain_all          raw        1   51.65     -0.24 ± 0.31
+dn4_plain_all          raw        2   51.37     -0.52 ± 0.42 *
+dn4_plain_all          z       0.25   51.80     -0.09 ± 0.29
+dn4_plain_all          z        0.5   51.49     -0.40 ± 0.40 *
+dn4_plain_all          z          1   51.04     -0.85 ± 0.48 *
+dn4_plain_top          alone          49.51     -2.39 ± 0.82 *
+dn4_plain_top          raw     0.25   51.88     -0.01 ± 0.15
+dn4_plain_top          raw      0.5   51.84     -0.05 ± 0.20
+dn4_plain_top          raw        1   51.77     -0.12 ± 0.25
+dn4_plain_top          raw        2   51.63     -0.27 ± 0.32
+dn4_plain_top          z       0.25   51.65     -0.24 ± 0.30
+dn4_plain_top          z        0.5   51.57     -0.32 ± 0.40
+dn4_plain_top          z          1   51.24     -0.65 ± 0.48 *
+proto                  alone          51.97     +0.08 ± 0.17
+proto                  raw     0.25   51.89     +0.00 ± 0.06
+proto                  raw      0.5   51.93     +0.04 ± 0.11
+proto                  raw        1   51.92     +0.03 ± 0.12
+proto                  raw        2   51.92     +0.03 ± 0.14
+proto                  z       0.25   51.89     +0.00 ± 0.06
+proto                  z        0.5   51.93     +0.04 ± 0.11
+proto                  z          1   51.92     +0.03 ± 0.12
+
+配對差平均最大的融合設定：txt_hand_val:raw:0.25（+0.07 ± 0.19）
+
+* = 配對 CI 不含 0

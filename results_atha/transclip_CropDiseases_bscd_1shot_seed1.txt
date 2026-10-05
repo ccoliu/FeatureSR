@@ -1,0 +1,7 @@
+800 個 episode  /home/ccoliu/atha_dumps/CropDiseases_bscd_1shot_seed1
+baseline（inductive，模型輸出）：86.54
+
+設定（初始化:gamma）              準確率         − baseline（配對）
+model2:0.002             91.02     +4.48 ± 0.31 *
+
+* = 配對 CI 不含 0

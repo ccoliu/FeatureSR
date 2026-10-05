@@ -1,0 +1,7 @@
+400 個 episode  /home/ccoliu/atha_dumps/ChestX_5shot_seed1
+baseline（inductive，模型輸出）：24.58
+
+設定（初始化:gamma）              準確率         − baseline（配對）
+model4:0.002             24.51     -0.07 ± 0.22
+
+* = 配對 CI 不含 0

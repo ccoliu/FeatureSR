@@ -1,0 +1,7 @@
+800 個 episode  /home/ccoliu/atha_dumps/ISIC_1shot_seed1
+baseline（inductive，模型輸出）：37.86
+
+設定（初始化:gamma）              準確率         − baseline（配對）
+model2:0.002             38.91     +1.05 ± 0.25 *
+
+* = 配對 CI 不含 0
