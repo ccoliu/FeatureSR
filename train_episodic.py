@@ -24,6 +24,7 @@ Semantic Anchor 的 A 個增強視角（水平翻轉 / ±15° 旋轉，與 train
 每個 episode 的準確率即時寫入 .jsonl，中斷後重跑同一指令會自動從斷點續跑。
 """
 import argparse
+from contextlib import contextmanager
 import json
 import logging
 import math
@@ -99,6 +100,14 @@ def parse_args():
     p.add_argument("--patch_mode", default="plain", choices=["plain", "value"],
                    help="plain：最後一層完整輸出；value：MaskCLIP 式 value→out_proj（見 CLIPWrapper）")
 
+    p.add_argument("--limo", action="store_true",
+                   help="LIMO（Baklouti et al., 2025；github.com/ghassenbaklouti/LIMO）transductive 微調："
+                        "每步另取該 episode 的 query（不用標註）加入條件熵、對 zero-shot 預測的 KL、邊際分布對均勻分布的 KL")
+    p.add_argument("--limo_unlabeled", type=int, default=24, help="每步取用的無標註 query 數（LIMO：batch 32、標註:無標註 = 1:3）")
+    p.add_argument("--limo_ent", type=float, default=1.0, help="條件熵權重（LIMO 預設 1）")
+    p.add_argument("--limo_text", type=float, default=0.1, help="對 zero-shot 預測的 KL 權重（LIMO 預設 0.1）")
+    p.add_argument("--limo_marg", type=float, default=10.0, help="邊際分布對均勻分布的 KL 權重（LIMO 預設 10）")
+
     p.add_argument("--use_feature_sr", action="store_true")
     p.add_argument("--sr_scale", type=int, default=2)
     p.add_argument("--sr_refiner_layers", type=int, default=0)
@@ -158,6 +167,10 @@ def default_tag(args) -> str:
         loc += f"_sm{args.patch_smooth}"
     if args.eval_anyup:
         loc += "_evany"
+    if args.limo:
+        loc += f"_limo{args.limo_unlabeled}"
+        if (args.limo_ent, args.limo_text, args.limo_marg) != (1.0, 0.1, 10.0):
+            loc += f"e{args.limo_ent:g}t{args.limo_text:g}m{args.limo_marg:g}"
     if args.patch_mode != "plain":
         loc += f"_pm{args.patch_mode}"
     return f"{mode}_{cc}_lora{args.lora_encoder}_r{args.lora_r}_steps{args.steps}{cn}{loc}"
@@ -201,6 +214,32 @@ def upsampled_variants(images, patches, anyup):
     return {k: F.normalize(v.flatten(2).transpose(1, 2), dim=-1) for k, v in out.items()}
 
 
+@contextmanager
+def lora_disabled(clip_lora):
+    """暫時把所有 LoRA 的縮放係數設為 0 並切到 eval：模型即等於原始 CLIP（LIMO 的 zero-shot 參考模型）"""
+    old = [layer.scaling for layer in clip_lora.lora_layers]
+    was_training = clip_lora.training
+    for layer in clip_lora.lora_layers:
+        layer.scaling = 0.0
+    clip_lora.eval()
+    try:
+        yield
+    finally:
+        for layer, sc in zip(clip_lora.lora_layers, old):
+            layer.scaling = sc
+        clip_lora.train(was_training)
+
+
+def limo_losses(u_logits, zs_logits):
+    """LIMO 的三項無標註損失（同官方 limo.py）：條件熵、KL(zero-shot ‖ 目前)、KL(均勻 ‖ 邊際分布)"""
+    u_logits, zs_logits = u_logits.float(), zs_logits.float()
+    ent = -(u_logits.softmax(1) * u_logits.log_softmax(1)).sum(1).mean()
+    kl_text = F.kl_div(F.log_softmax(u_logits, -1), F.softmax(zs_logits, -1), reduction="batchmean")
+    marg = F.softmax(u_logits, -1).mean(0) + 1e-5
+    kl_marg = F.kl_div(marg.log(), torch.full_like(marg, 1.0 / marg.numel()), reduction="batchmean")
+    return ent, kl_text, kl_marg
+
+
 def run_episode(episode, clip_lora, args, device, cc_loss_fn, cr_loss_fn, use_amp, anyup=None):
     support_images = episode["support_images"].to(device)
     support_labels = episode["support_labels"].to(device)
@@ -238,6 +277,13 @@ def run_episode(episode, clip_lora, args, device, cc_loss_fn, cr_loss_fn, use_am
     scaler = torch.cuda.amp.GradScaler(enabled=use_amp)
     use_cc = args.lambda1 > 0 or args.lambda2 > 0
     logit_scale = clip_lora.clip.model.logit_scale.exp().detach()
+
+    zs_text = None
+    if args.limo:
+        # zero-shot 文字特徵只需算一次（LoRA 失效時模型即原始 CLIP）
+        with torch.no_grad(), lora_disabled(clip_lora), torch.autocast("cuda", dtype=torch.float16, enabled=use_amp):
+            zs_text = clip_lora.encode_text(class_names, dataset_name=args.dataset, display_names=args.class_names == "full")
+    loss_ent = loss_kl_text = loss_kl_marg = torch.zeros((), device=device)
 
     clip_lora.train()
     if feature_sr is not None:
@@ -283,6 +329,18 @@ def run_episode(episode, clip_lora, args, device, cc_loss_fn, cr_loss_fn, use_am
                     loss_tit, loss_iti = cc_out
                 loss = loss + args.lambda1 * loss_tit + args.lambda2 * loss_iti
 
+            if args.limo:
+                # 標註部分（上面的 CE）與 baseline 完全相同；另取 limo_unlabeled 個 query（不用標註），同樣做增強
+                u_imgs = query_images[torch.randperm(query_images.shape[0], device=device)[:args.limo_unlabeled]]
+                if not args.no_ce_aug:
+                    u_imgs = ce_augment(u_imgs)
+                with torch.no_grad(), lora_disabled(clip_lora):
+                    zs_cls, _ = clip_lora.encode_image_with_patches(u_imgs)
+                u_cls, _ = clip_lora.encode_image_with_patches(u_imgs, patch_mode=args.patch_mode)
+                loss_ent, loss_kl_text, loss_kl_marg = limo_losses(logit_scale * u_cls @ text_feat.T,
+                                                                   logit_scale * zs_cls @ zs_text.T)
+                loss = loss + args.limo_ent * loss_ent + args.limo_text * loss_kl_text + args.limo_marg * loss_kl_marg
+
         optimizer.zero_grad(set_to_none=True)
         scaler.scale(loss).backward()
         scaler.step(optimizer)
@@ -292,6 +350,8 @@ def run_episode(episode, clip_lora, args, device, cc_loss_fn, cr_loss_fn, use_am
     last = {"loss": loss.item(), "ce": loss_ce.item(), "tit": loss_tit.item(),
             "iti": loss_iti.item(), "cr": loss_cr.item(), "mlp_cos": mlp_cos.item(),
             "gamma": float(gamma)}
+    if args.limo:
+        last.update({"limo_ent": loss_ent.item(), "limo_kl_text": loss_kl_text.item(), "limo_kl_marg": loss_kl_marg.item()})
 
     clip_lora.eval()
     if feature_sr is not None:
